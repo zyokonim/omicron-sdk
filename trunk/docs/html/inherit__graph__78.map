@@ -1,0 +1,4 @@
+<map id="G" name="G">
+<area shape="rect" id="node1" href="$classomicron_1_1_data_source.html" title="omicron::DataSource" alt="" coords="5,5,149,35"/>
+<area shape="rect" id="node3" href="$classomicron_1_1_filesystem_data_source.html" title="omicron::FilesystemDataSource" alt="" coords="197,5,405,35"/>
+</map>
