@@ -64,7 +64,7 @@ if(OMICRON_BINARY_DIR)
 		
 	endif(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
 
-	set(OMICRON_LIB debug ${OMICRON_LIB_DEBUG} debug optimized ${OMICRON_LIB_RELEASE})
+	set(OMICRON_LIB debug ${OMICRON_LIB_DEBUG} optimized ${OMICRON_LIB_RELEASE})
 	
 	###################################################################################################
 	# Visual studio specific options.

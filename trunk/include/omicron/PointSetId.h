@@ -37,7 +37,7 @@
 #endif
 #endif
 
-namespace omega
+namespace omicron
 {
 #ifdef OMEGA_USE_OPENNI
 	enum PointSetId

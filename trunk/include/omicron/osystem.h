@@ -24,8 +24,8 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-#ifndef __OSYSTEM_H__
-#define __OSYSTEM_H__
+#ifndef __OMICRON_SYSTEM_H__
+#define __OMICRON_SYSTEM_H__
 
 #include "osysdefs.h"
 
