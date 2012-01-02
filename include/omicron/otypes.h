@@ -24,8 +24,8 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-#ifndef __OTYPES_H__
-#define __OTYPES_H__
+#ifndef __OMICRON_TYPES_H__
+#define __OMICRON_TYPES_H__
 
 #include "osysdefs.h"
 
@@ -109,10 +109,6 @@ namespace omicron
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////
-	// Forward declarations
-	class Application;
 
 	// Basic typedefs
 	typedef unsigned char byte;

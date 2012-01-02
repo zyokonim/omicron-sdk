@@ -26,6 +26,7 @@
 #define __OMICRON__
 
 #include "osysdefs.h"
+#include "omicron/libconfig/ArgumentHelper.h"
 #include "omicron/ByteArray.h"
 #include "omicron/Color.h"
 #include "omicron/Config.h"
@@ -34,11 +35,13 @@
 #include "omicron/FileDataStream.h"
 #include "omicron/FilesystemDataSource.h"
 #include "omicron/IEventListener.h"
+#include "omicron/PointSetId.h"
 #include "omicron/Lock.h"
 #include "omicron/Service.h"
 #include "omicron/ServiceManager.h"
 #include "omicron/StringUtils.h"
 #include "omicron/TypeInfo.h"
+#include "omicron/Tcp.h"
 #include "omicron/xml/tinyxml.h"
 
 #endif

@@ -99,7 +99,7 @@ namespace omicron
 	class Event: public DynamicObject
 	{
 	// Friend the class that implements methods used for event serialization by equalizer.
-	friend class EqUtils; 
+	friend class EventUtils; 
 	friend class Service; 
 	public:
 		static const int ExtraDataSize = 1024;
