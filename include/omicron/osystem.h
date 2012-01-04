@@ -47,11 +47,15 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WIN32 Platform-specific includes & macros.
 #ifdef WIN32
+	#ifdef OMICRON_SHARED
 	#define WIN32_LEAN_AND_MEAN
 	#ifdef OMICRON_EXPORTING
 		#define OMICRON_API    __declspec(dllexport)
 	#else
 		#define OMICRON_API    __declspec(dllimport)
+	#endif
+	#else
+		#define OMICRON_API
 	#endif
 #else
 	#define OMICRON_API

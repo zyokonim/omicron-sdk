@@ -34,8 +34,8 @@
 #import  "optitrack/optitrack.tlb"
 
 #ifdef WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
+//#include <winsock2.h>
+//#include <ws2tcpip.h>
 #include <objbase.h>
 #include <atlbase.h>
 #endif

@@ -215,7 +215,7 @@ source_group(omicron::tinythread REGULAR_EXPRESSION omicron/tinythread)
 ###################################################################################################
 # Create the library with the provided sources and headers
 enable_precompiled_headers(omicron/precompiled.h srcs)
-add_library( omicron SHARED ${srcs} ${csrcs} ${headers})
+add_library( omicron ${srcs} ${csrcs} ${headers})
 
 ###################################################################################################
 # Setup module-specific link info

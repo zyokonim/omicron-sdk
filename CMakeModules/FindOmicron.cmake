@@ -54,17 +54,31 @@ if(OMICRON_BINARY_DIR)
 		# Since visual studio and Xcode builds are multiconfiguration, set two separate directories for debug and release builds
 		
 		# omicron
-		find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_LIB_DIR_DEBUG})
-		find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_LIB_DIR_RELEASE})
-		
+		if(OMICRON_SHARED)
+			find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_BIN_DIR_DEBUG})
+			find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_BIN_DIR_RELEASE})
+		else(OMICRON_SHARED)
+			find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_LIB_DIR_DEBUG})
+			find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_LIB_DIR_RELEASE})
+		endif(OMICRON_SHARED)
 	else(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
 		# omicron
-		find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_BIN_DIR})
-		find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_BIN_DIR})
+		if(OMICRON_SHARED)
+			find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_BIN_DIR})
+			find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_BIN_DIR})
+		else(OMICRON_SHARED)
+			find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_LIB_DIR})
+			find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_LIB_DIR})
+		endif(OMICRON_SHARED)
 		
 	endif(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
 
 	set(OMICRON_LIB debug ${OMICRON_LIB_DEBUG} optimized ${OMICRON_LIB_RELEASE})
+	
+	# On linux, asio depends on pthreads so add it as a dependency.
+	if(UNIX)
+		set(OMICRON_LIB ${OMICRON_LIB} pthread)
+	endif(UNIX)
 	
 	###################################################################################################
 	# Visual studio specific options.
