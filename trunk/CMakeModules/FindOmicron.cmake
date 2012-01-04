@@ -29,7 +29,7 @@ if(COMMAND cmake_policy)
       #cmake_policy(SET CMP0008 NEW)
 endif(COMMAND cmake_policy)
 
-set(OMICRON_BINARY_DIR CACHE PATH "Path of the omegalib bin directory (the one containing the include, bin and lib folders")
+set(OMICRON_BINARY_DIR ${OMICRON_DEFAULT_BINARY_DIR} CACHE PATH "Path of the omegalib bin directory (the one containing the include, bin and lib folders")
 
 if(OMICRON_BINARY_DIR)
 	include(${OMICRON_BINARY_DIR}/UseOmicron.cmake)
@@ -51,24 +51,17 @@ if(OMICRON_BINARY_DIR)
 	###################################################################################################
 	# Set the output directories for libraries and binary files
 	if(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
-		# Since visual studio and Xcode builds are multiconfiguration, set two separate directories for debug and release builds
-		
 		# omicron
-		if(OMICRON_SHARED)
-			find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_BIN_DIR_DEBUG})
-			find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_BIN_DIR_RELEASE})
-		else(OMICRON_SHARED)
-			find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_LIB_DIR_DEBUG})
-			find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_LIB_DIR_RELEASE})
-		endif(OMICRON_SHARED)
+		set(OMICRON_LIB_DEBUG ${OMICRON_LIB_DIR_DEBUG}/omicron.lib)
+		set(OMICRON_LIB_RELEASE ${OMICRON_LIB_DIR_RELEASE}/omicron.lib)
 	else(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
 		# omicron
 		if(OMICRON_SHARED)
-			find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_BIN_DIR})
-			find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_BIN_DIR})
+			set(OMICRON_LIB_DEBUG ${OMICRON_BIN_DIR}/libomicron.so)
+			set(OMICRON_LIB_RELEASE ${OMICRON_BIN_DIR}/libomicron.so)
 		else(OMICRON_SHARED)
-			find_library(OMICRON_LIB_DEBUG NAMES omicron PATHS ${OMICRON_LIB_DIR})
-			find_library(OMICRON_LIB_RELEASE NAMES omicron PATHS ${OMICRON_LIB_DIR})
+			set(OMICRON_LIB_DEBUG ${OMICRON_LIB_DIR}/libomicron.a)
+			set(OMICRON_LIB_RELEASE ${OMICRON_LIB_DIR}/libomicron.a)
 		endif(OMICRON_SHARED)
 		
 	endif(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
