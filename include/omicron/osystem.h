@@ -59,9 +59,6 @@
 
 #include "otypes.h"
 
-// Include the omega type class, used for RTTI
-#include <omicron/TypeInfo.h>
-
 // Forward declaration of DataSource, used for omain
 namespace omicron 
 { 

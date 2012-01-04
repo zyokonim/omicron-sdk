@@ -27,6 +27,7 @@
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 include(ExternalProject)
 include(OmicronAddTutorial)
+include(UsePch)
 
 include(${CMAKE_SOURCE_DIR}/external/UseBoost.cmake)
 include(${CMAKE_SOURCE_DIR}/external/UseAsio.cmake)

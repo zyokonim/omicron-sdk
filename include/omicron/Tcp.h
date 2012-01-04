@@ -28,7 +28,6 @@
 #define __TCP_H__
 
 #include "omicron/osystem.h"
-#include "omicron/TypeInfo.h"
 
 #ifdef OMICRON_OS_WIN
 	#define NOMINMAX
@@ -57,9 +56,8 @@ namespace omicron {
 	typedef asio::error_code ConnectionError;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	class OMICRON_API TcpConnection: public OmegaObject
+	class OMICRON_API TcpConnection: public ReferenceType
 	{
-	OMICRON_DECLARE_TYPE(TcpConnection)
 	friend class TcpServer;
 	public:
 		enum ConnectionState { ConnectionListening, ConnectionOpen, ConnectionClosed };
@@ -109,9 +107,8 @@ namespace omicron {
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	class OMICRON_API TcpServer: public OmegaObject
+	class OMICRON_API TcpServer: public ReferenceType
 	{
-	OMICRON_DECLARE_TYPE(TcpServer)
 	public:
 		TcpServer();
 		~TcpServer();
