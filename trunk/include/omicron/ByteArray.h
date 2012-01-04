@@ -28,11 +28,10 @@
 #define __BYTE_ARRAY_H__
 
 #include "osystem.h"
-#include "omicron/TypeInfo.h"
 
 namespace omicron {
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	struct OMICRON_API ByteArray: public OmegaObject
+	struct OMICRON_API ByteArray: public ReferenceType
 	{
 	public:
 		ByteArray(size_t size);

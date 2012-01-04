@@ -37,7 +37,7 @@ namespace omicron
 	class ServiceManager;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	class OMICRON_API Service: public DynamicObject
+	class OMICRON_API Service: public ReferenceType
 	{
 	friend class ServiceManager;
 	public:

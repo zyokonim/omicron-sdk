@@ -29,7 +29,8 @@
 
 // Input services
 #include "omicron/HeartbeatService.h"
-#include "omicron/TabletService.h"
+#include "omicron/BasicPortholeService.h"
+
 #ifdef OMICRON_USE_DIRECTINPUT
 	#include "omicron/DirectXInputService.h"
 #endif
@@ -92,7 +93,7 @@ void ServiceManager::registerDefaultServices()
 {
 	// register standard input services.
 	registerService("HeartbeatService", (ServiceAllocator)HeartbeatService::New);
-	registerService("TabletService", (ServiceAllocator)TabletService::New);
+	registerService("BasicPortholeService", (ServiceAllocator)BasicPortholeService::New);
 
 #ifdef OMICRON_USE_DIRECTINPUT
 	registerService("DirectXInputService", (ServiceAllocator)DirectXInputService::New);

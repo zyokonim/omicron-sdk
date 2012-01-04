@@ -40,7 +40,6 @@
 #include "omicron/Service.h"
 #include "omicron/ServiceManager.h"
 #include "omicron/StringUtils.h"
-#include "omicron/TypeInfo.h"
 #include "omicron/Tcp.h"
 #include "omicron/xml/tinyxml.h"
 

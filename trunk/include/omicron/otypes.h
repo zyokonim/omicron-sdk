@@ -36,6 +36,9 @@
 #include <queue>
 #include <time.h>
 
+#define BOOST_DATE_TIME_NO_LIB
+#define BOOST_REGEX_NO_LIB
+
 // boost includes
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
@@ -67,44 +70,12 @@
 #include <omicron/math/Sphere.h>
 #include <omicron/math/Plane.h>
 
-// Forward declarations of some OpenGL and OpenCL types.
-// Using these, we can avoid including gl, cl (and windows) headers for every compiled source file.
-// Source files that make explicit use of OpenGL/or OpenCL functionality have to include glheaders.h
-struct _cl_program;
-struct _cl_kernel;
-struct _cl_context;
-struct _cl_mem;
-struct _cl_command_queue;
-struct _cl_device_id;
-typedef _cl_device_id* cl_device_id;
-typedef _cl_program* cl_program;
-typedef _cl_kernel* cl_kernel;
-typedef _cl_mem* cl_mem;
-typedef _cl_context* cl_context;
-typedef _cl_command_queue* cl_command_queue;
-typedef unsigned int GLenum;
-typedef unsigned int GLbitfield;
-typedef unsigned int GLuint;
-typedef int GLint;
-typedef int GLsizei;
-typedef unsigned char GLboolean;
-typedef signed char GLbyte;
-typedef short GLshort;
-typedef unsigned char GLubyte;
-typedef unsigned short GLushort;
-typedef unsigned long GLulong;
-typedef float GLfloat;
-typedef float GLclampf;
-typedef double GLdouble;
-typedef double GLclampd;
-typedef void GLvoid;
-
 namespace boost { template<class Ch, class Tr, class Alloc> class basic_format; };
 
 namespace omicron
 {
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	class DynamicObject
+	class ReferenceType
 	{
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW

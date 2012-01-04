@@ -44,9 +44,8 @@ SET( srcs
 		omicron/DataManager.cpp
 		omicron/FileDataStream.cpp
 		omicron/FilesystemDataSource.cpp
-		omicron/TabletService.cpp
+		omicron/BasicPortholeService.cpp
 		omicron/Tcp.cpp
-		omicron/TypeInfo.cpp
 		
 		#omega::xml
 		omicron/xml/tinystr.cpp
@@ -55,17 +54,20 @@ SET( srcs
 		omicron/xml/tinyxmlparser.cpp
 		
 		#omega::libconfig
-        omicron/libconfig/libconfig.c
-        omicron/libconfig/scanctx.c
-        omicron/libconfig/scanner.c
-        omicron/libconfig/strbuf.c
-        omicron/libconfig/grammar.c
         omicron/libconfig/libconfigcpp.cpp
 		omicron/libconfig/ArgumentHelper.cpp
 		
 		#omega::tinythread
 		omicron/tinythread/tinythread.cpp
         )
+
+SET( csrcs
+        omicron/libconfig/libconfig.c
+        omicron/libconfig/scanctx.c
+        omicron/libconfig/scanner.c
+        omicron/libconfig/strbuf.c
+        omicron/libconfig/grammar.c
+	)
 		
 ###################################################################################################
 # Headers
@@ -86,9 +88,8 @@ SET( headers
         ${CMAKE_SOURCE_DIR}/include/omicron/DataManager.h
         ${CMAKE_SOURCE_DIR}/include/omicron/FilesystemDataSource.h
         ${CMAKE_SOURCE_DIR}/include/omicron/FileDataStream.h
-        ${CMAKE_SOURCE_DIR}/include/omicron/TabletService.h
+        ${CMAKE_SOURCE_DIR}/include/omicron/BasicPortholeService.h
 		${CMAKE_SOURCE_DIR}/include/omicron/Tcp.h
-		${CMAKE_SOURCE_DIR}/include/omicron/TypeInfo.h
 
 		# eigenwrap
         ${CMAKE_SOURCE_DIR}/include/omicron/math/EigenWrappers.h
@@ -213,7 +214,8 @@ source_group(omicron::tinythread REGULAR_EXPRESSION omicron/tinythread)
 
 ###################################################################################################
 # Create the library with the provided sources and headers
-add_library( omicron SHARED ${srcs} ${headers})
+enable_precompiled_headers(omicron/precompiled.h srcs)
+add_library( omicron SHARED ${srcs} ${csrcs} ${headers})
 
 ###################################################################################################
 # Setup module-specific link info

@@ -13,21 +13,22 @@
  * any other characteristic.
  *
  */
+#ifndef _DSR_ARGS_H_
+#define _DSR_ARGS_H_
+#include <vector>
+#include <map>
+#include <list>
+#include <string>
  
- #ifndef _DSR_ARGS_H_
- #define _DSR_ARGS_H_
- #include <vector>
- #include <map>
- #include <list>
- #include <string>
- 
- #include "libconfig.h++"
+#include "omicron/osystem.h"
+#include "libconfig.h++"
 
  namespace libconfig {
    extern bool verbose, VERBOSE;
  
  
-   class ArgumentHelper{
+   class OMICRON_API ArgumentHelper
+   {
    private:
      class Argument_target;
  

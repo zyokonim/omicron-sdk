@@ -653,7 +653,7 @@ void XN_CALLBACK_TYPE OpenNIService::UserCalibration_CalibrationEnd(xn::Skeleton
 void OpenNIService::getTexture(xn::DepthMetaData& dmd, xn::SceneMetaData& smd) 
 {
 	static bool bInitialized = false;	
-	static GLuint depthTexID;
+	static uint depthTexID;
 	static int texWidth, texHeight;
 	float topLeftX = dmd.XRes();
 	float topLeftY = 0;

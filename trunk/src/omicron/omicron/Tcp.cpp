@@ -31,9 +31,6 @@
 
 using namespace omicron;
 
-OMICRON_DEFINE_TYPE(TcpConnection, OmegaObject)
-OMICRON_DEFINE_TYPE(TcpServer, OmegaObject)
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 TcpServer::TcpServer():
 	myRunning(false),
