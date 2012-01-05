@@ -29,6 +29,9 @@ include(ExternalProject)
 include(OmicronAddTutorial)
 include(UsePch)
 
+# make sure the inlcude directory exists before extracting Boost, Asio and Eigen.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/include/)
+
 include(${CMAKE_SOURCE_DIR}/external/UseBoost.cmake)
 include(${CMAKE_SOURCE_DIR}/external/UseAsio.cmake)
 include(${CMAKE_SOURCE_DIR}/external/UseEigen.cmake)
