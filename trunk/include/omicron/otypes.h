@@ -27,7 +27,7 @@
 #ifndef __OMICRON_TYPES_H__
 #define __OMICRON_TYPES_H__
 
-#include "osysdefs.h"
+#include "omicronConfig.h"
 
 // Stdlib includes
 #include <string>
