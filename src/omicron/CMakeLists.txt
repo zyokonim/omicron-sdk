@@ -116,7 +116,7 @@ if(OMICRON_USE_NETSERVICE)
 endif(OMICRON_USE_NETSERVICE)
 
 # OpenNI (Kinect) support
-set(OMICRON_USE_OPENNI true CACHE BOOL "Enable/disable OpenNI support (OpenNI libraries must be installed in the system)")
+set(OMICRON_USE_OPENNI false CACHE BOOL "Enable/disable OpenNI support (OpenNI libraries must be installed in the system)")
 if(OMICRON_USE_OPENNI)
 	set( srcs	 ${srcs} omicron/OpenNIService.cpp )
 	set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/OpenNIService.h )
@@ -215,7 +215,9 @@ source_group(omicron::tinythread REGULAR_EXPRESSION omicron/tinythread)
 ###################################################################################################
 # Create the library with the provided sources and headers
 enable_precompiled_headers(omicron/precompiled.h srcs)
-add_library( omicron ${srcs} ${csrcs} ${headers})
+
+# omicron always builds as a shared library
+add_library( omicron SHARED ${srcs} ${csrcs} ${headers})
 
 ###################################################################################################
 # Setup module-specific link info
@@ -281,4 +283,4 @@ if(OMICRON_USE_THINKGEAR)
 endif(OMICRON_USE_THINKGEAR)
 
 ###################################################################################################
-configure_file(omicron/osysdefs.h.in ${CMAKE_BINARY_DIR}/include/osysdefs.h)
+configure_file(omicron/omicronConfig.h.in ${CMAKE_BINARY_DIR}/include/omicronConfig.h)
