@@ -417,7 +417,7 @@ namespace omicron { namespace math
     const T Math<T>::NegativeInfinity = -std::numeric_limits<T>::infinity();
     
     template<typename T>
-    const float Math<T>::Pi = 3.1415926535;
+    const float Math<T>::Pi = 3.1415926535f;
 
     template<typename T>
     const T Math<T>::TwoPi = T( 2.0 * Pi );
@@ -701,7 +701,7 @@ namespace omicron { namespace math
         if (Math<T>::abs(denom) < std::numeric_limits<T>::epsilon())
         {
             // Parallel
-            return std::pair<bool, T>(false, 0);
+            return std::pair<bool, T>(false, 0.0f);
         }
         else
         {
@@ -823,7 +823,7 @@ namespace omicron { namespace math
         // Check origin inside first
         if (rayorig.squaredNorm() <= radius*radius && discardInside)
         {
-            return std::pair<bool, T>(true, 0);
+            return std::pair<bool, T>(true, 0.0f);
         }
 
         // Mmm, quadratics
@@ -838,7 +838,7 @@ namespace omicron { namespace math
         if (d < 0)
         {
             // No intersection
-            return std::pair<bool, T>(false, 0);
+            return std::pair<bool, T>(false, 0.0f);
         }
         else
         {
