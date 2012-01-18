@@ -25,7 +25,7 @@
 #ifndef __OMICRON__
 #define __OMICRON__
 
-#include "osysdefs.h"
+#include "omicronConfig.h"
 #include "omicron/libconfig/ArgumentHelper.h"
 #include "omicron/ByteArray.h"
 #include "omicron/Color.h"
