@@ -39,14 +39,24 @@ if(OMICRON_BINARY_DIR)
 	# have to be specified. If building a project without Cmake, remember to specify ALL these directories
 	# as include paths for your compiler.
 	set(OMICRON_INCLUDE_DIRS ${OMICRON_BINARY_DIR}/include ${OMICRON_SOURCE_DIR}/include ${OMICRON_SOURCE_DIR}/external/include)
-		  
-	set(OMICRON_LIB_DIR_RELEASE ${OMICRON_BINARY_DIR}/lib/release)
-	set(OMICRON_LIB_DIR_DEBUG ${OMICRON_BINARY_DIR}/lib/debug)
-	set(OMICRON_LIB_DIR ${OMICRON_BINARY_DIR}/lib)
+	
+	if(OMICRON_LIB_DIR)
+		set(OMICRON_LIB_DIR_RELEASE ${OMICRON_LIB_DIR}/release)
+		set(OMICRON_LIB_DIR_DEBUG ${OMICRON_LIB_DIR}/debug)
+	else()
+		set(OMICRON_LIB_DIR_RELEASE ${OMICRON_BINARY_DIR}/lib/release)
+		set(OMICRON_LIB_DIR_DEBUG ${OMICRON_BINARY_DIR}/lib/debug)
+		set(OMICRON_LIB_DIR ${OMICRON_BINARY_DIR}/lib)
+	endif()
 
-	set(OMICRON_BIN_DIR_RELEASE ${OMICRON_BINARY_DIR}/bin/release)
-	set(OMICRON_BIN_DIR_DEBUG ${OMICRON_BINARY_DIR}/bin/debug)
-	set(OMICRON_BIN_DIR ${OMICRON_BINARY_DIR}/bin)
+	if(OMICRON_BIN_DIR)
+		set(OMICRON_BIN_DIR_RELEASE ${OMICRON_BIN_DIR}/release)
+		set(OMICRON_BIN_DIR_DEBUG ${OMICRON_BIN_DIR}/debug)
+	else()
+		set(OMICRON_BIN_DIR_RELEASE ${OMICRON_BINARY_DIR}/bin/release)
+		set(OMICRON_BIN_DIR_DEBUG ${OMICRON_BINARY_DIR}/bin/debug)
+		set(OMICRON_BIN_DIR ${OMICRON_BINARY_DIR}/bin)
+	endif()
 
 	###################################################################################################
 	# Set the output directories for libraries and binary files
@@ -54,11 +64,11 @@ if(OMICRON_BINARY_DIR)
 		# omicron
 		set(OMICRON_LIB_DEBUG ${OMICRON_LIB_DIR_DEBUG}/omicron.lib)
 		set(OMICRON_LIB_RELEASE ${OMICRON_LIB_DIR_RELEASE}/omicron.lib)
-	else(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
+	else()
 		# omicron
 		set(OMICRON_LIB_DEBUG ${OMICRON_BIN_DIR}/libomicron.so)
 		set(OMICRON_LIB_RELEASE ${OMICRON_BIN_DIR}/libomicron.so)
-	endif(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
+	endif()
 
 	set(OMICRON_LIB debug ${OMICRON_LIB_DEBUG} optimized ${OMICRON_LIB_RELEASE})
 	
