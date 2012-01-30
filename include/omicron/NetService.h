@@ -48,6 +48,28 @@
 #include <string>
 #endif
 
+#ifdef OMICRON_OS_WIN     
+	#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %d\n", WSAGetLastError());
+	#define SOCKET_CLOSE(sock) closesocket(sock);
+	#define SOCKET_CLEANUP() WSACleanup();
+	#define SOCKET_INIT() \
+		int iResult;    \
+		iResult = WSAStartup(MAKEWORD(2,2), &wsaData); \
+		if (iResult != 0) { \
+			printf("NetService: WSAStartup failed: %d\n", iResult); \
+			return; \
+		} else { \
+			printf("NetService: Winsock initialized \n"); \
+		}
+
+#else
+	#define SOCKET_CLOSE(sock) close(sock);
+	#define SOCKET_CLEANUP()
+	#define SOCKET_INIT()
+	#define SOCKET int
+	#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %s\n", strerror(errno));
+#endif
+
 namespace omicron
 {
 	//////////////////////////////////////////////////////////////////////////////////////////////////
