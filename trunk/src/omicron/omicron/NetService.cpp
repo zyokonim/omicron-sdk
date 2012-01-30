@@ -32,7 +32,6 @@ using namespace omicron;
 
 struct EventData
 {
-	bool processed;
 	unsigned int timestamp;
 	unsigned int sourceId;
 	int serviceId;
@@ -80,52 +79,6 @@ void NetService::initialize()
 {
 	mysInstance = this;
 	SOCKET_INIT();
-//#ifdef OMICRON_OS_WIN    
-//
-//
-//	struct addrinfo *result = NULL, *ptr = NULL, hints;
-//
-//	ZeroMemory(&hints, sizeof (hints));
-//	hints.ai_family = AF_INET;
-//	hints.ai_socktype = SOCK_STREAM;
-//	hints.ai_protocol = IPPROTO_TCP;
-//	hints.ai_flags = AI_PASSIVE;
-//
-//	// Resolve the local address and port to be used by the server
-//	iResult = getaddrinfo(serverAddress, serverPort, &hints, &result);
-//	if (iResult != 0) {
-//		printf("NetService: getaddrinfo failed: %d\n", iResult);
-//		WSACleanup();
-//	} else {
-//		printf("NetService: Client set to connect to address %s on port %s\n", serverAddress, serverPort);
-//	}
-//
-//	// Create connection socket
-//	ConnectSocket = INVALID_SOCKET;
-//
-//	// Attempt to connect to the first address returned by
-//	// the call to getaddrinfo
-//	ptr=result;
-//
-//	// Create a SOCKET for connecting to server
-//	ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, 
-//		ptr->ai_protocol);
-//
-//	// Connect to server.
-//	iResult = connect( ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
-//	if (iResult == SOCKET_ERROR) {
-//		closesocket(ConnectSocket);
-//		ConnectSocket = INVALID_SOCKET;
-//	}
-//
-//	freeaddrinfo(result);
-//	if (ConnectSocket == INVALID_SOCKET) 
-//	{
-//		PRINT_SOCKET_ERROR("NetService: INVALID_SOCKET");
-//		SOCKET_CLEANUP();
-//		return;
-//	}
-//#else
 	printf("NetService: Initializing using linux\n");
 
 	struct addrinfo hints, *res;
@@ -155,7 +108,6 @@ void NetService::initialize()
 	{
 		printf("NetService: Connected to server '%s' on port '%s'!\n", serverAddress, serverPort);
 	}
-//#endif
 	initHandshake();
 
 }
@@ -182,49 +134,15 @@ void NetService::initHandshake()
 		return;
 	}
 
-//#ifdef OMICRON_OS_WIN     
-	//printf("Bytes Sent: %ld\n", iResult);
-
 	sockaddr_in RecvAddr;
-
 	SenderAddrSize = sizeof(SenderAddr);
-
-	// Create a UDP receiver socket to receive datagrams
-	// 
 	RecvSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-	//-----------------------------------------------
 	// Bind the socket to any address and the specified port.
 	RecvAddr.sin_family = AF_INET;
 	RecvAddr.sin_port = htons(atoi(dataPort));
 	RecvAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	bind(RecvSocket, (const sockaddr*) &RecvAddr, sizeof(RecvAddr));
-//#else
-//	/*
-//	* Based on Beej's Guide to Network Programming:
-//	* http://beej.us/guide/bgnet/output/html/multipage/index.html
-//
-//	*/
-//	struct addrinfo hints, *res;
-//
-//	// First, load up address structs with getaddrinfo():
-//	memset(&hints, 0, sizeof hints);
-//	hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
-//	hints.ai_socktype = SOCK_DGRAM;
-//	hints.ai_flags = AI_PASSIVE; // use my IP
-//
-//	// Get the server address
-//	getaddrinfo(NULL, dataPort, &hints, &res);
-//
-//	// Generate the socket
-//	RecvSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-//
-//	iResult = bind(RecvSocket, res->ai_addr, res->ai_addrlen );
-//	if (iResult == -1) {
-//		printf("NetService: Failed to bind socket on port %s: %s\n", dataPort, strerror(errno));
-//		return;
-//	}
-//#endif
 	readyToReceive = true;
 }
 
@@ -276,42 +194,12 @@ void NetService::dispose()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void NetService::parseDGram(int result)
 {
-//#ifdef OMICRON_OS_WIN     
 	result = recvfrom(RecvSocket, 
 		recvbuf,
 		DEFAULT_BUFLEN-1,
 		0,
 		(sockaddr *)&SenderAddr, 
 		(socklen_t*)&SenderAddrSize);
-//#else
-//    socklen_t addr_len;
-//	struct sockaddr_storage their_addr;
-//	int numbytes;
-//	char s[INET6_ADDRSTRLEN];
-//
-//	addr_len = sizeof their_addr;
-//	numbytes = recvfrom(RecvSocket,
-//		recvbuf,
-//		DEFAULT_BUFLEN-1,
-//		0,
-//		(struct sockaddr *)&their_addr,
-//		&addr_len);
-//
-//	struct sockaddr *sa = (struct sockaddr *)&their_addr;
-//	const void *inAddr;
-//	if (sa->sa_family == AF_INET)
-//	{
-//		inAddr = &(((struct sockaddr_in*)sa)->sin_addr);
-//	} 
-//	else 
-//	{
-//		inAddr = &(((struct sockaddr_in6*)sa)->sin6_addr);
-//	}
-//
-//	recvbuf[numbytes] = '\0';
-//	result = numbytes;
-//#endif
-
 	if(result > 0)
 	{
 		int offset = 0;
@@ -320,7 +208,6 @@ void NetService::parseDGram(int result)
 
 		EventData ed;
 
-		OI_READBUF(bool, eventPacket, offset, ed.processed); 
 		OI_READBUF(unsigned int, eventPacket, offset, ed.timestamp); 
 		OI_READBUF(unsigned int, eventPacket, offset, ed.sourceId); 
 		OI_READBUF(int, eventPacket, offset, ed.serviceId); 
@@ -330,10 +217,10 @@ void NetService::parseDGram(int result)
 		OI_READBUF(float, eventPacket, offset, ed.posx); 
 		OI_READBUF(float, eventPacket, offset, ed.posy); 
 		OI_READBUF(float, eventPacket, offset, ed.posz); 
+		OI_READBUF(float, eventPacket, offset, ed.orw); 
 		OI_READBUF(float, eventPacket, offset, ed.orx); 
 		OI_READBUF(float, eventPacket, offset, ed.ory); 
 		OI_READBUF(float, eventPacket, offset, ed.orz); 
-		OI_READBUF(float, eventPacket, offset, ed.orw); 
 		
 		OI_READBUF(unsigned int, eventPacket, offset, ed.extraDataType); 
 		OI_READBUF(unsigned int, eventPacket, offset, ed.extraDataLength); 
