@@ -24,51 +24,8 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###################################################################################################
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
-include(ExternalProject)
-include(OmicronAddTutorial)
-include(UsePch)
+add_executable(eventlogger eventlogger.cpp)
+set_target_properties(eventlogger PROPERTIES FOLDER apps)
+target_link_libraries(eventlogger omicron)
 
-# make sure the inlcude directory exists before extracting Boost, Asio and Eigen.
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/include/)
-
-include(${CMAKE_SOURCE_DIR}/external/UseBoost.cmake)
-include(${CMAKE_SOURCE_DIR}/external/UseAsio.cmake)
-include(${CMAKE_SOURCE_DIR}/external/UseEigen.cmake)
-
-###################################################################################################
-# Options
-set(OMICRON_BUILD_TUTORIALS false CACHE BOOL "Enable building of omegalib tutorials.")
-
-###################################################################################################
-# Set include paths
-include_directories(
-  ${CMAKE_BINARY_DIR}/include/
-  ${CMAKE_SOURCE_DIR}/include/
-  ${CMAKE_SOURCE_DIR}/external/include
-  )
-
-###################################################################################################
-# Add libraries and applications to the project.
-# TODO: should this be moved inside then omega OPENNI module block?
-if(WIN32)
-	include_directories($ENV{PROGRAMFILES}/OpenNI/Include)
-endif(WIN32)
-
-# Add the core omega project
-add_subdirectory(omicron)
-
-# oinputserver currently works only on Windows (uses WINSOCK)
-if(WIN32)
-	add_subdirectory(apps/oinputserver)
-	add_subdirectory(apps/legacy-oinputserver)
-endif(WIN32)
-add_subdirectory(apps/eventlogger)
-
-if(OMICRON_BUILD_TUTORIALS)
-	omega_add_tutorial(localService)
-	omega_add_tutorial(remoteService)
-endif(OMICRON_BUILD_TUTORIALS)
-
-configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/UseOmicron.cmake.in ${CMAKE_BINARY_DIR}/UseOmicron.cmake)
 

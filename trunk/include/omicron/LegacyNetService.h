@@ -25,11 +25,14 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-#ifndef __NET_SERVICE_H__
-#define __NET_SERVICE_H__
+#ifndef __LEGACY_NET_SERVICE_H__
+#define __LEGACY_NET_SERVICE_H__
 
 #include "omicron/osystem.h"
 #include "omicron/ServiceManager.h"
+
+#include "pqlabs/PQMTClient.h"
+using namespace PQ_SDK_MultiTouch;
 
 #ifdef OMICRON_OS_WIN
 #include <winsock2.h>
@@ -48,53 +51,76 @@
 #include <string>
 #endif
 
+struct NetTouches{
+	int ID;
+	float xPos;
+	float yPos;
+	float xWidth;
+	float yWidth;
+	float timestamp;
+
+	// Gestures
+	int gestureType;
+
+	// Split gesture
+	float x1,y1,x2,y2;
+	float initDistance;
+};
+
 namespace omicron
 {
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	class NetService: public Service
-	{
-	public:
-		// Allocator function
-		NetService();
-		static NetService* New() { return new NetService(); }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class LegacyNetService: public Service
+{
+public:
+	// Allocator function
+	LegacyNetService();
+	static LegacyNetService* New() { return new LegacyNetService(); }
 
-	public:
-		virtual void setup(Setting& settings);
-		virtual void initialize();
-		virtual void poll();
-		virtual void dispose();
-		void setServer(const char*,const char*);
-		void setDataport(const char*);
-		void setScreenResolution(int,int);
-		void setTouchTimeout(float);
-	private:
-		void initHandshake();
-		void parseDGram(int);
-	private:
-		NetService* mysInstance;
+public:
+	virtual void setup(Setting& settings);
+	virtual void initialize();
+	virtual void poll();
+	virtual void dispose();
+	void setServer(const char*,const char*);
+	void setDataport(const char*);
+	void setScreenResolution(int,int);
+	void setTouchTimeout(float);
+private:
+	void initHandshake();
+	void parseDGram(int);
+private:
+	LegacyNetService* mysInstance;
+#ifdef OMICRON_OS_WIN	
+    WSADATA wsaData;
+	SOCKET ConnectSocket;
+	SOCKET RecvSocket;	
+#else
+	int ConnectSocket;
+	int RecvSocket;
+#endif
+	struct timeval timeout;
+	sockaddr_in SenderAddr;
 
-	#ifdef OMICRON_OS_WIN	
-		WSADATA wsaData;
-	#endif
+	const char* serverAddress;
+	const char* serverPort;
+	const char* dataPort;
+	float touchTimeout;
 
-		SOCKET ConnectSocket;
-		SOCKET RecvSocket;
-		struct timeval timeout;
-		sockaddr_in SenderAddr;
+	#define DEFAULT_BUFLEN 512
+	char recvbuf[DEFAULT_BUFLEN];
+	int iResult, iSendResult;
 
-		const char* serverAddress;
-		const char* serverPort;
-		const char* dataPort;
+	int SenderAddrSize;
+	int recvbuflen;
+	bool readyToReceive;
+	int screenX;
+	int screenY;
 
-		#define DEFAULT_BUFLEN 512
-		char recvbuf[DEFAULT_BUFLEN];
-		int iResult, iSendResult;
-
-		int SenderAddrSize;
-		int recvbuflen;
-		bool readyToReceive;
-	};
-
+	std::map<int,NetTouches> touchlist;
+	std::map<int,NetTouches> swaplist;
 };
+
+}; // namespace omicron
 
 #endif

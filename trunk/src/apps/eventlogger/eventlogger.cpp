@@ -1,9 +1,8 @@
 /**************************************************************************************************
-* THE OMICRON PROJECT
+ * THE OMEGA LIB PROJECT
  *-------------------------------------------------------------------------------------------------
- * Copyright 2010-2012		Electronic Visualization Laboratory, University of Illinois at Chicago
+ * Copyright 2010-2011		Electronic Visualization Laboratory, University of Illinois at Chicago
  * Authors:										
- *  Arthur Nishimoto		anishimoto42@gmail.com
  *  Alessandro Febretti		febret@gmail.com
  *-------------------------------------------------------------------------------------------------
  * Copyright (c) 2010-2011, Electronic Visualization Laboratory, University of Illinois at Chicago
@@ -25,76 +24,54 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-#ifndef __NET_SERVICE_H__
-#define __NET_SERVICE_H__
+#include <omicron.h>
 
-#include "omicron/osystem.h"
-#include "omicron/ServiceManager.h"
+using namespace omicron;
 
-#ifdef OMICRON_OS_WIN
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <errno.h>
-#include <unistd.h> // needed for close()
-#include <string>
-#endif
-
-namespace omicron
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void logEvent(const Event& e)
 {
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	class NetService: public Service
+	ofmsg("EVENT pos(%1%)", %e.getPosition());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+int main(int argc, char** argv)
+{
+	// Add a default filesystem data sources (used to retrieve configuration files and other resources)
+	DataManager* dm = DataManager::getInstance();
+	dm->addSource(new FilesystemDataSource("./"));
+	dm->addSource(new FilesystemDataSource(OMICRON_DATA_PATH));
+
+	// Load a configuration file for this application and setup the system manager.
+	// Read config file name from command line or use default one.
+	const char* cfgName = "eventlogger.cfg";
+	if(argc == 2) cfgName = argv[1];
+	Config* cfg = new Config(cfgName);
+
+	// Start running services and listening to events.
+	ServiceManager* sm = new ServiceManager();
+	sm->setupAndStart(cfg);
+
+	omsg("eventlogger start logging events...");
+	while(true)
 	{
-	public:
-		// Allocator function
-		NetService();
-		static NetService* New() { return new NetService(); }
+		// Poll services for new events.
+		sm->poll(); 
 
-	public:
-		virtual void setup(Setting& settings);
-		virtual void initialize();
-		virtual void poll();
-		virtual void dispose();
-		void setServer(const char*,const char*);
-		void setDataport(const char*);
-		void setScreenResolution(int,int);
-		void setTouchTimeout(float);
-	private:
-		void initHandshake();
-		void parseDGram(int);
-	private:
-		NetService* mysInstance;
+		// Get available events
+		Event evts[OMICRON_MAX_EVENTS];
+		int av;
+		if(0 != (av = sm->getEvents(evts, ServiceManager::MaxEvents)))
+		{
+			for( int evtNum = 0; evtNum < av; evtNum++)
+			{
+				logEvent(evts[evtNum]);
+			}
+		}// if
 
-	#ifdef OMICRON_OS_WIN	
-		WSADATA wsaData;
-	#endif
+	}// while
+	
+	delete cfg;
+}
 
-		SOCKET ConnectSocket;
-		SOCKET RecvSocket;
-		struct timeval timeout;
-		sockaddr_in SenderAddr;
 
-		const char* serverAddress;
-		const char* serverPort;
-		const char* dataPort;
-
-		#define DEFAULT_BUFLEN 512
-		char recvbuf[DEFAULT_BUFLEN];
-		int iResult, iSendResult;
-
-		int SenderAddrSize;
-		int recvbuflen;
-		bool readyToReceive;
-	};
-
-};
-
-#endif

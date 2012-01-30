@@ -36,6 +36,7 @@ using namespace omicron;
 #define itoa _itoa
 #endif
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Based on Winsock UDP Server Example:
 // http://msdn.microsoft.com/en-us/library/ms740148
@@ -46,13 +47,12 @@ private:
 	SOCKET SendSocket;
 	sockaddr_in RecvAddr;
 	int Port;
-	char SendBuf[1024];
+	//char SendBuf[1024];
 	int BufLen;
 
 public:
-	NetClient::NetClient( const char* address, int port ){
-		BufLen = 100;
-
+	NetClient::NetClient( const char* address, int port )
+	{
 		// Create a socket for sending data
 		SendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -64,17 +64,19 @@ public:
 		printf("NetClient %s:%i created...\n", address, port);
 	}// CTOR
 
-	void NetClient::sendEvent( char* eventPacket ){
+	void NetClient::sendEvent(char* eventPacket, int length)
+	{
 		// Send a datagram to the receiver
-		//printf("Service: Sending datagram '%s' to receiver...\n", eventPacket);
 		sendto(SendSocket, 
-		  eventPacket, 
-		  strlen(eventPacket), 
-		  0, 
-		  (SOCKADDR *) &RecvAddr, 
-		  sizeof(RecvAddr));
+			eventPacket, 
+			length, 
+			0, 
+			(SOCKADDR*) &RecvAddr, 
+			sizeof(RecvAddr));
 	}// SendEvent
 };
+
+#define OI_WRITEBUF(type, buf, offset, val) *((type*)&buf[offset]) = val; offset += sizeof(type);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class OInputServer
@@ -82,196 +84,43 @@ class OInputServer
 public:
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Checks the type of event. If a valid event, creates an event packet and returns true. Else return false.
-	virtual bool handleEvent(const Event& evt)
+	virtual void handleEvent(const Event& evt)
 	{
-		eventPacket = new char[256];
+		int offset = 0;
+		OI_WRITEBUF(bool, eventPacket, offset, evt.isProcessed()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 
+		OI_WRITEBUF(int, eventPacket, offset, evt.getServiceId()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getServiceType()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getType()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getFlags()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(0)); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(1)); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(2)); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().x()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().y()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().z()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().w()); 
 		
-		itoa(evt.getServiceType(), eventPacket, 10); // Append input type
-		strcat( eventPacket, ":" );
-		char floatChar[32];
-		
-		switch(evt.getServiceType())
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataType()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataLength()); 
+		if(evt.getExtraDataType() != Event::ExtraDataNull)
 		{
-		case Service::Pointer:
-			//printf(" Touch type %d \n", evt.getType()); 
-			//printf("               at %f %f \n", x, y ); 
-
-			// Converts gesture type to char, appends to eventPacket
-			sprintf(floatChar,"%d",evt.getType());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts id to char, appends to eventPacket
-			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts x to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(0));
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts y to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(1));
-			strcat( eventPacket, floatChar );
-
-			if( evt.getExtraDataLength() == 2){ // TouchPoint down/up/move
-				// Converts xWidth to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
-				sprintf(floatChar,"%f", evt.getExtraDataFloat(0) );
-				strcat( eventPacket, floatChar );
-				
-				// Converts yWidth to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
-				sprintf(floatChar,"%f", evt.getExtraDataFloat(1) );
-				strcat( eventPacket, floatChar );
-			} else { // Touch Gestures
-				// Converts value to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
-				sprintf(floatChar,"%f", evt.getExtraDataFloat(0) );
-				strcat( eventPacket, floatChar );
-				
-				// Converts value to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
-				sprintf(floatChar,"%f", evt.getExtraDataFloat(1) );
-				strcat( eventPacket, floatChar );
-
-				// Converts value to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
-				sprintf(floatChar,"%f", evt.getExtraDataFloat(2) );
-				strcat( eventPacket, floatChar );
-
-				// Converts value to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
-				sprintf(floatChar,"%f", evt.getExtraDataFloat(3) );
-				strcat( eventPacket, floatChar );
-
-				if( evt.getType() == Event::Rotate ){
-					// Converts rotation to char, appends to eventPacket
-					strcat( eventPacket, "," ); // Spacer
-					sprintf(floatChar,"%f", evt.getExtraDataFloat(4) );
-					strcat( eventPacket, floatChar );
-				} else if( evt.getType() == Event::Split ){
-					// Converts values to char, appends to eventPacket
-					strcat( eventPacket, "," ); // Spacer
-					sprintf(floatChar,"%f", evt.getExtraDataFloat(4) ); // Delta distance
-					strcat( eventPacket, floatChar );
-
-					strcat( eventPacket, "," ); // Spacer
-					sprintf(floatChar,"%f", evt.getExtraDataFloat(5) ); // Delta ratio
-					strcat( eventPacket, floatChar );
-				}
-			}
-
-			strcat( eventPacket, " " ); // Spacer
-
-			return true;
-			break;
-		//case Service::Pointer:
-		//	x = evt.position[0];
-		//	y = evt.position[1];
-
-		//	// Converts x y float to chars and appents to eventPacket char*
-		//	sprintf(floatChar,"%f",x);
-		//	strcat( eventPacket, floatChar );
-		//	strcat( eventPacket, "," );
-		//	sprintf(floatChar,"%f",y);
-		//	strcat( eventPacket, floatChar );
-		//	strcat( eventPacket, " " );
-		//	return true;
-		//	break;
-
-		case Service::Mocap:
+			memcpy(&eventPacket[offset], evt.getExtraDataBuffer(), evt.getExtraDataSize());
+		}
+		offset += evt.getExtraDataLength();
+		std::map<char*,NetClient*>::iterator itr = netClients.begin();
+		while( itr != netClients.end() )
 		{
-			// Converts id to char, appends to eventPacket
-			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts xPos to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(0));
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts yPos to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(1));
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts zPos to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(2));
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts xRot to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getOrientation().x());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts yRot to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getOrientation().y());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts zRot to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getOrientation().z());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// Converts zRot to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getOrientation().w());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, " " ); // Spacer
-			return true;
-			break;
+			NetClient* client = itr->second;
+			client->sendEvent(eventPacket, offset);
+			itr++;
 		}
-
-		case Service::Controller:
-			// Converts id to char, appends to eventPacket
-			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
-
-			// See DirectXInputService.cpp for parameter details
-			
-			for( int i = 0; i < evt.getExtraDataLength(); i++ ){
-				sprintf(floatChar,"%d", (int)evt.getExtraDataFloat(i));
-				strcat( eventPacket, floatChar );
-				if( i < evt.getExtraDataLength() - 1 )
-					strcat( eventPacket, "," ); // Spacer
-				else
-					strcat( eventPacket, " " ); // Spacer
-			}
-			return true;
-			break;
-		case Service::Brain:
-			// Converts id to char, appends to eventPacket
-			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
-			for( int i = 0; i < 12; i++ ){
-				strcat( eventPacket, "," ); // Spacer
-				sprintf(floatChar,"%d", (int)evt.getExtraDataFloat(i));
-				strcat( eventPacket, floatChar );
-			}
-			return true;
-			break;
-		case Service::Generic:
-			// Converts id to char, appends to eventPacket
-			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
-			return true;
-			break;
-		default: break;
-		}
-		
-		delete[] eventPacket;
-		return false;
 	}
 	
 	void startConnection();
 	SOCKET startListening();
-	char* getEvent();
-	void sendToClients( char* );
+
 private:
 	void createClient(const char*,int);
 
@@ -279,44 +128,20 @@ private:
 	const char* serverPort;
 	SOCKET ListenSocket;
 	
-	char* eventPacket;
-	
 	#define DEFAULT_BUFLEN 512
+	char eventPacket[DEFAULT_BUFLEN];
+
 	char recvbuf[DEFAULT_BUFLEN];
 	int iResult, iSendResult;
 	int recvbuflen;
 	
 	// Collection of unique clients (IP/port combinations)
 	std::map<char*,NetClient*> netClients;
-
-	private:
-		float rx;
-		float ry;
-		float rz;
-
-		float x;
-		float y;
-		float z;
-
-		float mx;
-		float my;
-		float mz;
-
-		float lx;
-		float ly;
-		float lz;
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
- * Based on MSDN Winsock examples:
- * http://msdn.microsoft.com/en-us/library/ms738566(VS.85).aspx
- *
- * Non-blocking socket example:
- * http://www.win32developer.com/tutorial/winsock/winsock_tutorial_4.shtm
- */
-void OInputServer::startConnection(){
+void OInputServer::startConnection()
+{
 	serverPort = "27000";
 	ListenSocket = INVALID_SOCKET;
 	recvbuflen = DEFAULT_BUFLEN;
@@ -324,11 +149,14 @@ void OInputServer::startConnection(){
 
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-	if (iResult != 0) {
-		printf("OInputServer: WSAStartup failed: %d\n", iResult);
+	if (iResult != 0) 
+	{
+		oferror("OInputServer: WSAStartup failed: %1%", %iResult);
 		return;
-	} else {
-		printf("OInputServer: Winsock initialized \n");
+	} 
+	else 
+	{
+		oerror("OInputServer: Winsock initialized");
 	}
 
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
@@ -341,11 +169,14 @@ void OInputServer::startConnection(){
 
 	// Resolve the local address and port to be used by the server
 	iResult = getaddrinfo(NULL, serverPort, &hints, &result);
-	if (iResult != 0) {
-		printf("OInputServer: getaddrinfo failed: %d\n", iResult);
+	if (iResult != 0) 
+	{
+		ofmsg("OInputServer: getaddrinfo failed: %1%", %iResult);
 		WSACleanup();
-	} else {
-		printf("OInputServer: Server set to listen on port %s\n", serverPort);
+	} 
+	else 
+	{
+		ofmsg("OInputServer: Server set to listen on port %1%", %serverPort);
 	}
 
 	// Create a SOCKET for the server to listen for client connections
@@ -355,37 +186,45 @@ void OInputServer::startConnection(){
 	u_long iMode = 1;
 	ioctlsocket(ListenSocket,FIONBIO,&iMode);
 
-	if (ListenSocket == INVALID_SOCKET) {
+	if (ListenSocket == INVALID_SOCKET) 
+	{
 		printf("OInputServer: Error at socket(): %ld\n", WSAGetLastError());
 		freeaddrinfo(result);
 		WSACleanup();
 		return;
-	} else {
+	} 
+	else 
+	{
 		printf("OInputServer: Listening socket created.\n");
 	}
 
 	// Setup the TCP listening socket
 	iResult = bind( ListenSocket, result->ai_addr, (int)result->ai_addrlen);
-	if (iResult == SOCKET_ERROR) {
+	if (iResult == SOCKET_ERROR) 
+	{
 		printf("OInputServer: bind failed: %d\n", WSAGetLastError());
 		freeaddrinfo(result);
 		closesocket(ListenSocket);
 		WSACleanup();
 		return;
 	}
-}// startConnection
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SOCKET OInputServer::startListening(){
+SOCKET OInputServer::startListening()
+{
 	SOCKET ClientSocket;
 
 	// Listen on socket
-	if ( listen( ListenSocket, SOMAXCONN ) == SOCKET_ERROR ) {
+	if ( listen( ListenSocket, SOMAXCONN ) == SOCKET_ERROR )
+	{
 		printf( "OInputServer: Error at bind(): %ld\n", WSAGetLastError() );
 		closesocket(ListenSocket);
 		WSACleanup();
 		return NULL;
-	} else {
+	} 
+	else
+	{
 		//printf("NetService: Listening on socket.\n");
 	}
 
@@ -397,14 +236,17 @@ SOCKET OInputServer::startListening(){
 	// Accept a client socket
 	ClientSocket = accept(ListenSocket, (SOCKADDR*)&clientInfo, &ret);
 
-	if (ClientSocket == INVALID_SOCKET) {
+	if (ClientSocket == INVALID_SOCKET) 
+	{
 		//printf("NetService: accept failed: %d\n", WSAGetLastError());
 		// Commented out: We do not want to close the listen socket
 		// since we are using a non-blocking socket until we are done listening for clients.
 		//closesocket(ListenSocket);
 		//WSACleanup();
 		return NULL;
-	} else {
+	} 
+	else 
+	{
 		// Gets the clientInfo and extracts the IP address
 		clientAddress = inet_ntoa(clientInfo.sin_addr);
 		printf("OInputServer: Client '%s' Accepted.\n", clientAddress);
@@ -420,9 +262,11 @@ SOCKET OInputServer::startListening(){
 	time_t startTime = time (NULL);
 
 	printf("OInputServer: Waiting for client handshake\n");
-	do {
+	do 
+	{
 		iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-		if (iResult > 0) {
+		if (iResult > 0)
+		{
 			//printf("Service: Bytes received: %d\n", iResult);
 			char* inMessage;
 			char* portCStr;
@@ -432,12 +276,18 @@ SOCKET OInputServer::startListening(){
 			// Iterate through message string and
 			// separate 'data_on,' from the port number
 			int portIndex = -1;
-			for( int i = 0; i < iResult; i++ ){
-				if( recvbuf[i] == ',' ){
+			for( int i = 0; i < iResult; i++ )
+			{
+				if( recvbuf[i] == ',' )
+				{
 					portIndex = i + 1;
-				} else if( i < portIndex ){
+				} 
+				else if( i < portIndex )
+				{
 					inMessage[i] = recvbuf[i];
-				} else {
+				} 
+				else 
+				{
 					portCStr[i-portIndex] = recvbuf[i];
 				}
 			}
@@ -445,7 +295,8 @@ SOCKET OInputServer::startListening(){
 			// Make sure handshake is correct
 			String handshake = "data_on";
 			int dataPort = 7000; // default port
-			if( handshake.find(inMessage) ){
+			if( handshake.find(inMessage) )
+			{
 				// Get data port number
 				dataPort = atoi(portCStr);
 				printf("OInputServer: '%s' requests data to be sent on port '%d'\n", clientAddress, dataPort);
@@ -454,33 +305,29 @@ SOCKET OInputServer::startListening(){
 			gotData = true;
 			delete inMessage;
 			delete portCStr;
-		} else if (iResult == 0)
+		} 
+		else if (iResult == 0)
+		{
 			printf("OInputServer: Connection closing...\n");
-		else {
+		}
+		else 
+		{
 			timer = time (NULL);
-			if( timer > startTime + timeout ){
+			if( timer > startTime + timeout )
+			{
 				printf("OInputServer: Handshake timed out\n");
 				break;
 			}
-			//printf("Service: recv failed: %d\n", WSAGetLastError());
-			//closesocket(ClientSocket);
-			//WSACleanup();
-			//return NULL;
 		}
-
 	} while (!gotData);
 	
 
 	return ClientSocket;
-}// startListening
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-char* OInputServer::getEvent(){
-	return eventPacket;
-}// getEvent
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void OInputServer::createClient(const char* clientAddress, int dataPort){
+void OInputServer::createClient(const char* clientAddress, int dataPort)
+{
 	// Generate a unique name for client "address:port"
 	char* addr = new char[128];
 	strcpy( addr, clientAddress );
@@ -491,29 +338,18 @@ void OInputServer::createClient(const char* clientAddress, int dataPort){
 	// Iterate through client map. If client name already exists,
 	// do not add to list.
 	std::map<char*, NetClient*>::iterator p;
-	for(p = netClients.begin(); p != netClients.end(); p++) {
+	for(p = netClients.begin(); p != netClients.end(); p++) 
+	{
 		printf( "%s \n", p->first );
-		if( strcmp(p->first, addr) == 0 ){
+		if( strcmp(p->first, addr) == 0 )
+		{
 			printf("OInputServer: NetClient already exists: %s \n", addr );
 			return;
 		}
 	}
 
 	netClients[addr] = new NetClient( clientAddress, dataPort );
-	//printf("NetService: current nClients: %d \n", netClients.size() );
-}// createClient
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void OInputServer::sendToClients(char* event){
-	// Iterate through all clients
-	std::map<char*,NetClient*>::iterator itr = netClients.begin();
-	while( itr != netClients.end() ){
-		NetClient* client = itr->second;
-		client->sendEvent( event );
-		itr++;
-	}// while
-	delete[] event; // Clean up event after being set to all clients
-}// createClient
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void main(int argc, char** argv)
@@ -537,52 +373,35 @@ void main(int argc, char** argv)
 	app.startConnection();
 	
 	float delay = -0.01f; // Seconds to delay sending events (<= 0 disables delay)
-	bool testStream = false;
-	char* testPacket;
-
 	bool printOutput = true;
 
-	printf("OInputServer: Starting to listen for clients... \n");
-	while(true){
+	omsg("OInputServer: Starting to listen for clients...");
+	while(true)
+	{
+		// TODO: Use StopWatch
 		if( delay > 0.0 )
 			Sleep(1000.0*delay); // Delay sending of data out
 
-		sm->poll(); // Required for DirectInputService
+		sm->poll();
 
 		// Start listening for clients (non-blocking)
 		app.startListening();
 
 		// Get events
 		int av = sm->getAvailableEvents();
-		if(av != 0 && !testStream )
+		if(av != 0)
 		{
-			// @todo: Instead of copying the event list, we can lock the main one.
+			// TODO: Instead of copying the event list, we can lock the main one.
 			Event evts[OMICRON_MAX_EVENTS];
 			sm->getEvents(evts, OMICRON_MAX_EVENTS);
 			for( int evtNum = 0; evtNum < av; evtNum++)
 			{
-				if( app.handleEvent(evts[evtNum]) ){ // is there an event?
-					// Send event to clients
-					if( printOutput )
-						printf("%s\n", app.getEvent());
-					app.sendToClients( app.getEvent() );
-				}
+				app.handleEvent(evts[evtNum]);
 			}
 			if( printOutput )
-				printf("------------------------------------------------------------------------------\n", app.getEvent());
-		}// if
-		else if( testStream ){
-			testPacket = new char[99];
-			// example touch string: '2:-10,0.5,0.5,0.1,0.1 '
-			itoa(1, testPacket, 10); // Append input type
-			strcat( testPacket, ":42,0.5,0.5,0.1,0.1 " );
-			printf("OInputServer: main() ----- WARNING: TEST STREAM MODE ACTIVE -----\n",testPacket);
-			printf("%s\n",testPacket);
-			app.sendToClients( testPacket );
+				printf("------------------------------------------------------------------------------\n");
 		}
-		
-
-	}// while
+	}
 
 	sm->stop();
 	delete sm;
