@@ -255,13 +255,14 @@ namespace omicron
 		bool isFlagSet(uint flag) const;
 		void setFlags(uint flags);
 		void clearFlags();
+		uint getFlags() const;
 
 		//! Utility method to check is the event is a key down event.
 		bool isKeyDown(char key) const;
 		//! Utility method to check is the event is a key up event.
 		bool isKeyUp(char key) const;
 
-		//! Point set
+		//! Extra data
 		void setExtraDataType(ExtraDataType type);
 		ExtraDataType getExtraDataType() const;
 		float getExtraDataFloat(int index) const;
@@ -274,12 +275,17 @@ namespace omicron
 		void setExtraDataString(const String& value);
 		void resetExtraData();
 		bool isExtraDataNull(int pointId) const;
+		void setExtraData(ExtraDataType type, unsigned int length, void* data);
 
 		//! Returns the size in bytes of the event extra data.
 		int getExtraDataSize() const;
 
 		//! Returns the number of elements stored in the extra data section of the Event.
 		int getExtraDataLength() const;
+
+		//! Returns the raw etra data buffer.
+		void* getExtraDataBuffer() const;
+
 	private:
 		unsigned int mySourceId;
 		enum Service::ServiceType myServiceType;
@@ -414,6 +420,10 @@ namespace omicron
 	{ myFlags = 0; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline uint Event::getFlags() const
+	{ return myFlags; }
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline bool Event::isKeyDown(char key) const
 	{
 		return ((char)mySourceId == key && myType == Event::Down);
@@ -502,6 +512,20 @@ namespace omicron
 	{
 		oassert(myExtraDataType == ExtraDataString);
 		return (const char*)myExtraData;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline void* Event::getExtraDataBuffer() const
+	{
+		return (void*)myExtraData;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline void Event::setExtraData(Event::ExtraDataType type, unsigned int length, void* data)
+	{
+		myExtraDataType = type;
+		myExtraDataLength = length;
+		memcpy(myExtraData, data, length);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////

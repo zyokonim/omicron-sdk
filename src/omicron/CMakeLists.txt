@@ -115,6 +115,13 @@ if(OMICRON_USE_NETSERVICE)
 	set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/NetService.h )
 endif(OMICRON_USE_NETSERVICE)
 
+# Network input support    
+set(OMICRON_USE_LEGACY_NETSERVICE true CACHE BOOL "Enable/disable Legacy network input support")
+if(OMICRON_USE_LEGACY_NETSERVICE)
+	set( srcs	 ${srcs} omicron/LegacyNetService.cpp )
+	set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/LegacyNetService.h )
+endif(OMICRON_USE_NETSERVICE)
+
 # OpenNI (Kinect) support
 set(OMICRON_USE_OPENNI false CACHE BOOL "Enable/disable OpenNI support (OpenNI libraries must be installed in the system)")
 if(OMICRON_USE_OPENNI)

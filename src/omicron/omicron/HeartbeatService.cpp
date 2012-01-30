@@ -48,6 +48,8 @@ void HeartbeatService::setup(Setting& settings)
 	{
 		myRate = settings["rate"];
 	}
+
+	mySeqNumber = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,10 +71,13 @@ void HeartbeatService::poll()
 		// To see a slightly more complex event setup (with position and additional values stored) check out
 		// the KeyboardService or MouseService class.
 		evt->reset(Event::Update, Service::Generic);
+		evt->setPosition(mySeqNumber, mySeqNumber + 0.1f, mySeqNumber + 0.2f);
+		evt->setOrientation(mySeqNumber + 0.3f, mySeqNumber + 0.4f, mySeqNumber + 0.5f, mySeqNumber + 0.6f);
 
 		// We are done: unlock the event list.
 		unlockEvents();
 
 		myLastEventTime = curt;
+		mySeqNumber++;
 	}
 }

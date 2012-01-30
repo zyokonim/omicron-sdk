@@ -52,6 +52,7 @@ namespace omicron {
 		// The rate at which events should be generated.
 		float myRate;
 		float myLastEventTime;
+		int mySeqNumber;
 	};
 }; // namespace omicron
 
