@@ -1,9 +1,8 @@
 /**************************************************************************************************
-* THE OMICRON PROJECT
+ * THE OMEGA LIB PROJECT
  *-------------------------------------------------------------------------------------------------
- * Copyright 2010-2012		Electronic Visualization Laboratory, University of Illinois at Chicago
+ * Copyright 2010-2011		Electronic Visualization Laboratory, University of Illinois at Chicago
  * Authors:										
- *  Arthur Nishimoto		anishimoto42@gmail.com
  *  Alessandro Febretti		febret@gmail.com
  *-------------------------------------------------------------------------------------------------
  * Copyright (c) 2010-2011, Electronic Visualization Laboratory, University of Illinois at Chicago
@@ -25,42 +24,29 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-#ifndef __NET_SERVICE_H__
-#define __NET_SERVICE_H__
+#include <connector/omicronConnectorClient.h>
 
-#include "omicron/osystem.h"
-#include "omicron/ServiceManager.h"
-#include "connector/omicronConnectorClient.h"
+using namespace omicronConnector;
 
-namespace omicron
+///////////////////////////////////////////////////////////////////////////////////////////////////
+class ConnectorListener
 {
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	class NetService: public Service
+public:
+	static void onEvent(const EventData& e)
 	{
-	public:
-		// Allocator function
-		NetService();
-		static NetService* New() { return new NetService(); }
-		static void onEvent(const omicronConnector::EventData& ed);
-
-	public:
-		virtual void setup(Setting& settings);
-		virtual void initialize();
-		virtual void poll();
-		virtual void dispose();
-		void setServer(const String& str, int );
-		void setDataport(int);
-
-	private:
-		static NetService* mysInstance;
-
-		omicronConnector::OmicronConnectorClient<NetService> myClient;
-
-		String serverAddress;
-		int serverPort;
-		int dataPort;
-	};
-
+		printf("EVENT pos(%f  %f  %f)\n", e.posx, e.posy, e.posz);
+	}
 };
 
-#endif
+///////////////////////////////////////////////////////////////////////////////////////////////////
+int main(int argc, char** argv)
+{
+	OmicronConnectorClient<ConnectorListener> client;
+	client.connect("127.0.0.1");
+	while(true)
+	{
+		client.poll(); 
+	}
+}
+
+

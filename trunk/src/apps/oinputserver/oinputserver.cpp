@@ -96,10 +96,10 @@ public:
 		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(0)); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(1)); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(2)); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().w()); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().x()); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().y()); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().z()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().w()); 
 		
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataType()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataLength()); 
