@@ -199,6 +199,8 @@ namespace omicron
 			//! Used for ctrl key presses or equivalent events.
 			Shift = 1 << 6,
 
+			//! INTERNAL: Used to mark events that have been processed
+			Processed = 1 << 15,
 			//! User flags should offset this value: 16 user flags available (USER to USER << 16)
 			User = 1 << 16
 		};
@@ -294,10 +296,9 @@ namespace omicron
 
 		Vector3f myPosition;
 		Quaternion myOrientation;
-		mutable bool myProcessed;
 		int myTimestamp;
 
-		unsigned int myFlags;
+		mutable unsigned int myFlags;
 
 		ExtraDataType myExtraDataType;
 		int myExtraDataLength;
@@ -307,7 +308,6 @@ namespace omicron
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline Event::Event():
-		myProcessed(false),
 		myFlags(0),
 		myExtraDataType(ExtraDataNull),
 		myExtraDataValidMask(0)
@@ -357,11 +357,11 @@ namespace omicron
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline void Event::setProcessed() const
-	{ myProcessed = true; }
+	{ myFlags |= Processed; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline bool Event::isProcessed() const
-	{ return myProcessed; }
+	{ return (myFlags & Processed == Processed); }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline const Vector3f& Event::getPosition() const

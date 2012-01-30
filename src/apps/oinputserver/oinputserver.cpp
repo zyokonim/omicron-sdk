@@ -87,7 +87,6 @@ public:
 	virtual void handleEvent(const Event& evt)
 	{
 		int offset = 0;
-		OI_WRITEBUF(bool, eventPacket, offset, evt.isProcessed()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 
 		OI_WRITEBUF(int, eventPacket, offset, evt.getServiceId()); 
