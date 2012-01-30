@@ -30,32 +30,6 @@ using namespace omicron;
 
 #define OI_READBUF(type, buf, offset, val) val = *((type*)&buf[offset]); offset += sizeof(type);
 
-#ifdef OMICRON_OS_WIN     
-	#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %d\n", WSAGetLastError());
-#else
-	#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %s\n", strerror(errno));
-#endif
-
-#ifdef OMICRON_OS_WIN     
-	#define SOCKET_CLOSE(sock) closesocket(sock);
-	#define SOCKET_CLEANUP() WSACleanup();
-	#define SOCKET_INIT() \
-		int iResult;    \
-		iResult = WSAStartup(MAKEWORD(2,2), &wsaData); \
-		if (iResult != 0) { \
-			printf("NetService: WSAStartup failed: %d\n", iResult); \
-			return; \
-		} else { \
-			printf("NetService: Winsock initialized \n"); \
-		}
-
-#else
-	#define SOCKET_CLOSE(sock) close(sock);
-	#define SOCKET_CLEANUP 
-	#define SOCKET_INIT 
-#endif
-
-
 struct EventData
 {
 	bool processed;
@@ -200,10 +174,10 @@ void NetService::initHandshake()
 
 	iResult = send(ConnectSocket, sendbuf, (int) strlen(sendbuf), 0);
 
-	if (iResult == SOCKET_ERROR) 
+	if (iResult == -1) 
 	{
 		PRINT_SOCKET_ERROR("NetService: Send failed");
-		closesocket(ConnectSocket);
+		SOCKET_CLOSE(ConnectSocket);
 		SOCKET_CLEANUP()
 		return;
 	}
@@ -224,7 +198,7 @@ void NetService::initHandshake()
 	RecvAddr.sin_family = AF_INET;
 	RecvAddr.sin_port = htons(atoi(dataPort));
 	RecvAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	bind(RecvSocket, (SOCKADDR *) &RecvAddr, sizeof(RecvAddr));
+	bind(RecvSocket, (const sockaddr*) &RecvAddr, sizeof(RecvAddr));
 //#else
 //	/*
 //	* Based on Beej's Guide to Network Programming:
@@ -290,7 +264,7 @@ void NetService::dispose()
 	// Close the socket when finished receiving datagrams
 	printf("NetService: Finished receiving. Closing socket.\n");
 	iResult = SOCKET_CLOSE(RecvSocket);
-	if (iResult == SOCKET_ERROR) 
+	if (iResult == -1) 
 	{
 		PRINT_SOCKET_ERROR("NetService: Closesocket failed");
 		return;
@@ -307,8 +281,8 @@ void NetService::parseDGram(int result)
 		recvbuf,
 		DEFAULT_BUFLEN-1,
 		0,
-		(SOCKADDR *)&SenderAddr, 
-		&SenderAddrSize);
+		(sockaddr *)&SenderAddr, 
+		(socklen_t*)&SenderAddrSize);
 //#else
 //    socklen_t addr_len;
 //	struct sockaddr_storage their_addr;
