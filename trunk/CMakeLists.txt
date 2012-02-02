@@ -92,7 +92,8 @@ set(OMICRON_DATA_PATH "${CMAKE_SOURCE_DIR}/data")
 
 ###################################################################################################
 # Set the output directories for libraries and binary files
-if(OMICRON_LIBRARY_OUTPUT_DIRECTORY)
+if(OMICRON_USE_CUSTOM_OUTPUT)
+message("set custom output")
 		set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OMICRON_LIBRARY_OUTPUT_DIRECTORY})
 		set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OMICRON_ARCHIVE_OUTPUT_DIRECTORY})
 		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OMICRON_RUNTIME_OUTPUT_DIRECTORY})
@@ -104,6 +105,7 @@ if(OMICRON_LIBRARY_OUTPUT_DIRECTORY)
 		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${OMICRON_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
 		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OMICRON_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
 else()
+message("NO set custom output")
 	if(MSVC OR CMAKE_GENERATOR STREQUAL "Xcode")
 		# Since visual studio builds are multiconfiguration, set two separate directories for debug and release builds
 		set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin/debug)

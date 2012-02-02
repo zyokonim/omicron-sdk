@@ -30,7 +30,7 @@
 #include "osystem.h"
 
 // Used for lock.
-namespace tthread { class mutex; };
+namespace tthread { class mutex; class thread; };
 
 namespace omicron
 {
@@ -48,6 +48,20 @@ namespace omicron
 		tthread::mutex* myLockImpl;
 	};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Lock wrapper class
+	class OMICRON_API Thread
+	{
+	public:
+		Thread();
+		~Thread();
+		void start();
+		void stop();
+		virtual void threadProc() {}
+
+	private:
+		tthread::thread* myThreadImpl;
+	};
 }; // namespace omicron
 
 #endif
