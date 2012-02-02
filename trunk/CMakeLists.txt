@@ -36,8 +36,6 @@ if(COMMAND cmake_policy)
       #cmake_policy(SET CMP0008 NEW)
 endif()
 
-message("CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
-
 ###################################################################################################
 # Create a build name depending on the OS, Toolset and architecture.
 if(CMAKE_GENERATOR STREQUAL "Visual Studio 9 2008")
@@ -78,7 +76,7 @@ elseif(CMAKE_GENERATOR STREQUAL "Unix Makefiles")
 			set(OMICRON_ARCH_I386 1)
 			set(OMICRON_TOOL_GCC 1)
 		endif()
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldl -lrt")	
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldl -lrt -pthread")	
 	endif()
 elseif(CMAKE_GENERATOR STREQUAL "Xcode")
 	execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)

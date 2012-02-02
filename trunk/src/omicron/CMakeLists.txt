@@ -285,7 +285,7 @@ if(OMICRON_USE_THINKGEAR)
 		target_link_libraries( omicron ${EXT_LIB_DIR}/thinkgear.lib)
 		# Copy the PQLabs dll into the destination bin directory
 		configure_file(${EXT_LIB_DIR}/thinkgear.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG} COPYONLY)
-		configure_file(${EXT_LIB_DIR}/thinkgear.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}COPYONLY)
+		configure_file(${EXT_LIB_DIR}/thinkgear.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE} COPYONLY)
 	endif(WIN32)
 endif(OMICRON_USE_THINKGEAR)
 
