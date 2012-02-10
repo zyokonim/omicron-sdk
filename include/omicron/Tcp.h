@@ -87,6 +87,7 @@ namespace omicron {
 		size_t readUntil(char* buffer, size_t size, char delimiter = '\0');
 		//! Synchronously read thre specified number of bytes from the stream.
 		size_t read(byte* buffer, size_t size);
+		size_t availableBytes() { return mySocket.available(); }
 		//@}
 
 		//! Connection events
