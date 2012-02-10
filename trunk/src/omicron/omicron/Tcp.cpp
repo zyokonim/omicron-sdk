@@ -156,11 +156,10 @@ bool TcpConnection::poll()
 		}
 		else if(mySocket.available() != 0)
 		{
-			handleData();
-			return true;
+			while(mySocket.available() != 0) handleData();
 		}
 	} 
-	return false;
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,6 +235,7 @@ size_t TcpConnection::read(byte* buffer, size_t size)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void TcpConnection::doHandleConnected()
 {
+	omsg("TcpConnection::doHandleConnected");
 	myState = ConnectionOpen;
 	handleConnected();
 }
