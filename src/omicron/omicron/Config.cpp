@@ -226,6 +226,17 @@ Vector3f Config::getVector3fValue(const String& name, const Setting& s, const Ve
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+Vector2f Config::getVector2fValue(const String& name, const Setting& s, const Vector2f& defaultValue)
+{
+	if(!s.exists(name)) return defaultValue;
+	Setting& sv = s[name];
+	Vector2f value;
+	value[0] = getFloatValue(0, sv, defaultValue[0]);
+	value[1] = getFloatValue(1, sv, defaultValue[1]);
+	return value;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 Color Config::getColorValue(const String& name, const Setting& s, const Color& defaultValue)
 {
 	if(!s.exists(name)) return defaultValue;
