@@ -41,8 +41,9 @@ public:
 	static float getFloatValue(const String& name, const Setting& s, float defaultValue = 0.0f);
 	static float getFloatValue(int index, const Setting& s, float defaultValue = 0.0f);
 	static int getIntValue(const String& name, const Setting& s, int defaultValue = 0.0f);
-	static String getStringValue(const String& name, const Setting& s, const String& defaultValue = "");
 	static Vector3f getVector3fValue(const String& name, const Setting& s, const Vector3f& defaultValue = Vector3f::Zero());
+	static Vector2f getVector2fValue(const String& name, const Setting& s, const Vector2f& defaultValue = Vector2f::Zero());
+	static String getStringValue(const String& name, const Setting& s, const String& defaultValue = "");
 	static Color getColorValue(const String& name, const Setting& s, const Color& defaultValue = Color(1, 1, 1, 1));
 
 public:
