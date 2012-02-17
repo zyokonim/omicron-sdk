@@ -139,6 +139,10 @@ namespace omicron { namespace math
 		template<class Derived >
 		quaternion (const Eigen::QuaternionBase< Derived > &other): Base (other) {}
 	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	template<typename S> vector<2, S> vector3to2(vector<3, S> in) 
+	{ return vector<2, S>(in[0], in[1]); }
 }; // namespace math
 }; //namespace omicron
 
