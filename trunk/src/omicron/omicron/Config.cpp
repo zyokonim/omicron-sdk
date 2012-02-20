@@ -201,6 +201,20 @@ int Config::getIntValue(const String& name, const Setting& s, int defaultValue)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+int Config::getIntValue(int index, const Setting& s, int defaultValue)
+{
+	if(s.getLength() <= index) return defaultValue;
+	Setting& sv = s[index];
+	if(sv.getType() != Setting::TypeFloat && sv.getType() != Setting::TypeInt)
+	{
+		ofwarn("%1%[%2%]: wrong setting type. Expected 'int', found '%3%'", %s.getName() %index %getTypeName(sv.getType()));
+		return defaultValue;
+	}
+	if(sv.getType() == Setting::TypeFloat) return (int)((float)sv);
+	return (int)sv;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 String Config::getStringValue(const String& name, const Setting& s, const String& defaultValue)
 {
 	if(!s.exists(name)) return defaultValue;
@@ -233,6 +247,17 @@ Vector2f Config::getVector2fValue(const String& name, const Setting& s, const Ve
 	Vector2f value;
 	value[0] = getFloatValue(0, sv, defaultValue[0]);
 	value[1] = getFloatValue(1, sv, defaultValue[1]);
+	return value;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+Vector2i Config::getVector2iValue(const String& name, const Setting& s, const Vector2i& defaultValue)
+{
+	if(!s.exists(name)) return defaultValue;
+	Setting& sv = s[name];
+	Vector2i value;
+	value[0] = getIntValue(0, sv, defaultValue[0]);
+	value[1] = getIntValue(1, sv, defaultValue[1]);
 	return value;
 }
 
