@@ -89,6 +89,9 @@ namespace omicron
 		void clearEvents();
 		void lockEvents();
 		void unlockEvents();
+		Event* writeHead();
+		Event* readHead();
+		Event* readTail();
 		//@}
 
 	public:
@@ -100,9 +103,6 @@ namespace omicron
 
 		int incrementBufferIndex(int index);
 		int decrementBufferIndex(int index);
-		Event* writeHead();
-		Event* readHead();
-		Event* readTail();
 
 	private:
 		bool myInitialized;
