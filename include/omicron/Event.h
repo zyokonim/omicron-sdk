@@ -255,8 +255,8 @@ namespace omicron
 		
 		//! Event flags.
 		bool isFlagSet(uint flag) const;
-		void setFlags(uint flags);
-		void clearFlags();
+		void setFlags(uint flags) const;
+		void clearFlags() const;
 		uint getFlags() const;
 
 		//! Utility method to check is the event is a key down event.
@@ -412,11 +412,11 @@ namespace omicron
 	{ return (myFlags & flag) == flag; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	inline void Event::setFlags(uint flags)
+	inline void Event::setFlags(uint flags) const
 	{ myFlags |= flags; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	inline void Event::clearFlags()
+	inline void Event::clearFlags() const
 	{ myFlags = 0; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
