@@ -130,7 +130,7 @@
      std::string name_;
      std::string description_;
      std::string date_;
-     float version_;
+     std::string version_;
      bool seen_end_named_;
      // List of unnamed arguments
      std::vector<Argument_target*> unnamed_arguments_;

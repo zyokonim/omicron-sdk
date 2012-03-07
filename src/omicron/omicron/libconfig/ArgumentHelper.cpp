@@ -79,8 +79,8 @@
      }
      out << ' ' << arg_description;
      out << "\t" << description;
-     out << " Value: ";
-     write_value(out);
+     //out << " Value: ";
+     //write_value(out);
      out << std::endl;
    }
  
@@ -105,8 +105,8 @@
          out << "/--" << long_name;
        }
        out << "\t" << description;
-       out << " Value: ";
-       write_value(out);
+       //out << " Value: ";
+       //write_value(out);
        out << std::endl;
      }
      virtual ~FlagTarget(){}
@@ -310,8 +310,8 @@
      version_=-1;
      extra_arguments_=NULL;
      seen_end_named_=false;
-     newFlag('v', "verbose", "Whether to print extra information", verbose);
-     newFlag('V', "VERBOSE", "Whether to print lots of extra information", VERBOSE);
+     //newFlag('v', "verbose", "Whether to print extra information", verbose);
+     //newFlag('V', "VERBOSE", "Whether to print lots of extra information", VERBOSE);
    }
  
  
@@ -337,12 +337,12 @@
      name_= descr;
    }
  
-   void ArgumentHelper::setVersion(float v){
-     version_=v;
-   }
+   //void ArgumentHelper::setVersion(float v){
+   //  version_=v;
+   //}
  
    void ArgumentHelper::setVersion(const char *s){
-     version_=atof(s);
+     version_=s;
    }
  
    void  ArgumentHelper::setBuildDate(const char *date){
@@ -487,7 +487,7 @@
    void ArgumentHelper::writeUsage(std::ostream &out) const {
      out << name_ << " version " << version_ << ", by " << author_ << std::endl;
      out << description_ << std::endl;
-     out << "Compiled on " << date_ << std::endl << std::endl;
+     //out << "Compiled on " << date_ << std::endl << std::endl;
      out << "Usage: " << name_  << " ";
      for (UVect::const_iterator it= unnamed_arguments_.begin(); it != unnamed_arguments_.end(); ++it){
        (*it)->write_name(out);
