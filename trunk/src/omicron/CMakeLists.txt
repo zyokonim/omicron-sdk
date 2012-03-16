@@ -46,6 +46,7 @@ SET( srcs
 		omicron/FilesystemDataSource.cpp
 		omicron/BasicPortholeService.cpp
 		omicron/Tcp.cpp
+		omicron/debug_new.cpp
 		
 		#omega::xml
 		omicron/xml/tinystr.cpp
@@ -73,6 +74,7 @@ SET( csrcs
 # Headers
 SET( headers 
 		${CMAKE_SOURCE_DIR}/include/omicron.h
+		${CMAKE_SOURCE_DIR}/include/omicron/debug_new.h
 		${CMAKE_SOURCE_DIR}/include/omicron/ByteArray.h
         ${CMAKE_SOURCE_DIR}/include/omicron/osystem.h
         ${CMAKE_SOURCE_DIR}/include/omicron/otypes.h
@@ -113,14 +115,14 @@ set(OMICRON_USE_NETSERVICE true CACHE BOOL "Enable/disable Network input support
 if(OMICRON_USE_NETSERVICE)
 	set( srcs	 ${srcs} omicron/NetService.cpp )
 	set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/NetService.h )
-endif(OMICRON_USE_NETSERVICE)
+endif()
 
 # Network input support    
 set(OMICRON_USE_LEGACY_NETSERVICE true CACHE BOOL "Enable/disable Legacy network input support")
 if(OMICRON_USE_LEGACY_NETSERVICE)
 	set( srcs	 ${srcs} omicron/LegacyNetService.cpp )
 	set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/LegacyNetService.h )
-endif(OMICRON_USE_NETSERVICE)
+endif()
 
 # OpenNI (Kinect) support
 set(OMICRON_USE_OPENNI false CACHE BOOL "Enable/disable OpenNI support (OpenNI libraries must be installed in the system)")
@@ -133,7 +135,7 @@ if(OMICRON_USE_OPENNI)
 		include_directories(/usr/include/ni)
 		include_directories(/usr/include/nite)
 	endif(WIN32)
-endif(OMICRON_USE_OPENNI)
+endif()
 	
 # NaturalPoint Motion capture system support
 if(WIN32)
@@ -141,8 +143,8 @@ if(WIN32)
 	if(OMICRON_USE_NATURAL_POINT)
 		set( srcs	 ${srcs} omicron/NaturalPointService.cpp )
 		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/NaturalPointService.h )
-	ENDIF(OMICRON_USE_NATURAL_POINT)
-endif(WIN32)
+	ENDIF()
+endif()
 
 # Optitrack tracking system support
 if(WIN32)
@@ -150,8 +152,8 @@ if(WIN32)
 	if(OMICRON_USE_OPTITRACK)
 		set( srcs	 ${srcs} omicron/OptiTrackService.cpp )
 		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/OptiTrackService.h )
-	endif(OMICRON_USE_OPTITRACK)
-endif(WIN32)
+	endif()
+endif()
 
 # PQLabs touch surface module
 if(WIN32)
@@ -159,8 +161,8 @@ if(WIN32)
 	if(OMICRON_USE_PQLABS)
 		set( srcs	 ${srcs} omicron/PQService.cpp )
 		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/PQService.h )
-	endif(OMICRON_USE_PQLABS)
-endif(WIN32)
+	endif()
+endif()
 
 # DirectInput support
 if(WIN32)
@@ -176,8 +178,8 @@ if(WIN32)
 							 ${CMAKE_SOURCE_DIR}/include/omicron/Wiimote.h 
 							 ${CMAKE_SOURCE_DIR}/include/omicron/wiimote_common.h 
 							 ${CMAKE_SOURCE_DIR}/include/omicron/wiimote_state.h )
-	endif(OMICRON_USE_DIRECTINPUT)
-endif(WIN32)
+	endif()
+endif()
 	
 # VRPN module support
 if(WIN32)
@@ -196,8 +198,8 @@ if(WIN32)
 		include_directories( ${CMAKE_SOURCE_DIR}/include/omicron/VRPNService.h
 							 ${CMAKE_SOURCE_DIR}/include/omicron/vrpn
 			)
-	endif(OMICRON_USE_VRPN)
-endif(WIN32)
+	endif()
+endif()
 
 # ThinkGear module support
 if(WIN32)
@@ -209,8 +211,8 @@ if(WIN32)
 			)
 		include_directories( ${CMAKE_SOURCE_DIR}/include/omicron/ThinkGearService.h
 			)
-	endif(OMICRON_USE_THINKGEAR)
-endif(WIN32)
+	endif()
+endif()
 
 ###################################################################################################
 # Group source files into separate folders for visual studio project (this is just eye candy)
