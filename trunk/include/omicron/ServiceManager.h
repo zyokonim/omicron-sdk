@@ -64,17 +64,17 @@ namespace omicron
 
 		//! Service management
 		//@{
-		void registerService(String svcName, ServiceAllocator creationFunc);
+		void registerService(const String& svcName, ServiceAllocator creationFunc);
 		//! Find an input service allocator given the input service name.
 		//! See registerInputService for additional information.
-		ServiceAllocator findServiceAllocator(String svcName);
+		ServiceAllocator findServiceAllocator(const String& svcName);
 
 		//! Add a preinitialized service to the manager
 		void addService(Service* service);
 		//! Add a new service to the manager.
 		Service* addService(const String& svcClass);
-		Service* findService(String svcName);
-		template<typename T> T* findService(String svcName);
+		Service* findService(const String& svcName);
+		template<typename T> T* findService(const String& svcName);
 		Service* getService(int id);
 		template<typename T> T* getService(int id);
 		//@}
@@ -125,7 +125,7 @@ namespace omicron
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	inline Service* ServiceManager::findService(String svcName)
+	inline Service* ServiceManager::findService(const String& svcName)
 	{
 		foreach(Service* svc, myServices)
 		{
@@ -135,7 +135,7 @@ namespace omicron
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename T> inline T* ServiceManager::findService(String svcName)
+	template<typename T> inline T* ServiceManager::findService(const String& svcName)
 	{
 		return (T*)findService(svcName);
 	}

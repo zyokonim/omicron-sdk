@@ -173,14 +173,14 @@ void ServiceManager::setup(Setting& settings)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void ServiceManager::registerService(String svcName, ServiceAllocator creationFunc)
+void ServiceManager::registerService(const String& svcName, ServiceAllocator creationFunc)
 {
 	myServiceRegistry.insert(
 		ServiceAllocatorDictionary::value_type(std::string(svcName), creationFunc));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-ServiceAllocator ServiceManager::findServiceAllocator(String svcName)
+ServiceAllocator ServiceManager::findServiceAllocator(const String& svcName)
 {
 	ServiceAllocatorDictionary::const_iterator elem = myServiceRegistry.find(svcName);
 	if(elem == myServiceRegistry.end()) return NULL;
