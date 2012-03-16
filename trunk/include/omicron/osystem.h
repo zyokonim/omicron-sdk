@@ -91,9 +91,5 @@ namespace omicron
 #define odbg(str) omsg(str);
 #define oassert(c) if(!(c)) { oabort(__FILE__, __LINE__, #c); }
 
-// debug new: enables memory leak detection.
-#define _DEBUG_NEW_REDEFINE_NEW 1
-#include "debug_new.h"
-
 
 #endif

@@ -46,7 +46,6 @@ SET( srcs
 		omicron/FilesystemDataSource.cpp
 		omicron/BasicPortholeService.cpp
 		omicron/Tcp.cpp
-		omicron/debug_new.cpp
 		
 		#omega::xml
 		omicron/xml/tinystr.cpp
@@ -74,7 +73,6 @@ SET( csrcs
 # Headers
 SET( headers 
 		${CMAKE_SOURCE_DIR}/include/omicron.h
-		${CMAKE_SOURCE_DIR}/include/omicron/debug_new.h
 		${CMAKE_SOURCE_DIR}/include/omicron/ByteArray.h
         ${CMAKE_SOURCE_DIR}/include/omicron/osystem.h
         ${CMAKE_SOURCE_DIR}/include/omicron/otypes.h
