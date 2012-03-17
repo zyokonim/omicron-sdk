@@ -50,7 +50,7 @@ public:
 
 public:
 	Config(const String& filename);
-	~Config() {}
+	~Config();
 
 	const String& getFilename() { return myCfgFilename; }
 

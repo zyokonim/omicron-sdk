@@ -87,6 +87,7 @@ namespace omicron
 	{
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	public:
 			ReferenceType(): myRefCount(0) {}
 		virtual ~ReferenceType() {}
 			
