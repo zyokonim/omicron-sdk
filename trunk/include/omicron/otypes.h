@@ -41,6 +41,12 @@
 
 // boost includes
 #include <boost/foreach.hpp>
+#include <boost/detail/atomic_count.hpp>
+
+// Hack to rename intrusive_ptr to Ref.
+#define intrusive_ptr Ref
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#undef intrusive_ptr
 #define foreach BOOST_FOREACH
 
 #define NOMINMAX
@@ -74,12 +80,33 @@ namespace boost { template<class Ch, class Tr, class Alloc> class basic_format; 
 
 namespace omicron
 {
+	using boost::Ref;
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	class ReferenceType
+	class OMICRON_API ReferenceType
 	{
 	public:
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+			ReferenceType(): myRefCount(0) {}
+		virtual ~ReferenceType() {}
+			
+		friend void intrusive_ptr_add_ref(ReferenceType const* s)
+			{
+				//oassert(s->ref_count >= 0);
+				//oassert(s != 0);
+				++s->myRefCount;
+			}
+
+		friend void intrusive_ptr_release(ReferenceType const* s)
+			{
+				//oassert(s->ref_count > 0);
+				//oassert(s != 0);
+				if (--s->myRefCount == 0) delete s;
+			}
+	private:
+		mutable boost::detail::atomic_count myRefCount;
 	};
+
 
 	// Basic typedefs
 	typedef unsigned char byte;
