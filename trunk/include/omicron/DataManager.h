@@ -87,7 +87,7 @@ namespace omicron
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	class OMICRON_API DataSource
+	class OMICRON_API DataSource: public ReferenceType
 	{
 	public:
 		DataSource(const String& name): myName(name) {}
@@ -107,10 +107,10 @@ namespace omicron
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
-	class OMICRON_API DataManager
+	class OMICRON_API DataManager: public ReferenceType
 	{
 	public:
-		typedef Dictionary<String, DataSource*> SourceDictionary;
+		typedef Dictionary<String, Ref<DataSource>> SourceDictionary;
 
 		static DataManager* getInstance();
 
