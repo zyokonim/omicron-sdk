@@ -372,7 +372,11 @@ void main(int argc, char** argv)
 	app.startConnection();
 	
 	float delay = -0.01f; // Seconds to delay sending events (<= 0 disables delay)
+#ifdef _DEBUG
 	bool printOutput = true;
+#else
+	bool printOutput = false;
+#endif
 
 	omsg("OInputServer: Starting to listen for clients...");
 	while(true)
