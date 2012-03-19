@@ -1,0 +1,36 @@
+#summary This page contains release notes for omegalib starting from version 0.8
+#sidebar Sidebar
+
+= omicron v1.2 (*current developer version*) =
+*Initial Revision*: 36
+== Summary ==
+== Change Log ==
+
+------------------------------------------------------------------------
+= omicron v1.1 =
+*Initial Revision*: 16
+*Branch-out Revision*: 35
+== Summary ==
+	This is the first version to be released as a binary package too (windows only for now).
+	The most important changes from 1.0 are the following:
+		* omicron now supports a new binary event streaming protocol. The protocol is supported by `oinputserver` and `NetService` by default. The old string-based protocol is still available through `LegacyNetService` and `legacy-oinputserver`
+		* we added *omicronConnector*. omicronConnector is a header-only library that allows C++ applications to easily connect to input server instances and receive events over a TCP/UDP connection.
+		* a few utility methods have been added to the Config and ArgumentHelper APIs.
+		* The implementation of reference counting and smart pointer support has been completed. This also allowed fixing a few memory leaks in the library.
+== Change Log ==
+	* NEW: Reference counting support
+	* CHANGE: ArgumentHelper
+	* CHANGE: ServiceManager event methods now public
+	* NEW: Config::getVector2iValue
+	* NEW vector3to2
+	* NEW: Unity integration and demo
+	* NEW: Config::getVector2fValue
+	* NEW: Thread class, fixed setting custom output build directories
+	* NEW: omicronConnectorClient
+	* NEW: fixing netservice, new binary event protocol
+== Bugfixes ==
+	* FIX: linux NetService
+	* FIX: Tcp connection polling
+	* FIX: const correctness fixes
+	* FIX: LegacyNetService was not registered
+	* FIX: various memory leaks
