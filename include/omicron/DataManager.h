@@ -110,7 +110,7 @@ namespace omicron
 	class OMICRON_API DataManager: public ReferenceType
 	{
 	public:
-		typedef Dictionary<String, Ref<DataSource>> SourceDictionary;
+		typedef Dictionary<String, Ref<DataSource> > SourceDictionary;
 
 		static DataManager* getInstance();
 
