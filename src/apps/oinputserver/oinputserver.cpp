@@ -103,6 +103,7 @@ public:
 		
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataType()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataLength()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataMask()); 
 		if(evt.getExtraDataType() != Event::ExtraDataNull)
 		{
 			memcpy(&eventPacket[offset], evt.getExtraDataBuffer(), evt.getExtraDataSize());

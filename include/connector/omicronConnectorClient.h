@@ -96,6 +96,7 @@ namespace omicronConnector
 		static const int ExtraDataSize = 1024;
 		unsigned int extraDataType;
 		unsigned int extraDataLength;
+		unsigned int extraDataMask;
 		unsigned char extraData[ExtraDataSize];
 	};
 
@@ -294,6 +295,7 @@ namespace omicronConnector
 		
 			OI_READBUF(unsigned int, eventPacket, offset, ed.extraDataType); 
 			OI_READBUF(unsigned int, eventPacket, offset, ed.extraDataLength); 
+			OI_READBUF(unsigned int, eventPacket, offset, ed.extraDataMask); 
 			memcpy(ed.extraData, &eventPacket[offset], EventData::ExtraDataSize);
 
 			ListenerType::onEvent(ed);
