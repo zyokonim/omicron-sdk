@@ -46,6 +46,7 @@ SET( srcs
 		omicron/FilesystemDataSource.cpp
 		omicron/BasicPortholeService.cpp
 		omicron/Tcp.cpp
+		omicron/WandService.cpp
 		
 		#omega::xml
 		omicron/xml/tinystr.cpp
@@ -90,6 +91,7 @@ SET( headers
         ${CMAKE_SOURCE_DIR}/include/omicron/FileDataStream.h
         ${CMAKE_SOURCE_DIR}/include/omicron/BasicPortholeService.h
 		${CMAKE_SOURCE_DIR}/include/omicron/Tcp.h
+        ${CMAKE_SOURCE_DIR}/include/omicron/WandService.h
 
 		# eigenwrap
         ${CMAKE_SOURCE_DIR}/include/omicron/math/EigenWrappers.h
@@ -164,18 +166,20 @@ endif()
 
 # DirectInput support
 if(WIN32)
-	set(OMICRON_USE_DIRECTINPUT true CACHE BOOL "Enable/disable DirectX Input support")
+	set(OMICRON_USE_DIRECTINPUT true CACHE BOOL "Enable DirectX Input support (Supports Xbox360 and Wiimote controllers)")
 	if(OMICRON_USE_DIRECTINPUT)
 		set( srcs	 ${srcs} omicron/DirectXInputService.cpp
-					 ${srcs} omicron/Wiimote.cpp )
+							 omicron/WiimoteService.cpp
+							 omicron/Wiimote.cpp )
 		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/DirectXInputService.h
 								${CMAKE_SOURCE_DIR}/include/omicron/Wiimote.h 
+								${CMAKE_SOURCE_DIR}/include/omicron/WiimoteService.h 
 								${CMAKE_SOURCE_DIR}/include/omicron/wiimote_common.h 
 								${CMAKE_SOURCE_DIR}/include/omicron/wiimote_state.h )
-		include_directories( ${CMAKE_SOURCE_DIR}/include/omicron/DirectXInputService.h
-							 ${CMAKE_SOURCE_DIR}/include/omicron/Wiimote.h 
-							 ${CMAKE_SOURCE_DIR}/include/omicron/wiimote_common.h 
-							 ${CMAKE_SOURCE_DIR}/include/omicron/wiimote_state.h )
+#		include_directories( ${CMAKE_SOURCE_DIR}/include/omicron/DirectXInputService.h
+#							 ${CMAKE_SOURCE_DIR}/include/omicron/Wiimote.h 
+#							 ${CMAKE_SOURCE_DIR}/include/omicron/wiimote_common.h 
+#							 ${CMAKE_SOURCE_DIR}/include/omicron/wiimote_state.h )
 	endif()
 endif()
 	

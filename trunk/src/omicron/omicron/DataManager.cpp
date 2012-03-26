@@ -27,6 +27,8 @@
 #include "omicron/DataManager.h"
 #include "omicron/FilesystemDataSource.h"
 
+#include <fstream>
+
 using namespace omicron;
 
 DataManager* DataManager::mysInstance = NULL;
@@ -51,6 +53,15 @@ bool DataManager::findFile(const String& name, String& outPath)
 		return true;
 	}
 	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+String DataManager::readTextFile(const String& name)
+{
+	std::ifstream t(name.c_str());
+	std::stringstream buffer;
+	buffer << t.rdbuf();
+	return buffer.str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
