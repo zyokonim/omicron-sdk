@@ -312,7 +312,8 @@ namespace omicron
 		void setExtraDataString(const String& value);
 		void resetExtraData();
 		bool isExtraDataNull(int pointId) const;
-		void setExtraData(ExtraDataType type, unsigned int length, void* data);
+		void setExtraData(ExtraDataType type, unsigned int length, int mask, void* data);
+		uint getExtraDataMask() const { return myExtraDataValidMask; }
 
 		//! Returns the size in bytes of the event extra data.
 		int getExtraDataSize() const;
@@ -556,10 +557,11 @@ namespace omicron
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	inline void Event::setExtraData(Event::ExtraDataType type, unsigned int length, void* data)
+	inline void Event::setExtraData(Event::ExtraDataType type, unsigned int length, int mask, void* data)
 	{
 		myExtraDataType = type;
 		myExtraDataLength = length;
+		myExtraDataValidMask = mask;
 		memcpy(myExtraData, data, length);
 	}
 
