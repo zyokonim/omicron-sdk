@@ -30,9 +30,11 @@
 // Input services
 #include "omicron/HeartbeatService.h"
 #include "omicron/BasicPortholeService.h"
+#include "omicron/WandService.h"
 
 #ifdef OMICRON_USE_DIRECTINPUT
 	#include "omicron/DirectXInputService.h"
+	#include "omicron/WiimoteService.h"
 #endif
 #ifdef OMICRON_USE_NATURAL_POINT
 	#include "omicron/NaturalPointService.h"
@@ -95,9 +97,11 @@ void ServiceManager::registerDefaultServices()
 	// register standard input services.
 	registerService("HeartbeatService", (ServiceAllocator)HeartbeatService::New);
 	registerService("BasicPortholeService", (ServiceAllocator)BasicPortholeService::New);
+	registerService("WandService", (ServiceAllocator)WandService::New);
 
 #ifdef OMICRON_USE_DIRECTINPUT
 	registerService("DirectXInputService", (ServiceAllocator)DirectXInputService::New);
+	registerService("WiimoteService", (ServiceAllocator)WiimoteService::New);
 #endif
 #ifdef OMICRON_USE_MOUSE
 	registerService("MouseService", (ServiceAllocator)MouseService::New);

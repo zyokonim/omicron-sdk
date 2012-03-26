@@ -117,6 +117,9 @@ namespace omicron
 		//! Utility method for finding a file in one of the data sources.
 		static bool findFile(const String& name, String& outPath);
 
+		//! Utility method for reading a text file
+		static String readTextFile(const String& name);
+
 	public:
 		//! Data sources
 		//@{
