@@ -100,6 +100,7 @@ void VRPNService::setup(Setting& settings)
 			myUpdateInterval = settings["updateInterval"];
 		}
 	}
+	setPollPriority(Service::PollFirst);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 VRPNService* VRPNService::mysInstance = NULL;
