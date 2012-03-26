@@ -130,10 +130,11 @@ void WiimoteService::initialize()
 	{
 		owarn("WiimoteService: no wiimote controller connected.");
 	}
-	//nConnectedWiimotes++;
-
-	// Set all LEDs
-	myWiimote.SetLEDs(0x01);
+	else
+	{
+		// Set all LEDs
+		myWiimote.SetLEDs(0x01);
+	}
 
 	myUpdateTimer.start();
 }

@@ -42,7 +42,7 @@ public:
 int main(int argc, char** argv)
 {
 	OmicronConnectorClient<ConnectorListener> client;
-	client.connect("127.0.0.1");
+	client.connect("127.0.0.1", 28000);
 	while(true)
 	{
 		client.poll(); 
