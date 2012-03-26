@@ -117,7 +117,7 @@ public:
 		}
 	}
 	
-	void startConnection();
+	void startConnection(Config* cfg);
 	SOCKET startListening();
 
 private:
@@ -139,9 +139,10 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void OInputServer::startConnection()
+void OInputServer::startConnection(Config* cfg)
 {
-	serverPort = "27000";
+	Setting& sCfg = cfg->lookup("config");
+	serverPort = strdup(Config::getStringValue("serverPort", sCfg, "27000").c_str());
 	ListenSocket = INVALID_SOCKET;
 	recvbuflen = DEFAULT_BUFLEN;
 	int iResult;
@@ -369,7 +370,7 @@ void main(int argc, char** argv)
 	ServiceManager* sm = new ServiceManager();
 	sm->setupAndStart(cfg);
 
-	app.startConnection();
+	app.startConnection(cfg);
 	
 	float delay = -0.01f; // Seconds to delay sending events (<= 0 disables delay)
 #ifdef _DEBUG
@@ -401,8 +402,8 @@ void main(int argc, char** argv)
 			{
 				app.handleEvent(evts[evtNum]);
 			}
-			if( printOutput )
-				printf("------------------------------------------------------------------------------\n");
+			//if( printOutput )
+			//	printf("------------------------------------------------------------------------------\n");
 		}
 	}
 
