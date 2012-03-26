@@ -54,6 +54,9 @@ namespace omicron
 		virtual void dispose();
 
 	private:
+		float myUpdateInterval;
+		Stopwatch myUpdateTimer;
+
 		int myRaySourceId;
 		int myInputSourceId;
 		int myOutputSourceId;

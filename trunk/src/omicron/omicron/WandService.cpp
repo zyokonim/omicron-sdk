@@ -35,9 +35,11 @@ WandService::WandService():
 	myRaySourceId(0),
 	myButton1State(false),
 	myButton2State(false),
+	myButtonStateChanged(false),
 	mySliderState(0),
 	myOutputSourceId(0)
 {
+	setPollPriority(Service::PollLast);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +47,7 @@ void WandService::setup(Setting& settings)
 {
 	String inputType;
 
+	myUpdateInterval = Config::getFloatValue("updateInterval", settings, 0.1f);
 	myDebug = Config::getBoolValue("debug", settings);
 
 	inputType = Config::getStringValue("inputType", settings);
@@ -68,7 +71,6 @@ void WandService::setup(Setting& settings)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void WandService::initialize()
 {
-	setPollPriority(Service::PollLast);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,6 +114,15 @@ void WandService::poll()
 			}
 		}
 	}
+
+	unlockEvents();
+
+	if(myUpdateTimer.getElapsedTime() < myUpdateInterval) return;
+	// Reset update timer.
+	myUpdateTimer.stop();
+	myUpdateTimer.start();
+
+	lockEvents();
 
 	// Generate output event.
 	Event* evt = writeHead();
