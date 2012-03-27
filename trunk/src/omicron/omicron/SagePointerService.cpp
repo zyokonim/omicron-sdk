@@ -194,7 +194,7 @@ private:
 	SagePointerService* myService;
 	uint myButtonFlags;
 	String myName;
-	Vector2i myPosition;
+	Vector2f myPosition;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
