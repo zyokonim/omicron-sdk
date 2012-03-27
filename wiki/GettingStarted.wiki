@@ -1,0 +1,21 @@
+#summary Getting started with the omicron SDK
+#sidebar Sidebar
+
+<p>*Last revision:* ver. 1.2<font color=#ff0000> (This documentation is preliminary and may be incomplete)</font></p>*
+
+= Introduction =
+
+= Building omicron =
+omicron uses CMake to generate platform-specific build files for the supported platforms. If you are not familiar with CMake go to (*link here*).
+When run for the first time, CMake will set some default options for your build, enabling or disabling features depending on operating system support. Some options may be completely unavailable if unsupported by your environment.
+== omicron CMake options ==
+ * `OMICRON_BUILD_TUTORIALS` When enabled, tutorials shipped with omicron will be built.
+ * `OMICRON_USE_DIRECTINPUT` Enables DirectInput-based controller support. Works with Wiimote and XBox360 controllers.
+ * `OMICRON_USE_LEGACY_NETSERVICE` Enables building of legacy network service support.
+ * `OMICRON_USE_NETSERVICE` Enables building of network service support.
+ * `OMICRON_USE_OPENNI` Enables building of network service support.
+ * `OMICRON_USE_OPTITRACK` Enables building of network service support.
+ * `OMICRON_USE_PQLABS` Enables building of network service support.
+ * `OMICRON_USE_THINKGEAR` Enables building of network service support.
+ * `OMICRON_USE_VRPN` Enables building of network service support.
+
