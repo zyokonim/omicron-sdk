@@ -162,6 +162,13 @@ namespace omicronConnector
 
 		// Get the server address
 		getaddrinfo(serverAddress, srvPortChr, &hints, &res);
+		if(res == NULL)
+		{
+			printf("omicronConnectorClient: Unable to connect to server '%s' on port '%d'", serverAddress, serverPort);
+			PRINT_SOCKET_ERROR("");
+			SOCKET_CLEANUP();
+			return;
+		}
 
 		// Generate the socket
 		ConnectSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
@@ -171,7 +178,7 @@ namespace omicronConnector
 
 		if (result == -1) 
 		{
-			printf("NetService: Unable to connect to server '%s' on port '%d'", serverAddress, serverPort);
+			printf("omicronConnectorClient: Unable to connect to server '%s' on port '%d'", serverAddress, serverPort);
 			PRINT_SOCKET_ERROR("");
 			SOCKET_CLEANUP();
 			return;
