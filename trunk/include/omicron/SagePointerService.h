@@ -1,7 +1,7 @@
 /**************************************************************************************************
- * THE OMEGA LIB PROJECT
+ * THE OMICRON PROJECT
  *-------------------------------------------------------------------------------------------------
- * Copyright 2010-2011		Electronic Visualization Laboratory, University of Illinois at Chicago
+ * Copyright 2010-2012		Electronic Visualization Laboratory, University of Illinois at Chicago
  * Authors:										
  *  Alessandro Febretti		febret@gmail.com
  *-------------------------------------------------------------------------------------------------
@@ -24,39 +24,34 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-#ifndef __WAND_SERVICE_H__
-#define __WAND_SERVICE_H__
+#ifndef __SAGE_POINTER_SERVICE_H__
+#define __SAGE_POINTER_SERVICE_H__
 
 #include "osystem.h"
 #include "Service.h"
 
-namespace omicron
-{
+namespace omicron {
+	class SagePointerServer;
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	class WandService: public Service
+	//! Implements a service able to receive pointer updates from the SAGE pointer application
+	class SagePointerService: public Service
 	{
+	friend class SagePointerConnection;
 	public:
-		// Allocator function
-		static WandService* New() { return new WandService(); }
+		//! Allocator function (will be used to register the service inside SystemManager)
+		static SagePointerService* New() { return new SagePointerService(); }
 
 	public:
-		WandService();
+		SagePointerService();
+		~SagePointerService();
 
 		virtual void setup(Setting& settings);
-		virtual void initialize();
 		virtual void poll();
-		virtual void dispose();
 
 	private:
-		float myUpdateInterval;
-		Stopwatch myUpdateTimer;
-
-		int myRaySourceId;
-		int myPointerSourceId;
-		Ray myRay;
-		bool myDebug;
+		SagePointerServer* myServer;
 	};
-
 }; // namespace omega
 
 #endif

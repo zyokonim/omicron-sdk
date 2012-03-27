@@ -47,6 +47,7 @@ SET( srcs
 		omicron/BasicPortholeService.cpp
 		omicron/Tcp.cpp
 		omicron/WandService.cpp
+		omicron/SagePointerService.cpp
 		
 		#omega::xml
 		omicron/xml/tinystr.cpp
@@ -92,6 +93,7 @@ SET( headers
         ${CMAKE_SOURCE_DIR}/include/omicron/BasicPortholeService.h
 		${CMAKE_SOURCE_DIR}/include/omicron/Tcp.h
         ${CMAKE_SOURCE_DIR}/include/omicron/WandService.h
+        ${CMAKE_SOURCE_DIR}/include/omicron/SagePointerService.h
 
 		# eigenwrap
         ${CMAKE_SOURCE_DIR}/include/omicron/math/EigenWrappers.h

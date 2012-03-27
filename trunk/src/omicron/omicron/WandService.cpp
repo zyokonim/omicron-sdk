@@ -32,14 +32,8 @@ using namespace omicron;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 WandService::WandService():
 	myDebug(false),
-	myRaySourceId(0),
-	myButton1State(false),
-	myButton2State(false),
-	myButtonStateChanged(false),
-	mySliderState(0),
-	myOutputSourceId(0)
+	myRaySourceId(0)
 {
-	setPollPriority(Service::PollLast);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,30 +41,16 @@ void WandService::setup(Setting& settings)
 {
 	String inputType;
 
-	myUpdateInterval = Config::getFloatValue("updateInterval", settings, 0.1f);
 	myDebug = Config::getBoolValue("debug", settings);
 
-	inputType = Config::getStringValue("inputType", settings);
 	myRaySourceId = Config::getIntValue("raySourceId", settings);
-	myInputSourceId = Config::getIntValue("inputSourceId", settings);
-	myOutputSourceId = Config::getIntValue("outputSourceId", settings);
-
-	String inputSvc = Config::getStringValue("inputService", settings);
-	myInputService = getManager()->findService(inputSvc);
-	if(myInputService == NULL)
-	{
-		ofwarn("WandService::setup: could not find input service %1%", %inputSvc);
-	}
-
-	StringUtils::toLowerCase(inputType);
-
-	if(inputType == "wiimote") myInputType = Wiimote;
-	else if(inputType == "mouse") myInputType = Mouse;
+	myPointerSourceId = Config::getIntValue("pointerSourceId", settings);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void WandService::initialize()
 {
+	setPollPriority(Service::PollLast);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,57 +73,14 @@ void WandService::poll()
 				ofmsg("Wand ray origin %1%  direction %2%", %myRay.getOrigin() %myRay.getDirection());
 			}
 		}
-		// Process button input events.
-		if(myInputService != NULL)
+		// Attach the mocap ray to pointer events.
+		if(evt->getServiceType() == Service::Pointer && evt->getSourceId() == myPointerSourceId)
 		{
-			if(evt->getServiceId() == myInputService->getServiceId())
-			{
-				bool bt1 = evt->isFlagSet(Event::Button1);
-				bool bt2 = evt->isFlagSet(Event::Button1);
-				if(bt1 != myButton1State || bt2 != myButton2State)
-				{
-					myButtonStateChanged = true;
-				}
-				else
-				{
-					myButtonStateChanged = false;
-				}
-				myButton1State = bt1;
-				myButton2State = bt2;
-				if(evt->getType() == Event::Zoom) mySliderState = evt->getExtraDataInt(0);
-			}
+			evt->setExtraDataType(Event::ExtraDataVector3Array);
+			evt->setExtraDataVector3(0, myRay.getOrigin());
+			evt->setExtraDataVector3(1, myRay.getDirection());
 		}
 	}
-
-	unlockEvents();
-
-	if(myUpdateTimer.getElapsedTime() < myUpdateInterval) return;
-	// Reset update timer.
-	myUpdateTimer.stop();
-	myUpdateTimer.start();
-
-	lockEvents();
-
-	// Generate output event.
-	Event* evt = writeHead();
-	if(myButtonStateChanged)
-	{
-		if(myButton1State || myButton2State)
-		{
-			evt->reset(Event::Down, Service::Pointer, myOutputSourceId);
-		}
-		else
-		{
-			evt->reset(Event::Up, Service::Pointer, myOutputSourceId);
-		}
-	}
-	else
-	{
-		evt->reset(Event::Update, Service::Pointer, myOutputSourceId);
-	}
-	evt->setExtraDataType(Event::ExtraDataVector3Array);
-	evt->setExtraDataVector3(0, myRay.getOrigin());
-	evt->setExtraDataVector3(1, myRay.getDirection());
 
 	unlockEvents();
 }

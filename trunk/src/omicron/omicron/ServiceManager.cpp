@@ -31,6 +31,7 @@
 #include "omicron/HeartbeatService.h"
 #include "omicron/BasicPortholeService.h"
 #include "omicron/WandService.h"
+#include "omicron/SagePointerService.h"
 
 #ifdef OMICRON_USE_DIRECTINPUT
 	#include "omicron/DirectXInputService.h"
@@ -98,6 +99,7 @@ void ServiceManager::registerDefaultServices()
 	registerService("HeartbeatService", (ServiceAllocator)HeartbeatService::New);
 	registerService("BasicPortholeService", (ServiceAllocator)BasicPortholeService::New);
 	registerService("WandService", (ServiceAllocator)WandService::New);
+	registerService("SagePointerService", (ServiceAllocator)SagePointerService::New);
 
 #ifdef OMICRON_USE_DIRECTINPUT
 	registerService("DirectXInputService", (ServiceAllocator)DirectXInputService::New);
