@@ -42,7 +42,10 @@ public:
 		TcpConnection(ci),
 			myService(service),
 			myButtonFlags(0)
-	{	}
+	{
+		if(myService->forceSourceId()) mySourceId = myService->getForcedSourceId();
+		else mySourceId = ci.id;
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	virtual void handleData()
@@ -101,7 +104,7 @@ public:
 
         myService->lockEvents();
 		Event* evt = myService->writeHead();
-		evt->reset(Event::Zoom, Service::Pointer, getConnectionInfo().id);
+		evt->reset(Event::Zoom, Service::Pointer, mySourceId);
 		evt->setExtraDataType(Event::ExtraDataIntArray);
 		evt->setExtraDataInt(0, wheel);
 		myService->unlockEvents();
@@ -120,7 +123,7 @@ public:
 
         myService->lockEvents();
 		Event* evt = myService->writeHead();
-		evt->reset(pressed == 1 ? Event::Down : Event::Up, Service::Pointer, getConnectionInfo().id);
+		evt->reset(pressed == 1 ? Event::Down : Event::Up, Service::Pointer, mySourceId);
 		evt->setPosition(myPosition[0], myPosition[1]);
 
 		if(pressed == 1)
@@ -156,7 +159,7 @@ public:
 
         myService->lockEvents();
 		Event* evt = myService->writeHead();
-		evt->reset(Event::Move, Service::Pointer, getConnectionInfo().id);
+		evt->reset(Event::Move, Service::Pointer, mySourceId);
 		evt->setPosition(myPosition[0], myPosition[1]);
 		evt->setFlags(myButtonFlags);
 
@@ -180,7 +183,7 @@ public:
 
         myService->lockEvents();
 		Event* evt = myService->writeHead();
-		evt->reset(Event::Update, Service::Pointer, getConnectionInfo().id);
+		evt->reset(Event::Update, Service::Pointer, mySourceId);
 		evt->setPosition((float)r/255, (float)g/255, (float)b/255);
 		evt->setExtraDataType(Event::ExtraDataString);
 		evt->setExtraDataString(myName);
@@ -195,6 +198,7 @@ private:
 	uint myButtonFlags;
 	String myName;
 	Vector2f myPosition;
+	int mySourceId;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,7 +222,8 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SagePointerService::SagePointerService()
+SagePointerService::SagePointerService():
+	myForcedSourceId(-1)
 {
 	myServer = new SagePointerServer(this);
 }
@@ -233,6 +238,7 @@ SagePointerService::~SagePointerService()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void SagePointerService::setup(Setting& settings)
 {
+	myForcedSourceId = Config::getIntValue("forcedSourceId", settings, -1);
 	myServer->initialize(20005);
 	myServer->start();
 }

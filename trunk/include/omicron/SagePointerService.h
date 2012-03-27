@@ -49,8 +49,12 @@ namespace omicron {
 		virtual void setup(Setting& settings);
 		virtual void poll();
 
+		bool forceSourceId() { return myForcedSourceId != -1; }
+		int getForcedSourceId() { return myForcedSourceId; }
+
 	private:
 		SagePointerServer* myServer;
+		int myForcedSourceId;
 	};
 }; // namespace omega
 
