@@ -66,7 +66,10 @@ void NetService::dispose()
 void NetService::onEvent(const omicronConnector::EventData& ed)
 {
 	Event* evt = mysInstance->writeHead();
-	evt->reset((Event::Type)ed.type, (Service::ServiceType)ed.serviceType, ed.sourceId, ed.serviceId);
+	// NOTE: original event service id is substituted by NetService own service id.
+	// This is made because in the local context, original service ids have no meaning, so all events are marked
+	// as being originated from NetService.
+	evt->reset((Event::Type)ed.type, (Service::ServiceType)ed.serviceType, ed.sourceId, mysInstance->getServiceId());
 	evt->setPosition(ed.posx, ed.posy, ed.posz);
 	evt->setOrientation(ed.orw, ed.orx, ed.ory, ed.orz);
 	evt->setExtraData((Event::ExtraDataType)ed.extraDataType, ed.extraDataLength, ed.extraDataMask, (void*)ed.extraData);
