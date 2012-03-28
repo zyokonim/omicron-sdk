@@ -72,6 +72,7 @@ void NetService::onEvent(const omicronConnector::EventData& ed)
 	evt->reset((Event::Type)ed.type, (Service::ServiceType)ed.serviceType, ed.sourceId, mysInstance->getServiceId());
 	evt->setPosition(ed.posx, ed.posy, ed.posz);
 	evt->setOrientation(ed.orw, ed.orx, ed.ory, ed.orz);
+	evt->setFlags(ed.flags);
 	evt->setExtraData((Event::ExtraDataType)ed.extraDataType, ed.extraDataLength, ed.extraDataMask, (void*)ed.extraData);
 }
 
