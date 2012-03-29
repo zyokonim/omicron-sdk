@@ -115,7 +115,7 @@ public:
 			sprintf(floatChar,"%f",evt.getPosition(1));
 			strcat( eventPacket, floatChar );
 
-			if( evt.getExtraDataLength() == 2){ // TouchPoint down/up/move
+			if( evt.getExtraDataItems() == 2){ // TouchPoint down/up/move
 				// Converts xWidth to char, appends to eventPacket
 				strcat( eventPacket, "," ); // Spacer
 				sprintf(floatChar,"%f", evt.getExtraDataFloat(0) );
@@ -234,10 +234,10 @@ public:
 
 			// See DirectXInputService.cpp for parameter details
 			
-			for( int i = 0; i < evt.getExtraDataLength(); i++ ){
+			for( int i = 0; i < evt.getExtraDataItems(); i++ ){
 				sprintf(floatChar,"%d", (int)evt.getExtraDataFloat(i));
 				strcat( eventPacket, floatChar );
-				if( i < evt.getExtraDataLength() - 1 )
+				if( i < evt.getExtraDataItems() - 1 )
 					strcat( eventPacket, "," ); // Spacer
 				else
 					strcat( eventPacket, " " ); // Spacer
