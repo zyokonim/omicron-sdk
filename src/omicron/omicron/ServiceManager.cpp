@@ -325,6 +325,14 @@ int ServiceManager::getEvents(Event* ptr, int maxEvents)
 	} while(evt && returnedEvents < maxEvents);
 	unlockEvents();
 
+	// This is a sort of HACK but it is needed to solve several issues with oinput server and
+	// the circular buffer not being implemented correctly. Basically, a getEvents call resets 
+	// the event buffer, regardless of how many events have been read. A better fix would require 
+	// a deeper rewrite of several ServiceManager methods (namely, getting rid of the circular 
+	// buffer machinery and just using a simple poll-read system with dropping of events that 
+	// can't be queued.
+	clearEvents();
+
 	return returnedEvents;
 }
 
