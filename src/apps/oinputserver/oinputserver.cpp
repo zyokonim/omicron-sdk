@@ -86,6 +86,9 @@ public:
 	// Checks the type of event. If a valid event, creates an event packet and returns true. Else return false.
 	virtual void handleEvent(const Event& evt)
 	{
+		// If the event has been processed locally (i.e. by a filter event service)
+		if(evt.isProcessed()) return;
+
 		int offset = 0;
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 

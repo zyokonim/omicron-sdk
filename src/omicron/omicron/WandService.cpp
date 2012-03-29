@@ -73,8 +73,9 @@ void WandService::poll()
 				ofmsg("Wand ray origin %1%  direction %2%", %myRay.getOrigin() %myRay.getDirection());
 			}
 		}
-		// Attach the mocap ray to pointer events.
-		if(evt->getServiceType() == Service::Pointer && evt->getSourceId() == myPointerSourceId)
+		// Attach the mocap ray to pointer.
+		if(evt->getServiceType() == Service::Pointer
+			&& evt->getSourceId() == myPointerSourceId)
 		{
 			evt->setExtraDataType(Event::ExtraDataVector3Array);
 			evt->setExtraDataVector3(0, myRay.getOrigin());

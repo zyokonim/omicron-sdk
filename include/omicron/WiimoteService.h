@@ -77,10 +77,19 @@ namespace omicron {
 		float getUpdateInterval();
 
 	private:
+		uint pollButtonState();
+		void writeWiimoteEvent();
+		void writeNunchuckEvent();
+		void writeMotionPlusEvent();
+		void writePointerEvent();
+
+	private:
 		static WiimoteService* mysInstance;
 		float myUpdateInterval;
 		Stopwatch myUpdateTimer;
 		wiimote myWiimote;
+		bool myEmulatePointer;
+		uint myButtonState;
 	};
 
 }; // namespace omicron

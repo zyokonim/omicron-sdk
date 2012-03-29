@@ -109,6 +109,15 @@ void wii_state_change (wiimote			  &remote,
 void WiimoteService::setup(Setting& settings)
 {
 	myUpdateInterval = Config::getFloatValue("updateInterval", settings, 0.1f);
+	myEmulatePointer = Config::getBoolValue("emulatePointer", settings, false);
+	if(myEmulatePointer)
+	{
+		omsg("Wiimote Pointer emulation ENABLED");
+	}
+	else
+	{
+		omsg("Wiimote Pointer emulation DISABLED");
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,6 +138,8 @@ void WiimoteService::initialize()
 	if(!myWiimote.Connect(wiimote::FIRST_AVAILABLE)) 
 	{
 		owarn("WiimoteService: no wiimote controller connected.");
+		// Initialize button state
+		myButtonState = pollButtonState();
 	}
 	else
 	{
@@ -137,6 +148,24 @@ void WiimoteService::initialize()
 	}
 
 	myUpdateTimer.start();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+uint WiimoteService::pollButtonState()
+{
+	// Set controller type and button flags.
+	uint flags = TypeWiimote;
+	if(myWiimote.Button.A()) flags |= ButtonA;
+	if(myWiimote.Button.B()) flags |= ButtonB;
+	if(myWiimote.Button.Plus()) flags |= ButtonPlus;
+	if(myWiimote.Button.Minus()) flags |= ButtonMinus;
+	if(myWiimote.Button.One()) flags |= ButtonOne;
+	if(myWiimote.Button.Two()) flags |= ButtonTwo;
+	if(myWiimote.Button.Up()) flags |= ButtonUp;
+	if(myWiimote.Button.Down()) flags |= ButtonDown;
+	if(myWiimote.Button.Left()) flags |= ButtonLeft;
+	if(myWiimote.Button.Right()) flags |= ButtonRight;
+	return flags;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,62 +183,21 @@ void WiimoteService::poll()
 
 		lockEvents();
 
-		Event* evt = writeHead();
-		evt->reset(Event::Update, Service::Controller);
-
-		// Save wiimote accelerometer data into position field.
-		evt->setPosition(
-			myWiimote.Acceleration.X,
-			myWiimote.Acceleration.Y,
-			myWiimote.Acceleration.Z);
-
-		// Set controller type and button flags.
-		uint flags = TypeWiimote;
-		if(myWiimote.Button.A()) flags |= ButtonA;
-		if(myWiimote.Button.B()) flags |= ButtonB;
-		if(myWiimote.Button.Plus()) flags |= ButtonPlus;
-		if(myWiimote.Button.Minus()) flags |= ButtonMinus;
-		if(myWiimote.Button.One()) flags |= ButtonOne;
-		if(myWiimote.Button.Two()) flags |= ButtonTwo;
-		if(myWiimote.Button.Up()) flags |= ButtonUp;
-		if(myWiimote.Button.Down()) flags |= ButtonDown;
-		if(myWiimote.Button.Left()) flags |= ButtonLeft;
-		if(myWiimote.Button.Right()) flags |= ButtonRight;
-		evt->setFlags(flags);
-
-		evt->setExtraDataType(Event::ExtraDataFloatArray);
-		evt->setExtraDataFloat(0, myWiimote.BatteryPercent);
-			
-		if(myWiimote.NunchukConnected())
+		if(myEmulatePointer)
 		{
-			Event* evt = writeHead();
-			evt->reset(Event::Update, Service::Controller);
-			uint flags = TypeNunchuk;
-			if(myWiimote.Nunchuk.C) flags |= ButtonA;
-			if(myWiimote.Nunchuk.Z) flags |= ButtonB;
-			evt->setFlags(flags);
-
-			evt->setPosition(
-				myWiimote.Nunchuk.Joystick.X,
-				myWiimote.Nunchuk.Joystick.Y);
-	
-			evt->setExtraDataType(Event::ExtraDataFloatArray);
-			evt->setExtraDataFloat(0, myWiimote.Nunchuk.Acceleration.X);
-			evt->setExtraDataFloat(1, myWiimote.Nunchuk.Acceleration.Y);
-			evt->setExtraDataFloat(2, myWiimote.Nunchuk.Acceleration.Z);
+			writePointerEvent();
 		}
-
-		if( myWiimote.MotionPlusConnected() )
+		else
 		{
-			Event* evt = writeHead();
-			evt->reset(Event::Update, Service::Controller);
-			uint flags = TypeMotionPlus;
-			evt->setFlags(flags);
-
-			evt->setPosition(
-				myWiimote.MotionPlus.Raw.Yaw,
-				myWiimote.MotionPlus.Raw.Pitch,
-				myWiimote.MotionPlus.Raw.Roll);
+			writeWiimoteEvent();
+			if(myWiimote.NunchukConnected())
+			{
+				writeNunchuckEvent();
+			}
+			if( myWiimote.MotionPlusConnected() )
+			{
+				writeMotionPlusEvent();
+			}
 		}
 
 		unlockEvents();
@@ -219,6 +207,98 @@ void WiimoteService::poll()
 			myWiimote.Disconnect();
 		}
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void WiimoteService::writeWiimoteEvent()
+{
+	Event* evt = writeHead();
+	evt->reset(Event::Update, Service::Controller);
+
+	// Save wiimote accelerometer data into position field.
+	evt->setPosition(
+		myWiimote.Acceleration.X,
+		myWiimote.Acceleration.Y,
+		myWiimote.Acceleration.Z);
+
+	evt->setFlags(pollButtonState());
+
+	evt->setExtraDataType(Event::ExtraDataFloatArray);
+	evt->setExtraDataFloat(0, myWiimote.BatteryPercent);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void WiimoteService::writeNunchuckEvent()
+{
+	Event* evt = writeHead();
+	evt->reset(Event::Update, Service::Controller);
+	uint flags = TypeNunchuk;
+	if(myWiimote.Nunchuk.C) flags |= ButtonA;
+	if(myWiimote.Nunchuk.Z) flags |= ButtonB;
+	evt->setFlags(flags);
+
+	evt->setPosition(
+		myWiimote.Nunchuk.Joystick.X,
+		myWiimote.Nunchuk.Joystick.Y);
+
+	evt->setExtraDataType(Event::ExtraDataFloatArray);
+	evt->setExtraDataFloat(0, myWiimote.Nunchuk.Acceleration.X);
+	evt->setExtraDataFloat(1, myWiimote.Nunchuk.Acceleration.Y);
+	evt->setExtraDataFloat(2, myWiimote.Nunchuk.Acceleration.Z);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void WiimoteService::writeMotionPlusEvent()
+{
+	Event* evt = writeHead();
+	evt->reset(Event::Update, Service::Controller);
+	uint flags = TypeMotionPlus;
+	evt->setFlags(flags);
+
+	evt->setPosition(
+		myWiimote.MotionPlus.Raw.Yaw,
+		myWiimote.MotionPlus.Raw.Pitch,
+		myWiimote.MotionPlus.Raw.Roll);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void WiimoteService::writePointerEvent()
+{
+	Event* evt = writeHead();
+
+	// See if button state has changed and send Up / Down events accordingly. 
+	// NOTE: this currently works correctly only if ONE button state changes during each
+	// poll cycle.
+	uint curButtonState = pollButtonState();
+	if(curButtonState != myButtonState)
+	{
+		// If button state is bigger than previous state, it means one additional bit has been
+		// set - so send a down event.
+		if(curButtonState > myButtonState)
+		{
+			evt->reset(Event::Down, Service::Pointer);
+			if(isDebugEnabled()) omsg("Wiimote button down");
+		}
+		else
+		{
+			evt->reset(Event::Up, Service::Pointer);
+			if(isDebugEnabled()) omsg("Wiimote button up");
+		}
+		myButtonState = curButtonState;
+	}
+	else
+	{
+		// Button state has not changed, just send an update event.
+		evt->reset(Event::Update, Service::Controller);
+	}
+
+	// Save wiimote accelerometer data into position field.
+	evt->setPosition(
+		myWiimote.Acceleration.X,
+		myWiimote.Acceleration.Y,
+		myWiimote.Acceleration.Z);
+
+	evt->setFlags(pollButtonState());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
