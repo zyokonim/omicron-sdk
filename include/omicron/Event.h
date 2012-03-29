@@ -199,7 +199,7 @@ namespace omicron
 			//! Used for middle mouse button or equivalent events.
 			Middle = 1 << 3,
 			//! Generic name for middle / tertiary button
-			Button3 = 1 << 1,
+			Button3 = 1 << 3,
 
 			//! Used for ctrl key presses or equivalent events.
 			Ctrl = 1 << 4,
