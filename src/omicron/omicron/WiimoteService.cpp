@@ -26,6 +26,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
 #include "omicron/WiimoteService.h"
+#include "omicron/StringUtils.h"
 
 using namespace omicron;
 
@@ -110,9 +111,10 @@ void WiimoteService::setup(Setting& settings)
 {
 	myUpdateInterval = Config::getFloatValue("updateInterval", settings, 0.1f);
 	myEmulatePointer = Config::getBoolValue("emulatePointer", settings, false);
+	myEventSourceId = Config::getIntValue("eventSourceId", settings, 0);
 	if(myEmulatePointer)
 	{
-		omsg("Wiimote Pointer emulation ENABLED");
+		ofmsg("Wiimote Pointer emulation ENABLED (pointer id: %1%)", %myEventSourceId);
 	}
 	else
 	{
@@ -213,7 +215,7 @@ void WiimoteService::poll()
 void WiimoteService::writeWiimoteEvent()
 {
 	Event* evt = writeHead();
-	evt->reset(Event::Update, Service::Controller);
+	evt->reset(Event::Update, Service::Controller, myEventSourceId);
 
 	// Save wiimote accelerometer data into position field.
 	evt->setPosition(
@@ -231,7 +233,7 @@ void WiimoteService::writeWiimoteEvent()
 void WiimoteService::writeNunchuckEvent()
 {
 	Event* evt = writeHead();
-	evt->reset(Event::Update, Service::Controller);
+	evt->reset(Event::Update, Service::Controller, myEventSourceId);
 	uint flags = TypeNunchuk;
 	if(myWiimote.Nunchuk.C) flags |= ButtonA;
 	if(myWiimote.Nunchuk.Z) flags |= ButtonB;
@@ -251,7 +253,7 @@ void WiimoteService::writeNunchuckEvent()
 void WiimoteService::writeMotionPlusEvent()
 {
 	Event* evt = writeHead();
-	evt->reset(Event::Update, Service::Controller);
+	evt->reset(Event::Update, Service::Controller, myEventSourceId);
 	uint flags = TypeMotionPlus;
 	evt->setFlags(flags);
 
@@ -276,12 +278,12 @@ void WiimoteService::writePointerEvent()
 		// set - so send a down event.
 		if(curButtonState > myButtonState)
 		{
-			evt->reset(Event::Down, Service::Pointer);
+			evt->reset(Event::Down, Service::Pointer, myEventSourceId);
 			if(isDebugEnabled()) omsg("Wiimote button down");
 		}
 		else
 		{
-			evt->reset(Event::Up, Service::Pointer);
+			evt->reset(Event::Up, Service::Pointer, myEventSourceId);
 			if(isDebugEnabled()) omsg("Wiimote button up");
 		}
 		myButtonState = curButtonState;
@@ -289,7 +291,7 @@ void WiimoteService::writePointerEvent()
 	else
 	{
 		// Button state has not changed, just send an update event.
-		evt->reset(Event::Update, Service::Controller);
+		evt->reset(Event::Update, Service::Pointer, myEventSourceId);
 	}
 
 	// Save wiimote accelerometer data into position field.

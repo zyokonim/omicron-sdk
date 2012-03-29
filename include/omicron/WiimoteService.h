@@ -89,6 +89,7 @@ namespace omicron {
 		Stopwatch myUpdateTimer;
 		wiimote myWiimote;
 		bool myEmulatePointer;
+		int myEventSourceId;
 		uint myButtonState;
 	};
 
