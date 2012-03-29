@@ -64,6 +64,7 @@ void WandService::poll()
 		// Process mocap events.
 		if(evt->getServiceType() == Service::Mocap && evt->getSourceId() == myRaySourceId)
 		{
+			evt->setProcessed();
 			const Quaternion& quat = evt->getOrientation();
 			Vector3f forward = quat * (-Vector3f::UnitZ());
 			myRay.setOrigin(evt->getPosition());
