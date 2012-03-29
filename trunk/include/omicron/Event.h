@@ -312,14 +312,14 @@ namespace omicron
 		void setExtraDataString(const String& value);
 		void resetExtraData();
 		bool isExtraDataNull(int pointId) const;
-		void setExtraData(ExtraDataType type, unsigned int length, int mask, void* data);
+		void setExtraData(ExtraDataType type, unsigned int items, int mask, void* data);
 		uint getExtraDataMask() const { return myExtraDataValidMask; }
 
 		//! Returns the size in bytes of the event extra data.
 		int getExtraDataSize() const;
 
 		//! Returns the number of elements stored in the extra data section of the Event.
-		int getExtraDataLength() const;
+		int getExtraDataItems() const;
 
 		//! Returns the raw etra data buffer.
 		void* getExtraDataBuffer() const;
@@ -337,7 +337,7 @@ namespace omicron
 		mutable unsigned int myFlags;
 
 		ExtraDataType myExtraDataType;
-		int myExtraDataLength;
+		int myExtraDataItems;
 		int myExtraDataValidMask;
 		byte myExtraData[ExtraDataSize];
 	};
@@ -356,7 +356,7 @@ namespace omicron
 		mySourceId = sourceId;
 		myServiceType = serviceType;
 		myFlags = 0;
-		myExtraDataLength = 0;
+		myExtraDataItems = 0;
 		myExtraDataValidMask = 0;
 		myExtraDataType = ExtraDataNull;
 		if(serviceId != -1) myServiceId = serviceId;
@@ -492,7 +492,7 @@ namespace omicron
 	{
 		oassert(myExtraDataType == ExtraDataFloatArray);
 		oassert(index < MaxExtraDataItems);
-		if(index >= myExtraDataLength) myExtraDataLength = index + 1;
+		if(index >= myExtraDataItems) myExtraDataItems = index + 1;
 		// Mark this entry bit as valid in the extra data validity mask
 		myExtraDataValidMask |= (1 << index);
 		FLOAT_PTR(myExtraData[index * 4]) = value;
@@ -511,7 +511,7 @@ namespace omicron
 	{
 		oassert(myExtraDataType == ExtraDataIntArray);
 		oassert(index < MaxExtraDataItems);
-		if(index >= myExtraDataLength) myExtraDataLength = index + 1;
+		if(index >= myExtraDataItems) myExtraDataItems = index + 1;
 		// Mark this entry bit as valid in the extra data validity mask
 		myExtraDataValidMask |= (1 << index);
 		INT_PTR(myExtraData[index * 4]) = value;
@@ -534,7 +534,7 @@ namespace omicron
 	{
 		oassert(myExtraDataType == ExtraDataVector3Array);
 		oassert(index < MaxExtraDataItems);
-		if(index >= myExtraDataLength) myExtraDataLength = index + 1;
+		if(index >= myExtraDataItems) myExtraDataItems = index + 1;
 		// Mark this entry bit as valid in the extra data validity mask
 		myExtraDataValidMask |= (1 << index);
 		int offset = index * 3 * 4;
@@ -557,12 +557,12 @@ namespace omicron
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	inline void Event::setExtraData(Event::ExtraDataType type, unsigned int length, int mask, void* data)
+	inline void Event::setExtraData(Event::ExtraDataType type, unsigned int items, int mask, void* data)
 	{
 		myExtraDataType = type;
-		myExtraDataLength = length;
+		myExtraDataItems = items;
 		myExtraDataValidMask = mask;
-		memcpy(myExtraData, data, length);
+		memcpy(myExtraData, data, getExtraDataSize());
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -570,8 +570,8 @@ namespace omicron
 	{
 		oassert(myExtraDataType == ExtraDataString);
 		strcpy((char*)myExtraData, value.c_str());
-		myExtraDataLength = value.size();
-		myExtraData[myExtraDataLength] = '\0';
+		myExtraDataItems = value.size();
+		myExtraData[myExtraDataItems] = '\0';
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -579,7 +579,7 @@ namespace omicron
 	{ 
 		myExtraDataValidMask = 0; 
 		myExtraDataType = ExtraDataNull;
-		myExtraDataLength = 0;
+		myExtraDataItems = 0;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -587,8 +587,8 @@ namespace omicron
 	{ return !((myExtraDataValidMask & (1 << index)) == (1 << index)); }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	inline int Event::getExtraDataLength() const
-	{ return myExtraDataLength; }
+	inline int Event::getExtraDataItems() const
+	{ return myExtraDataItems; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline int Event::getExtraDataSize() const
@@ -599,18 +599,18 @@ namespace omicron
 			return 0;
 		case ExtraDataFloatArray:
 		case ExtraDataIntArray:
-			return myExtraDataLength * 4;
+			return myExtraDataItems * 4;
 			break;
 		case ExtraDataVector3Array:
-			return myExtraDataLength * 4 * 3;
+			return myExtraDataItems * 4 * 3;
 		case ExtraDataString:
-			return myExtraDataLength;
+			return myExtraDataItems;
 		default:
 			oerror("Event::getExtraDataSize: unknown extra data type");
 		}
 
 		// Default: return data length
-		return myExtraDataLength;
+		return myExtraDataItems;
 	}
 }; // namespace omicron
 

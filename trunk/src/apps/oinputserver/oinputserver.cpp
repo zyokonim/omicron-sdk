@@ -105,13 +105,13 @@ public:
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().z()); 
 		
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataType()); 
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataLength()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataItems()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataMask()); 
 		if(evt.getExtraDataType() != Event::ExtraDataNull)
 		{
 			memcpy(&eventPacket[offset], evt.getExtraDataBuffer(), evt.getExtraDataSize());
 		}
-		offset += evt.getExtraDataLength();
+		offset += evt.getExtraDataSize();
 		std::map<char*,NetClient*>::iterator itr = netClients.begin();
 		while( itr != netClients.end() )
 		{
