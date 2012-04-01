@@ -110,16 +110,7 @@ void wii_state_change (wiimote			  &remote,
 void WiimoteService::setup(Setting& settings)
 {
 	myUpdateInterval = Config::getFloatValue("updateInterval", settings, 0.1f);
-	myEmulatePointer = Config::getBoolValue("emulatePointer", settings, false);
 	myEventSourceId = Config::getIntValue("eventSourceId", settings, 0);
-	if(myEmulatePointer)
-	{
-		ofmsg("Wiimote Pointer emulation ENABLED (pointer id: %1%)", %myEventSourceId);
-	}
-	else
-	{
-		omsg("Wiimote Pointer emulation DISABLED");
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,21 +176,14 @@ void WiimoteService::poll()
 
 		lockEvents();
 
-		if(myEmulatePointer)
+		writeWiimoteEvent();
+		if(myWiimote.NunchukConnected())
 		{
-			writePointerEvent();
+			writeNunchuckEvent();
 		}
-		else
+		if( myWiimote.MotionPlusConnected() )
 		{
-			writeWiimoteEvent();
-			if(myWiimote.NunchukConnected())
-			{
-				writeNunchuckEvent();
-			}
-			if( myWiimote.MotionPlusConnected() )
-			{
-				writeMotionPlusEvent();
-			}
+			writeMotionPlusEvent();
 		}
 
 		unlockEvents();
@@ -217,15 +201,40 @@ void WiimoteService::writeWiimoteEvent()
 	Event* evt = writeHead();
 	evt->reset(Event::Update, Service::Controller, myEventSourceId);
 
-	// Save wiimote accelerometer data into position field.
-	evt->setPosition(
-		myWiimote.Acceleration.X,
-		myWiimote.Acceleration.Y,
-		myWiimote.Acceleration.Z);
+	// See if button state has changed and send Up / Down events accordingly. 
+	// NOTE: this currently works correctly only if ONE button state changes during each
+	// poll cycle.
+	uint curButtonState = pollButtonState();
+	if(curButtonState != myButtonState)
+	{
+		// If button state is bigger than previous state, it means one additional bit has been
+		// set - so send a down event.
+		if(curButtonState > myButtonState)
+		{
+			evt->reset(Event::Down, Service::Controller, myEventSourceId);
+			if(isDebugEnabled()) omsg("Wiimote button down");
+		}
+		else
+		{
+			evt->reset(Event::Up, Service::Controller, myEventSourceId);
+			if(isDebugEnabled()) omsg("Wiimote button up");
+		}
+		myButtonState = curButtonState;
+	}
+	else
+	{
+		// Button state has not changed, just send an update event.
+		evt->reset(Event::Update, Service::Controller, myEventSourceId);
+	}
 
+	// Save digital information
 	evt->setFlags(pollButtonState());
 
+	// Save analog information
 	evt->setExtraDataType(Event::ExtraDataFloatArray);
+	evt->setExtraDataFloat(0, myWiimote.Acceleration.X);
+	evt->setExtraDataFloat(1, myWiimote.Acceleration.Y);
+	evt->setExtraDataFloat(2, myWiimote.Acceleration.Z);
 	evt->setExtraDataFloat(0, myWiimote.BatteryPercent);
 }
 
@@ -261,46 +270,6 @@ void WiimoteService::writeMotionPlusEvent()
 		myWiimote.MotionPlus.Raw.Yaw,
 		myWiimote.MotionPlus.Raw.Pitch,
 		myWiimote.MotionPlus.Raw.Roll);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void WiimoteService::writePointerEvent()
-{
-	Event* evt = writeHead();
-
-	// See if button state has changed and send Up / Down events accordingly. 
-	// NOTE: this currently works correctly only if ONE button state changes during each
-	// poll cycle.
-	uint curButtonState = pollButtonState();
-	if(curButtonState != myButtonState)
-	{
-		// If button state is bigger than previous state, it means one additional bit has been
-		// set - so send a down event.
-		if(curButtonState > myButtonState)
-		{
-			evt->reset(Event::Down, Service::Pointer, myEventSourceId);
-			if(isDebugEnabled()) omsg("Wiimote button down");
-		}
-		else
-		{
-			evt->reset(Event::Up, Service::Pointer, myEventSourceId);
-			if(isDebugEnabled()) omsg("Wiimote button up");
-		}
-		myButtonState = curButtonState;
-	}
-	else
-	{
-		// Button state has not changed, just send an update event.
-		evt->reset(Event::Update, Service::Pointer, myEventSourceId);
-	}
-
-	// Save wiimote accelerometer data into position field.
-	evt->setPosition(
-		myWiimote.Acceleration.X,
-		myWiimote.Acceleration.Y,
-		myWiimote.Acceleration.Z);
-
-	evt->setFlags(pollButtonState());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

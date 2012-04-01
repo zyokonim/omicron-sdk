@@ -52,8 +52,13 @@ namespace omicron
 		Stopwatch myUpdateTimer;
 
 		int myRaySourceId;
-		int myPointerSourceId;
-		Ray myRay;
+
+		Service* myControllerService;
+		int myControllerSourceId;
+
+		Vector3f myWandPosition;
+		Quaternion myWandOrientation;
+
 		bool myDebug;
 	};
 
