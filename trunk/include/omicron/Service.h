@@ -41,7 +41,9 @@ namespace omicron
 	{
 	friend class ServiceManager;
 	public:
-		enum ServiceType { Pointer, Mocap, Keyboard, Controller, Ui, Generic, Brain }; 
+		//! Enumerates the service classes supported by omicron. Each service class generates 
+		//! events with the same structure.
+		enum ServiceType { Pointer, Mocap, Keyboard, Controller, Ui, Generic, Brain, Wand }; 
 		enum ServicePollPriority { PollFirst, PollNormal, PollLast }; 
 
 	public:

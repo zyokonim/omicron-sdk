@@ -299,6 +299,11 @@ namespace omicron
 		//! Utility method to check is the event is a key up event.
 		bool isKeyUp(char key) const;
 
+		//! Utility method to check if an event is from a specific source service and source id.
+		bool isFrom(Service* svc, int sourceId) const;
+		//! Utility method to check if an event is from a specific service type and source id.
+		bool isFrom(Service::ServiceType type, int sourceId) const;
+
 		//! Extra data
 		void setExtraDataType(ExtraDataType type);
 		ExtraDataType getExtraDataType() const;
@@ -469,6 +474,18 @@ namespace omicron
 	inline bool Event::isKeyUp(char key) const
 	{
 		return ((char)mySourceId == key && myType == Event::Up);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline bool Event::isFrom(Service* svc, int sourceId) const
+	{
+		return (myServiceId == svc->getServiceId() && mySourceId == sourceId);
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline bool Event::isFrom(Service::ServiceType type, int sourceId) const
+	{
+		return (myServiceType == type && mySourceId == sourceId);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////

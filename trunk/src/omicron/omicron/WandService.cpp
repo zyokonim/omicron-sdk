@@ -32,7 +32,9 @@ using namespace omicron;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 WandService::WandService():
 	myDebug(false),
-	myRaySourceId(0)
+	myRaySourceId(0),
+	myControllerService(NULL),
+	myControllerSourceId(0)
 {
 }
 
@@ -44,7 +46,14 @@ void WandService::setup(Setting& settings)
 	myDebug = Config::getBoolValue("debug", settings);
 
 	myRaySourceId = Config::getIntValue("raySourceId", settings);
-	myPointerSourceId = Config::getIntValue("pointerSourceId", settings);
+
+	String controllerSvc = Config::getStringValue("controllerService", settings);
+	myControllerService = getManager()->findService(controllerSvc);
+	if(myControllerService == NULL)
+	{
+		ofwarn("WandService::setup: could not find input service %1%", %controllerSvc);
+	}
+	myControllerSourceId = Config::getIntValue("controllerSourceId", settings);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,25 +71,22 @@ void WandService::poll()
 	{
 		Event* evt = getEvent(i);
 		// Process mocap events.
-		if(evt->getServiceType() == Service::Mocap && evt->getSourceId() == myRaySourceId)
+		if(evt->isFrom(Service::Mocap, myRaySourceId))
 		{
 			evt->setProcessed();
-			const Quaternion& quat = evt->getOrientation();
-			Vector3f forward = quat * (-Vector3f::UnitZ());
-			myRay.setOrigin(evt->getPosition());
-			myRay.setDirection(forward);
+			myWandOrientation = evt->getOrientation();
+			myWandPosition = evt->getPosition();
 			if(myDebug)
 			{
-				ofmsg("Wand ray origin %1%  direction %2%", %myRay.getOrigin() %myRay.getDirection());
+				Vector3f dir = myWandOrientation * -Vector3f::UnitZ();
+				ofmsg("Wand ray origin %1%  orientation %2%", %myWandPosition %dir);
 			}
 		}
 		// Attach the mocap ray to pointer.
-		if(evt->getServiceType() == Service::Pointer
-			&& evt->getSourceId() == myPointerSourceId)
+		if(evt->isFrom(myControllerService, myControllerSourceId))
 		{
-			evt->setExtraDataType(Event::ExtraDataVector3Array);
-			evt->setExtraDataVector3(0, myRay.getOrigin());
-			evt->setExtraDataVector3(1, myRay.getDirection());
+			evt->setPosition(myWandPosition);
+			evt->setOrientation(myWandOrientation);
 		}
 	}
 
