@@ -34,29 +34,23 @@ using namespace omicron;
 FilesystemDataSource::FilesystemDataSource(const String& name, const String& path):
 	DataSource(name)
 {
-	myPath = path;
-	if(!StringUtils::endsWith(myPath, "/"))
-	{
-		myPath = path + "/";
-	}
+	setPath(path);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 FilesystemDataSource::FilesystemDataSource(const String& path):
 	DataSource(path)
 {
-	myPath = path;
-	if(!StringUtils::endsWith(myPath, "/"))
-	{
-		myPath = path + "/";
-	}
+	setPath(path);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void FilesystemDataSource::setPath(const String& value)
 { 
 	myPath = value;
-	if(!StringUtils::endsWith(myPath, "/"))
+	// We add a trailing slash if it is missing (unless the path is completely empty, 
+	// to accept absolute paths.
+	if(!StringUtils::endsWith(myPath, "/") && myPath != "")
 	{
 		myPath = value + "/";
 	}
