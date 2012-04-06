@@ -196,8 +196,6 @@ class LIBCONFIGXX_API Setting
   Type _type;
   Format _format;
 
-  Setting(config_setting_t *setting);
-
   void assertType(Type type) const
     throw(SettingTypeException);
   static Setting & wrapSetting(config_setting_t *setting);
@@ -206,6 +204,7 @@ class LIBCONFIGXX_API Setting
   Setting& operator=(const Setting& other); // not supported
 
   public:
+  Setting(config_setting_t *setting);
 
   virtual ~Setting() throw();
 
