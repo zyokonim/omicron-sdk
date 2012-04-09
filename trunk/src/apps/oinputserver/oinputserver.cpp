@@ -36,7 +36,6 @@ using namespace omicron;
 #define itoa _itoa
 #endif
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Based on Winsock UDP Server Example:
 // http://msdn.microsoft.com/en-us/library/ms740148
@@ -375,7 +374,7 @@ void main(int argc, char** argv)
 	sm->setupAndStart(cfg);
 
 	app.startConnection(cfg);
-	
+
 	float delay = -0.01f; // Seconds to delay sending events (<= 0 disables delay)
 #ifdef _DEBUG
 	bool printOutput = true;

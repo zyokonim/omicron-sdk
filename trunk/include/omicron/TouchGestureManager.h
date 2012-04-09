@@ -1,9 +1,9 @@
 /**************************************************************************************************
- * THE OMEGA LIB PROJECT
+ * THE OMICRON PROJECT
  *-------------------------------------------------------------------------------------------------
- * Copyright 2010-2011		Electronic Visualization Laboratory, University of Illinois at Chicago
+ * Copyright 2010-2012		Electronic Visualization Laboratory, University of Illinois at Chicago
  * Authors:										
- *  Alessandro Febretti		febret@gmail.com
+ *  Arthur Nishimoto		anishimoto42@gmail.com
  *-------------------------------------------------------------------------------------------------
  * Copyright (c) 2010-2011, Electronic Visualization Laboratory, University of Illinois at Chicago
  * All rights reserved.
@@ -24,34 +24,28 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
+#ifndef __TOUCH_GESTURE_MANAGER_H__
+#define __TOUCH_GESTURE_MANAGER_H__
 
- // omicron always builds as a shared library
-#define OMICRON_SHARED
- 
-// Operating system
-#cmakedefine OMICRON_OS_WIN
-#cmakedefine OMICRON_OS_OSX
-#cmakedefine OMICRON_OS_LINUX
+namespace omicron {
 
-// Architecture (32/64bit)
-#cmakedefine OMICRON_ARCH_32
-#cmakedefine OMICRON_ARCH_64
+	class OmegaTouchPoint
+	{
 
-// Build toolset
-#cmakedefine OMICRON_TOOL_VS9
-#cmakedefine OMICRON_TOOL_VS10
-#cmakedefine OMICRON_TOOL_XCODE
-#cmakedefine OMICRON_TOOL_GCC
+	};
+	
+	class TouchGroup
+	{
 
-// Enabled modules
-#cmakedefine OMICRON_USE_NETSERVICE
-#cmakedefine OMICRON_USE_OPENNI
-#cmakedefine OMICRON_USE_NATURAL_POINT
-#cmakedefine OMICRON_USE_OPTITRACK
-#cmakedefine OMICRON_USE_PQLABS
-#cmakedefine OMICRON_USE_DIRECTINPUT
-#cmakedefine OMICRON_USE_VRPN
-#cmakedefine OMICRON_USE_THINKGEAR
-#cmakedefine OMICRON_USE_OSC
+	};
 
-#define OMICRON_DATA_PATH "${OMICRON_DATA_PATH}"
+	class TouchGestureManager
+	{
+
+	public:
+		TouchGestureManager();
+
+	};
+}
+
+#endif

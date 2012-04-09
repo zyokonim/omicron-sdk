@@ -498,7 +498,7 @@ void DirectXInputService::poll()
 
 	HRESULT hr;
 	DIJOYSTATE2 js;           // DInput joystick state 
-	LPDIDEVICEINSTANCE inputInfo;
+	//LPDIDEVICEINSTANCE inputInfo;
 
 	for(int j = 0; j < nControllers; j++){
 			
@@ -569,42 +569,43 @@ void DirectXInputService::poll()
 			evt->setExtraDataFloat(20, js.lRz); // Tilt (+left, -right)
 			evt->setExtraDataFloat(21, js.rglSlider[1]); // Tilt (+back, -forward)
 			mysInstance->unlockEvents();
+			
+			/*
+			// Debug text
+			// Axis state
+			printf("X %d ", js.lX );
+			printf("Y %d ", js.lY );
+			printf("Z %d ", js.lZ );
+			
+			// Rotation state
+			printf("rotX %d ", js.lRx );
+			printf("rotY %d ", js.lRy );
+			printf("rotZ %d ", js.lRz );
+
+			// Slider states
+			printf("slider0 %d ", js.rglSlider[0] );
+			printf("slider1 %d ", js.rglSlider[1] );
+			
+			// POV state
+			printf("POV0 %d ", js.rgdwPOV[0] );
+			printf("POV1 %d ", js.rgdwPOV[1] );
+			printf("POV2 %d ", js.rgdwPOV[2] );
+			printf("POV3 %d ", js.rgdwPOV[3] );
+
+			// Button state
+			printf("Buttons: ");
+			for( int i = 0; i < 128; i++ )
+			{
+				if( js.rgbButtons[i] & 0x80 )
+				{
+					printf("%d ", i);
+				}
+			}
+			printf("\n");
+			*/
 		}
 	}
-	
-	/*
-	// Debug text
-	// Axis state
-	printf("X %d ", js.lX );
-	printf("Y %d ", js.lY );
-	printf("Z %d ", js.lZ );
-	
-	// Rotation state
-	printf("rotX %d ", js.lRx );
-	printf("rotY %d ", js.lRy );
-	printf("rotZ %d ", js.lRz );
 
-	// Slider states
-	printf("slider0 %d ", js.rglSlider[0] );
-	printf("slider1 %d ", js.rglSlider[1] );
-	
-	// POV state
-	printf("POV0 %d ", js.rgdwPOV[0] );
-	printf("POV1 %d ", js.rgdwPOV[1] );
-	printf("POV2 %d ", js.rgdwPOV[2] );
-	printf("POV3 %d ", js.rgdwPOV[3] );
-
-	// Button state
-	printf("Buttons: ");
-	for( int i = 0; i < 128; i++ )
-    {
-        if( js.rgbButtons[i] & 0x80 )
-        {
-			printf("%d ", i);
-        }
-    }
-	printf("\n");
-	*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

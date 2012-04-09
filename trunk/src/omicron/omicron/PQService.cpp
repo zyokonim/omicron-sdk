@@ -104,7 +104,7 @@ void PQService::initialize( )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void PQService::initialize(  char* local_ip ) 
+void PQService::initialize( char* local_ip ) 
 {
 	mysInstance = this;
 	
@@ -116,22 +116,27 @@ void PQService::initialize(  char* local_ip )
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int PQService::init()
 {
-	int err_code = PQMTE_SUCESS;	
+	int err_code = PQMTE_SUCESS;
+
 	// initialize the handle functions of gestures;
-	InitFuncOnTG();
+	//InitFuncOnTG();
+	touchGestureManager = new TouchGestureManager();
+
 	// set the functions on server callback
 	SetFuncsOnReceiveProc();
+
 	// connect server
 	printf("PQService: connecting to server on %s... \n", server_ip);
 	if((err_code = ConnectServer(server_ip)) != PQMTE_SUCESS){
 		printf("PQService: connect to server failed, socket error code: %d\n", err_code);
 		return err_code;
 	}
+
 	// send request to server
 	printf("PQService: connected to server, sending request...\n");
 	TouchClientRequest tcq = {0};
 	tcq.app_id = GetTrialAppID();
-	tcq.type = RQST_RAWDATA_ALL | RQST_GESTURE_ALL;
+	tcq.type = RQST_RAWDATA_ALL;
 	if((err_code = SendRequest(tcq)) != PQMTE_SUCESS){
 		printf("PQService: send request failed, error code: %d\n", err_code);
 		return err_code;
@@ -288,7 +293,7 @@ void PQService:: OnTG_TouchEnd(const TouchGesture & tg,void * call_object)
 void PQService::SetFuncsOnReceiveProc()
 {
 	PFuncOnReceivePointFrame old_rf_func = SetOnReceivePointFrame(&PQService::onReceivePointFrame,this);
-	PFuncOnReceiveGesture old_rg_func = SetOnReceiveGesture(&PQService::onReceiveGesture,this);
+	//PFuncOnReceiveGesture old_rg_func = SetOnReceiveGesture(&PQService::onReceiveGesture,this);
 	PFuncOnServerBreak old_svr_break = SetOnServerBreak(&PQService::onServerBreak,NULL);
 	PFuncOnReceiveError old_rcv_err_func = SetOnReceiveError(&PQService::onReceiveError,NULL);
 }
@@ -384,14 +389,14 @@ void PQService:: OnTouchGesture(const TouchGesture & tg)
 	
 	bool debugText = false;
 
-	Event* evt;
+	//Event* evt;
 
 	float x = 0;
 	float y = 0;
 	
 	//bool validEvent = false;
-	switch(tg.type)
-	{
+	//switch(tg.type)
+	//{
 		// BROKEN FOR NOW IF YOU UNCOMMENT FIX
 		//case TG_DOWN:
 		//	evt = mysInstance->writeHead();
@@ -648,9 +653,9 @@ void PQService:: OnTouchGesture(const TouchGesture & tg)
 		//	//}
 		//	break;
 		//}
-		default:
-			break;
-	}// switch		
+		//default:
+		//	break;
+	//}// switch		
 	//if( validEvent ){
 	//	evt->serviceType = Service::Pointer;
 	//	evt->sourceId = -1; // Gestures have no id
