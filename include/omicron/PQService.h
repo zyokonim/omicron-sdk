@@ -27,6 +27,7 @@
  *************************************************************************************************/
 #include "omicron/osystem.h"
 #include "omicron/ServiceManager.h"
+#include "omicron/TouchGestureManager.h"
 #include "pqlabs/PQMTClient.h"
 
 //#include "input/Touches.h"
@@ -80,6 +81,8 @@ private:
 	static int move_threshold;// in pixels
 
 	std::map<int,Touches> touchlist; // Internal touch list to generate custom gestures
+	
+	TouchGestureManager* touchGestureManager;
 
 	//////////////////////call back functions///////////////////////
 	// onReceivePointFrame: function to handle when recieve touch point frame

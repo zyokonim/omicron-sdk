@@ -48,7 +48,8 @@ SET( srcs
 		omicron/Tcp.cpp
 		omicron/WandService.cpp
 		omicron/SagePointerService.cpp
-		
+		omicron/TouchGestureManager.cpp
+
 		#omega::xml
 		omicron/xml/tinystr.cpp
 		omicron/xml/tinyxml.cpp
@@ -94,7 +95,8 @@ SET( headers
 		${CMAKE_SOURCE_DIR}/include/omicron/Tcp.h
         ${CMAKE_SOURCE_DIR}/include/omicron/WandService.h
         ${CMAKE_SOURCE_DIR}/include/omicron/SagePointerService.h
-
+        ${CMAKE_SOURCE_DIR}/include/omicron/TouchGestureManager.h
+		
 		# eigenwrap
         ${CMAKE_SOURCE_DIR}/include/omicron/math/EigenWrappers.h
         ${CMAKE_SOURCE_DIR}/include/omicron/math/Math.h
@@ -138,7 +140,14 @@ if(OMICRON_USE_OPENNI)
 		include_directories(/usr/include/nite)
 	endif(WIN32)
 endif()
-	
+
+# OSC support    
+set(OMICRON_USE_OSC true CACHE BOOL "Enable/disable Open Sound Control support")
+if(OMICRON_USE_OSC)
+	set( srcs	 ${srcs} omicron/OSCService.cpp )
+	set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/OSCService.h )
+endif()
+
 # NaturalPoint Motion capture system support
 if(WIN32)
 	set(OMICRON_USE_NATURAL_POINT true CACHE BOOL "Enable/disable NaturalPoint MoCap support")

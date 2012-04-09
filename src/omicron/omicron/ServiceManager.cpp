@@ -65,7 +65,9 @@
 #ifdef OMICRON_USE_THINKGEAR
 	#include "omicron/ThinkGearService.h"
 #endif
-
+#ifdef OMICRON_USE_OSC
+	#include "omicron/OSCService.h"
+#endif
 using namespace omicron;
 using namespace std;
 
@@ -133,7 +135,9 @@ void ServiceManager::registerDefaultServices()
 #ifdef OMICRON_USE_OPENNI
 	registerService("OpenNIService", (ServiceAllocator)OpenNIService::New);
 #endif
-
+#ifdef OMICRON_USE_OSC
+	registerService("OSCService", (ServiceAllocator)OSCService::New);
+#endif
 ////	 Kinda hack: run application initialize here because for now it is used to register services from
 ////	 external libraries, so it needs to run before setting up services from the config file.
 ////#ifdef OMICRON_USE_DISPLAY
