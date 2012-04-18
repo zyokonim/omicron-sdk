@@ -32,7 +32,6 @@
 #include "omicron/osystem.h"
 #include "omicron/ServiceManager.h"
 #include "omicron/dinput.h"
-#include "omicron/wiimote.h"
 
 //#include "resource.h" // contained defines below
 #define IDI_MAIN                        102
@@ -69,18 +68,18 @@
 namespace omicron
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class DirectXInputService: public Service
+class OMICRON_API DirectXInputService: public Service
 {
 public:
 	// Allocator function
 	static DirectXInputService* New() { return new DirectXInputService(); }
 
-	enum ControllerType { Xbox360, PS3, Wiimote, Wii_Nunchuk, Wii_MotionPlus };
+	enum ControllerType { Invalid, Xbox360, PS3 };
 public:
 	void setup(Setting& settings);
-	OMICRON_API virtual void initialize();
+	virtual void initialize();
 	virtual void poll();
-	OMICRON_API virtual void dispose();
+	virtual void dispose();
 	void checkForNewControllers();
 
 	//! Sets the data update interval, in seconds. This is the interval at which this service will generate events
@@ -88,13 +87,10 @@ public:
 	void setUpdateInterval(float value);
 	//! @see setUpdateInterval
 	float getUpdateInterval();
+
 private:
 	static DirectXInputService* mysInstance;
 	float myUpdateInterval;
-
-	wiimote remote;
-	
-
 };
 
 }; // namespace omicron

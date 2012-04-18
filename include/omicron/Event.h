@@ -187,57 +187,57 @@ namespace omicron
 		enum Flags
 		{
 			//! Used for right mouse button or equivalent events.
-			Left = 1 << 1,
+			Left = 1 << 0,
 			//! Generic name for left / main button
-			Button1 = 1 <<1,
+			Button1 = 1 <<0,
 
 			//! Used for right mouse button or equivalent events.
-			Right = 1 << 2,
+			Right = 1 << 1,
 			//! Generic name for right / secondary button
-			Button2 = 1 << 2,
+			Button2 = 1 << 1,
 
 			//! Used for middle mouse button or equivalent events.
-			Middle = 1 << 3,
+			Middle = 1 << 2,
 			//! Generic name for middle / tertiary button
-			Button3 = 1 << 3,
+			Button3 = 1 << 2,
 
 			//! Used for ctrl key presses or equivalent events.
-			Ctrl = 1 << 4,
+			Ctrl = 1 << 3,
 			//! Generic name for control key / primary modifier button
-			SpecialButton1 = 1 << 4,
+			SpecialButton1 = 1 << 3,
 
 			//! Used for ctrl key presses or equivalent events.
-			Alt = 1 << 5,
+			Alt = 1 << 4,
 			//! Generic name for alt key / secondary modifier button
-			SpecialButton2 = 1 << 5,
+			SpecialButton2 = 1 << 4,
 
 			//! Used for ctrl key presses or equivalent events.
-			Shift = 1 << 6,
+			Shift = 1 << 5,
 			//! Generic name for shift key / tertiary modifier button
-			SpecialButton3 = 1 << 6,
+			SpecialButton3 = 1 << 5,
 
 			//! Generic name for additional button 4
-			Button4 = 1 << 7,
+			Button4 = 1 << 6,
 			//! Generic name for additional button 5
-			Button5 = 1 << 8,
+			Button5 = 1 << 7,
 			//! Generic name for additional button 6
-			Button6 = 1 << 9,
+			Button6 = 1 << 8,
 			//! Generic name for additional button 7
-			Button7 = 1 << 10,
+			Button7 = 1 << 9,
 
 			//! Generic name for digital up button
-			ButtonUp = 1 << 11,
+			ButtonUp = 1 << 10,
 			//! Generic name for digital down button
-			ButtonDown = 1 << 12,
+			ButtonDown = 1 << 11,
 			//! Generic name for digital left button
-			ButtonLeft = 1 << 13,
+			ButtonLeft = 1 << 12,
 			//! Generic name for digital right button
-			ButtonRight = 1 << 14,
+			ButtonRight = 1 << 13,
 
 			//! INTERNAL: Used to mark events that have been processed
-			Processed = 1 << 15,
+			Processed = 1 << 14,
 			//! User flags should offset this value: 16 user flags available (USER to USER << 16)
-			User = 1 << 16
+			User = 1 << 15
 		};
 
 		enum ExtraDataType
