@@ -261,6 +261,7 @@ namespace omicron
 
 		//! Type of the service that generated this event.
 		Service::ServiceType getServiceType() const;
+		void setServiceType(Service::ServiceType type);
 
 		//! Unique id of the service and / or hardware device that generated this event.
 		int getServiceId() const;
@@ -389,6 +390,10 @@ namespace omicron
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline Service::ServiceType Event::getServiceType() const
 	{ return myServiceType;	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline void Event::setServiceType(Service::ServiceType value)
+	{ myServiceType = value;	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline int Event::getServiceId() const

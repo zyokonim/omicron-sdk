@@ -344,17 +344,43 @@ void DirectXInputService::poll()
 		evt->setExtraDataFloat(2, js.lRx); // Right analog (-left, +right)
 		evt->setExtraDataFloat(3, js.lRy); // Right analog (-up, +down)
 		evt->setExtraDataFloat(4, js.lZ); // Trigger 2 (+left, -right)
-				
-		// Buttons
-		uint flags = 0;
-		for( int i = 0; i < 15; i++ )
+		
+		if(gControllerType[j] == Xbox360)
 		{
-			if( js.rgbButtons[i] & 0x80 )
-			{
-				flags |= 1 << i;
-			}
+			uint flags = 0;
+			// A Button
+			if(js.rgbButtons[0] & 0x80) flags |= Event::Button1;
+			// B Button
+			if(js.rgbButtons[1] & 0x80) flags |= Event::Button2;
+			// X Button
+			if(js.rgbButtons[2] & 0x80) flags |= Event::Button3;
+			// Y Button
+			if(js.rgbButtons[3] & 0x80) flags |= Event::Button4;
+
+			// Left Shoulder Button
+			if(js.rgbButtons[4] & 0x80) flags |= Event::Button5;
+			// Right Shoulder Button
+			if(js.rgbButtons[5] & 0x80) flags |= Event::Button6;
+
+			// Left Analog Pad Pressed
+			if(js.rgbButtons[8] & 0x80) flags |= Event::Button7;
+
+			// Right Analog Pad Pressed Missing (would be 9)
+			// We could use SpecialButton3 but we leave it out for now.
+
+			// Back Button
+			if(js.rgbButtons[6] & 0x80) flags |= Event::SpecialButton1;
+			// Start Button
+			if(js.rgbButtons[7] & 0x80) flags |= Event::SpecialButton2;
+
+			signed long dpad = (signed long)js.rgdwPOV[0];
+			if(dpad == 0) flags |= Event::ButtonUp;
+			if(dpad == 9000) flags |= Event::ButtonRight;
+			if(dpad == 18000) flags |= Event::ButtonDown;
+			if(dpad == 27000) flags |= Event::ButtonLeft;
+
+			evt->setFlags(flags);
 		}
-		evt->setFlags(flags);
 
 		//evt->setExtraDataFloat(19, js.rgdwPOV[0]); // DPad
 

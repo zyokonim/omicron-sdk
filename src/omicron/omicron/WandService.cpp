@@ -85,6 +85,7 @@ void WandService::poll()
 		// Attach the mocap ray to pointer.
 		if(evt->isFrom(myControllerService, myControllerSourceId))
 		{
+			evt->setServiceType(Service::Wand);
 			evt->setPosition(myWandPosition);
 			evt->setOrientation(myWandOrientation);
 		}
