@@ -29,5 +29,5 @@ using namespace omicron;
 
 TouchGestureManager::TouchGestureManager()
 {
-	printf("TouchGestureManager: TouchGestureManager()\n");
+	omsg("TouchGestureManager: TouchGestureManager()");
 }

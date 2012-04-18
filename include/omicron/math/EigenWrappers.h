@@ -141,17 +141,29 @@ namespace omicron { namespace math
 
 		float getPitch()
 		{
-		  return atan2(2*(y()*z() + w()*x()), w()*w() - x()*x() - y()*y() + z()*z());
+			float x = this->x();
+			float y = this->y();
+			float z = this->z();
+			float w = this->w();
+		  return atan2(2*(y*z + w*x), w*w - x*x - y*y + z*z);
 		}
 
 		float getYaw()
 		{
-		  return asin(-2*(x()*z() - w()*y()));
+			float x = this->x();
+			float y = this->y();
+			float z = this->z();
+			float w = this->w();
+		  return asin(-2*(x*z - w*y));
 		}
 
 		float getRoll()
 		{
-		  return atan2(2*(x()*y() + w()*z()), w()*w() + x()*x() - y()*y() - z()*z());
+			float x = this->x();
+			float y = this->y();
+			float z = this->z();
+			float w = this->w();
+		  return atan2(2*(x*y + w*z), w*w + x*x - y*y - z*z);
 		}
 	};
 
