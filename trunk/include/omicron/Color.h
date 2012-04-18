@@ -28,6 +28,7 @@
 #define __COLOR_H__
 
 #include "osystem.h"
+#include "StringUtils.h"
 
 namespace omicron
 {
@@ -68,6 +69,48 @@ namespace omicron
 			myData[2] = b;
 			myData[3] = a;
 		}
+
+		Color(const Color& color) { memcpy(myData, color.myData, 4 * sizeof(float)); }
+
+		Color(const String& name)
+		{
+			String lname = name;
+			StringUtils::toLowerCase(lname);
+			if(lname[0] == '#')
+			{
+				uint x;
+				sscanf(lname.c_str(), "%x", &x);			
+				// red
+				myData[0] = (float)((x & 0xff000000) >> 24) / 256;
+				// green
+				myData[1] = (float)((x & 0x00ff0000) >> 16) / 256;
+				// blue
+				myData[2] = (float)((x & 0x0000ff00) >> 8) / 256;
+				// alpha
+				myData[3] = (float)((x & 0x000000ff)) / 256;
+			}
+			else
+			{
+				if(lname == "white") *this = White;
+				if(lname == "black") *this = Black;
+				if(lname == "orange") *this = Orange;
+				if(lname == "silver") *this = Silver;
+				if(lname == "gray") *this = Gray;
+				if(lname == "red") *this = Red;
+				if(lname == "maroon") *this = Maroon;
+				if(lname == "yellow") *this = Yellow;
+				if(lname == "olive") *this = Olive;
+				if(lname == "lime") *this = Lime;
+				if(lname == "green") *this = Green;
+				if(lname == "aqua") *this = Aqua;
+				if(lname == "teal") *this = Teal;
+				if(lname == "blue") *this = Blue;
+				if(lname == "navy") *this = Navy;
+				if(lname == "fuchsia") *this = Fuchsia;
+				if(lname == "purple") *this = Purple;
+			}
+		}
+
 
 		Color scale(float f, bool alpha = false) { return Color(myData[0] * f, myData[1] * f, myData[2] * f, alpha ? myData[3] * f : myData[3]); }
 	private:
