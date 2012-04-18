@@ -73,9 +73,9 @@ void OSCService::connectToOSCServer()
 	UdpSocket sock;
 	sock.connectTo(serverIP, serverPort);
 	if (!sock.isOk()) {
-		printf( "OSCService: Error connection to port %d: %s\n", serverPort, sock.errorMessage() );
+		ofmsg( "OSCService: Error connection to port %1%: %2%", %serverPort %sock.errorMessage() );
 	} else {
-		printf( "OSCService: Client started, will send packets to port %d\n", serverPort );
+		ofmsg( "OSCService: Client started, will send packets to port %1%", %serverPort );
 		
 		// Send a test message to server
 		int iping = 1;

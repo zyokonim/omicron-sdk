@@ -27,6 +27,9 @@
 #ifndef __TOUCH_GESTURE_MANAGER_H__
 #define __TOUCH_GESTURE_MANAGER_H__
 
+
+#include "osystem.h"
+
 namespace omicron {
 
 	class OmegaTouchPoint

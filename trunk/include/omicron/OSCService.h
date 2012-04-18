@@ -27,6 +27,7 @@
 
 #include "omicron/osystem.h"
 #include "omicron/ServiceManager.h"
+#include "omicron/StringUtils.h"
 #include "osc/oscpkt.h"
 #include "osc/udp.h"
 
@@ -84,26 +85,29 @@ public:
 		UdpSocket sock;
 		sock.connectTo("localhost", PORT_NUM);
 		if (!sock.isOk()) {
-			printf( "OscManager::Error connection to port %d: %s\n", PORT_NUM, sock.errorMessage() );
+			ofmsg( "OscManager::Error connection to port %1%: %2%", %PORT_NUM %sock.errorMessage() );
 		} else {
-			printf( "OscManager::Client started, will send packets to port %d\n", PORT_NUM );
+			ofmsg( "OscManager::Client started, will send packets to port %1%", %PORT_NUM );
 			int iping = 1;
 			while (sock.isOk()) {
 				Message msg("/ping"); msg.pushInt32(iping);
 				PacketWriter pw;
 				pw.startBundle().startBundle().addMessage(msg).endBundle().endBundle();
 				bool ok = sock.sendPacket(pw.packetData(), pw.packetSize());
-				printf( "OscManager::Client: sent /ping %d, ok=%d \n" , iping++ , ok );
+				ofmsg( "OscManager::Client: sent /ping %1%, ok=%2%" , %iping++ %ok );
 				// wait for a reply ?
 				if (sock.receiveNextPacket(30 /* timeout, in ms */)) {
 					PacketReader pr(sock.packetData(), sock.packetSize());
 					Message *incoming_msg;
 					while (pr.isOk() && (incoming_msg = pr.popMessage()) != 0) {
-						printf( "OscManager::Client: received %s\n", *incoming_msg );
+						// NOTE Febret to Arthur: This line did not work in linux (using printf or ofmsg): Cannot print message as a string?
+						// (http://gruntthepeon.free.fr/oscpkt/html/classoscpkt_1_1_message_1_1_arg_reader.html)
+						// Commenting out for now.
+						//ofmsg( "OscManager::Client: received %1%", %(const char*)(*incoming_msg) );
 					}
 				}
 			}
-			printf( "OscManager::sock error: %s -- is the server running?\n", sock.errorMessage() );
+			ofmsg( "OscManager::sock error: %1% -- is the server running?", %sock.errorMessage() );
 		}
 	}
 	/*
