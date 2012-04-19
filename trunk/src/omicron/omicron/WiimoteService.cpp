@@ -228,7 +228,7 @@ void WiimoteService::writeWiimoteEvent()
 	}
 
 	// Save digital information
-	evt->setFlags(pollButtonState());
+	evt->setFlags(myButtonState);
 
 	// Save analog information
 	evt->setExtraDataType(Event::ExtraDataFloatArray);

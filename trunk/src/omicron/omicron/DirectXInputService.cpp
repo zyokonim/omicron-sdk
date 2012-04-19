@@ -222,6 +222,12 @@ void DirectXInputService::initialize()
 	
 	checkForNewControllers();
 
+	// Reset controller button states.
+	myButtonState[0] = 0;
+	myButtonState[1] = 0;
+	myButtonState[2] = 0;
+	myButtonState[3] = 0;
+
 	if( gNumControllers == 0 )
 	{
 		printf("DirectXInputService: No joysticks detected.\n");
@@ -327,17 +333,67 @@ void DirectXInputService::poll()
 		lockEvents();
 
 		Event* evt = writeHead();
-		evt->reset(Event::Update, Service::Controller, j);
-		evt->setExtraDataType(Event::ExtraDataFloatArray);
 
-		//if( controllerType[j] == Xbox360 )
-		//{
-		//	evt->setExtraDataFloat(0, Xbox360); 
-		//} 
-		//else if( controllerType[j] == PS3 )
-		//{
-		//	evt->setExtraDataFloat(0, PS3);
-		//}
+		uint curButtonState = 0;
+		if(gControllerType[j] == Xbox360)
+		{
+			// A Button
+			if(js.rgbButtons[0] & 0x80) curButtonState |= Event::Button1;
+			// B Button
+			if(js.rgbButtons[1] & 0x80) curButtonState |= Event::Button2;
+			// X Button
+			if(js.rgbButtons[2] & 0x80) curButtonState |= Event::Button3;
+			// Y Button
+			if(js.rgbButtons[3] & 0x80) curButtonState |= Event::Button4;
+
+			// Left Shoulder Button
+			if(js.rgbButtons[4] & 0x80) curButtonState |= Event::Button5;
+			// Right Shoulder Button
+			if(js.rgbButtons[5] & 0x80) curButtonState |= Event::Button6;
+
+			// Left Analog Pad Pressed
+			if(js.rgbButtons[8] & 0x80) curButtonState |= Event::Button7;
+
+			// Right Analog Pad Pressed Missing (would be 9)
+			// We could use SpecialButton3 but we leave it out for now.
+
+			// Back Button
+			if(js.rgbButtons[6] & 0x80) curButtonState |= Event::SpecialButton1;
+			// Start Button
+			if(js.rgbButtons[7] & 0x80) curButtonState |= Event::SpecialButton2;
+
+			signed long dpad = (signed long)js.rgdwPOV[0];
+			if(dpad == 0) curButtonState |= Event::ButtonUp;
+			if(dpad == 9000) curButtonState |= Event::ButtonRight;
+			if(dpad == 18000) curButtonState |= Event::ButtonDown;
+			if(dpad == 27000) curButtonState |= Event::ButtonLeft;
+		}
+
+		if(curButtonState != myButtonState[j])
+		{
+			// If button state is bigger than previous state, it means one additional bit has been
+			// set - so send a down event.
+			if(curButtonState > myButtonState[j])
+			{
+				evt->reset(Event::Down, Service::Controller, j);
+				if(isDebugEnabled()) omsg("DirectX button down");
+			}
+			else
+			{
+				evt->reset(Event::Up, Service::Controller, j);
+				if(isDebugEnabled()) omsg("DirectX button up");
+			}
+			myButtonState[j] = curButtonState;
+		}
+		else
+		{
+			// Button state has not changed, just send an update event.
+			evt->reset(Event::Update, Service::Controller, j);
+		}
+
+		evt->setFlags(myButtonState[j]);
+
+		evt->setExtraDataType(Event::ExtraDataFloatArray);
 
 		evt->setExtraDataFloat(0, js.lX); 
 		evt->setExtraDataFloat(1, js.lY);  // Left analog (-up, +down)
@@ -345,47 +401,6 @@ void DirectXInputService::poll()
 		evt->setExtraDataFloat(3, js.lRy); // Right analog (-up, +down)
 		evt->setExtraDataFloat(4, js.lZ); // Trigger 2 (+left, -right)
 		
-		if(gControllerType[j] == Xbox360)
-		{
-			uint flags = 0;
-			// A Button
-			if(js.rgbButtons[0] & 0x80) flags |= Event::Button1;
-			// B Button
-			if(js.rgbButtons[1] & 0x80) flags |= Event::Button2;
-			// X Button
-			if(js.rgbButtons[2] & 0x80) flags |= Event::Button3;
-			// Y Button
-			if(js.rgbButtons[3] & 0x80) flags |= Event::Button4;
-
-			// Left Shoulder Button
-			if(js.rgbButtons[4] & 0x80) flags |= Event::Button5;
-			// Right Shoulder Button
-			if(js.rgbButtons[5] & 0x80) flags |= Event::Button6;
-
-			// Left Analog Pad Pressed
-			if(js.rgbButtons[8] & 0x80) flags |= Event::Button7;
-
-			// Right Analog Pad Pressed Missing (would be 9)
-			// We could use SpecialButton3 but we leave it out for now.
-
-			// Back Button
-			if(js.rgbButtons[6] & 0x80) flags |= Event::SpecialButton1;
-			// Start Button
-			if(js.rgbButtons[7] & 0x80) flags |= Event::SpecialButton2;
-
-			signed long dpad = (signed long)js.rgdwPOV[0];
-			if(dpad == 0) flags |= Event::ButtonUp;
-			if(dpad == 9000) flags |= Event::ButtonRight;
-			if(dpad == 18000) flags |= Event::ButtonDown;
-			if(dpad == 27000) flags |= Event::ButtonLeft;
-
-			evt->setFlags(flags);
-		}
-
-		//evt->setExtraDataFloat(19, js.rgdwPOV[0]); // DPad
-
-		//evt->setExtraDataFloat(20, js.lRz); // Tilt (+left, -right)
-		//evt->setExtraDataFloat(21, js.rglSlider[1]); // Tilt (+back, -forward)
 		unlockEvents();
 	}
 }
