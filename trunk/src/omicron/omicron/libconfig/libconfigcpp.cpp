@@ -520,56 +520,64 @@ Setting & Config::getRoot() const
 Setting::Setting(config_setting_t *setting)
   : _setting(setting)
 {
-  switch(config_setting_type(setting))
+  if(setting == NULL)
   {
-    case CONFIG_TYPE_GROUP:
-      _type = TypeGroup;
-      break;
-
-    case CONFIG_TYPE_INT:
-      _type = TypeInt;
-      break;
-
-    case CONFIG_TYPE_INT64:
-      _type = TypeInt64;
-      break;
-
-    case CONFIG_TYPE_FLOAT:
-      _type = TypeFloat;
-      break;
-
-    case CONFIG_TYPE_STRING:
-      _type = TypeString;
-      break;
-
-    case CONFIG_TYPE_BOOL:
-      _type = TypeBoolean;
-      break;
-
-    case CONFIG_TYPE_ARRAY:
-      _type = TypeArray;
-      break;
-
-    case CONFIG_TYPE_LIST:
-      _type = TypeList;
-      break;
-
-    case CONFIG_TYPE_NONE:
-    default:
-      _type = TypeNone;
-      break;
+	  _type = TypeNone;
+	  _format = FormatDefault;
   }
-
-  switch(config_setting_get_format(setting))
+  else
   {
-    case CONFIG_FORMAT_HEX:
-      _format = FormatHex;
-      break;
+	  switch(config_setting_type(setting))
+	  {
+		case CONFIG_TYPE_GROUP:
+		  _type = TypeGroup;
+		  break;
 
-    case CONFIG_FORMAT_DEFAULT:
-    default:
-      _format = FormatDefault;
-      break;
+		case CONFIG_TYPE_INT:
+		  _type = TypeInt;
+		  break;
+
+		case CONFIG_TYPE_INT64:
+		  _type = TypeInt64;
+		  break;
+
+		case CONFIG_TYPE_FLOAT:
+		  _type = TypeFloat;
+		  break;
+
+		case CONFIG_TYPE_STRING:
+		  _type = TypeString;
+		  break;
+
+		case CONFIG_TYPE_BOOL:
+		  _type = TypeBoolean;
+		  break;
+
+		case CONFIG_TYPE_ARRAY:
+		  _type = TypeArray;
+		  break;
+
+		case CONFIG_TYPE_LIST:
+		  _type = TypeList;
+		  break;
+
+		case CONFIG_TYPE_NONE:
+		default:
+		  _type = TypeNone;
+		  break;
+	  }
+
+	  switch(config_setting_get_format(setting))
+	  {
+		case CONFIG_FORMAT_HEX:
+		  _format = FormatHex;
+		  break;
+
+		case CONFIG_FORMAT_DEFAULT:
+		default:
+		  _format = FormatDefault;
+		  break;
+	  }
   }
 }
 
