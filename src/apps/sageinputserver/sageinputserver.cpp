@@ -460,18 +460,37 @@ void SAGETouchServer::connectToSage(){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SAGETouchServer::handleEvent(const Event& evt){
-	char msgData[256];
 
-	int id = evt.getSourceId();
-	float xPos = evt.getPosition(0);
-	float yPos = 1.0 - evt.getPosition(1); // Flip y position for SAGE
-	int eventType = evt.getType();
+	if( evt.getServiceType() == Service::Pointer ){
+		char msgData[256];
+		int id = evt.getSourceId();
+		float xPos = evt.getPosition(0);
+		float yPos = 1.0 - evt.getPosition(1); // Flip y position for SAGE
+		int eventType = evt.getType();
+		bool validEvent = false;
 
-	sprintf(msgData, "%s:pqlabs%d pqlabs %d %f %f %d\n", 
-		    myIP, id, GESTURE_SINGLE_TOUCH, xPos, yPos, eventType);
-	printf(msgData);
-	queueMessage(msgData);
-	sendToSage();
+		// Single touch
+		if( eventType == Event::Down || eventType == Event::Move || eventType == Event::Up )
+		{
+			// Remap eventtype to match SAGE Touch lifepoint
+			switch( eventType )
+			{
+				case Event::Down: eventType = 1; break; // Begin
+				case Event::Move: eventType = 2; break; // Middle
+				case Event::Up: eventType = 3; break; // End
+			}
+
+			sprintf(msgData, "%s:pqlabs%d pqlabs %d %f %f %d\n", 
+					myIP, id, GESTURE_SINGLE_TOUCH, xPos, yPos, eventType);
+			validEvent = true;
+		}
+
+		if( validEvent ){
+			//printf(msgData);
+			queueMessage(msgData);
+			sendToSage();
+		}
+	}
 }
 
 void SAGETouchServer::queueMessage(char *newMsg) 
@@ -528,7 +547,7 @@ void main(int argc, char** argv)
 	float delay = -0.01f; // Seconds to delay sending events (<= 0 disables delay)
 	bool printOutput = false;
 
-	omsg("OInputServer: Starting to listen for clients...");
+	//omsg("OInputServer: Starting to listen for clients...");
 	while(true)
 	{
 		// TODO: Use StopWatch

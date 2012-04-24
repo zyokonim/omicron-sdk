@@ -27,16 +27,35 @@
 #ifndef __TOUCH_GESTURE_MANAGER_H__
 #define __TOUCH_GESTURE_MANAGER_H__
 
-
 #include "osystem.h"
+#include "ServiceManager.h"
+
+struct Touch{
+	int ID;
+	float xPos;
+	float yPos;
+	float xWidth;
+	float yWidth;
+	int timestamp;
+
+	// Gestures
+	int gestureType;
+};
 
 namespace omicron {
 
 	class OmegaTouchPoint
 	{
+	private:
+		float xPos;
+		float yPos;
+		float xWidth;
+		float yWidth;
+		int ID;
 
+	public:
 	};
-	
+
 	class TouchGroup
 	{
 
@@ -47,7 +66,22 @@ namespace omicron {
 
 	public:
 		TouchGestureManager();
+		void registerPQService(Service*);
+		void poll();
+		
+		void addTouch(Event::Type eventType, Touch touch);
+		void addTouch(Event::Type eventType, float xPos, float yPos, float xWidth, float yWidth, int id);
+	private:
+		Service* pqsInstance;
+		Lock* touchListLock;
+		std::map<int,Touch> touchList;
+		std::map<int,TouchGroup> touchGroupList;
 
+		static int deadTouchDelay; 
+
+		void addTouchGroup( Event::Type eventType, float xPos, float yPos, int id );
+
+		void generatePQServiceEvent(Event::Type eventType, Touch touch);
 	};
 }
 

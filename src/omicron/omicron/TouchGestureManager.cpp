@@ -27,7 +27,135 @@
 
 using namespace omicron;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int TouchGestureManager::deadTouchDelay = 1500; 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 TouchGestureManager::TouchGestureManager()
 {
 	omsg("TouchGestureManager: TouchGestureManager()");
+	touchListLock = new Lock();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void TouchGestureManager::registerPQService( Service* service )
+{
+	pqsInstance = service;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void TouchGestureManager::poll()
+{
+	touchListLock->lock();
+
+	// Get time in milliseconds
+	timeb tb;
+	ftime( &tb );
+	int curTime = tb.millitm + (tb.time & 0xfffff) * 1000;
+
+	//printf("TouchGestureManager: poll()\n");
+	//printf("TouchGestureManager: poll() Time: %d\n", curTime);
+	
+	std::map<int,Touch> swapList;
+
+	std::map<int,Touch>::iterator it;
+	for ( it = touchList.begin() ; it != touchList.end(); it++ ){
+		Touch t = (*it).second;
+		
+		// TEMP: Dead touch time should be variable and less than 1 second
+		if( curTime - t.timestamp < 1000 ){
+			swapList[t.ID] = t;
+		} else {
+			t.timestamp = curTime;
+
+			// Touch has expired - likely due to lost up event. Send new up event.
+			generatePQServiceEvent( Event::Up, t );
+			printf("Auto Remove Touch ID %d\n", t.ID);
+		}
+		//printf( "TL: Touch ID %d \n", t.timestamp );
+	}
+	touchListLock->unlock();
+	
+	touchListLock->lock();
+	touchList = swapList;
+	touchListLock->unlock();
+
+	//printf("TouchList size: %d\n", touchList.size());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void TouchGestureManager::addTouch(Event::Type eventType, Touch touch)
+{
+	float x = touch.xPos;
+	float y = touch.yPos;
+	float xW = touch.xWidth;
+	float yW = touch.yWidth;
+	int ID = touch.ID;
+	int timestamp = touch.timestamp;
+	
+	// Expand coords for testing
+	x *= 8160.0;
+	y *= 2304.0;
+	xW *= 8160.0;
+	yW *= 2304.0;
+
+	// Width data should be > 0 - Else likely bad data
+	if( xW <= 0 || yW <= 0 )
+		return;
+	
+	touchListLock->lock();
+
+	if( touchList.count(ID) == 0 ){
+		addTouchGroup( eventType, x, y, ID );
+		touchList[ID] = touch;
+		printf("New Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
+	} else {
+		if( eventType == Event::Move ){
+			addTouchGroup( eventType, x, y, ID );
+			touchList[ID] = touch;
+			//printf("Update Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
+		} else if( eventType == Event::Up ){
+			touchList.erase( ID );
+			printf("Remove Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
+		}
+	}
+
+	touchListLock->unlock();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void TouchGestureManager::addTouch( Event::Type eventType, float x, float y, float xW, float yW, int ID)
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void TouchGestureManager::addTouchGroup( Event::Type eventType, float xPos, float yPos, int ID )
+{
+	
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void TouchGestureManager::generatePQServiceEvent( Event::Type eventType, Touch touch )
+{
+
+	if( pqsInstance ){
+		pqsInstance->lockEvents();
+
+		Event* evt = pqsInstance->writeHead();
+		switch(eventType)
+		{
+			case Event::Up:
+				evt->reset(Event::Up, Service::Pointer, touch.ID);
+				break;
+		}		
+		evt->setPosition(touch.xPos, touch.yPos);
+
+		evt->setExtraDataType(Event::ExtraDataFloatArray);
+		evt->setExtraDataFloat(0, touch.xWidth);
+		evt->setExtraDataFloat(1, touch.yWidth);
+
+		pqsInstance->unlockEvents();
+	} else {
+		printf("TouchGestureManagerL No PQService Registered\n");
+	}
 }
