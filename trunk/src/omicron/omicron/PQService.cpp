@@ -93,13 +93,6 @@ void PQService::initialize( )
 	mysInstance = this;
 	
 	memset(m_pf_on_tges,0, sizeof(m_pf_on_tges));
-	//server_ip = "131.193.77.102";
-
-	nextID = 0;
-	for(int i = 0; i < maxTouches; i++){
-		touchID[i] = 0;
-	}
-
 	init();
 }
 
@@ -114,13 +107,25 @@ void PQService::initialize( char* local_ip )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void PQService::poll() 
+{
+	touchGestureManager->poll();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int PQService::init()
 {
+	nextID = 0;
+	for(int i = 0; i < maxTouches; i++){
+		touchID[i] = 0;
+	}
+
 	int err_code = PQMTE_SUCESS;
 
 	// initialize the handle functions of gestures;
 	//InitFuncOnTG();
 	touchGestureManager = new TouchGestureManager();
+	touchGestureManager->registerPQService(mysInstance);
 
 	// set the functions on server callback
 	SetFuncsOnReceiveProc();
@@ -301,8 +306,13 @@ void PQService::SetFuncsOnReceiveProc()
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void PQService:: onReceivePointFrame(int frame_id, int time_stamp, int moving_point_count, const TouchPoint * moving_point_array, void * call_back_object)
 {
-	PQService * omegaDesk = static_cast<PQService*>(call_back_object);
-	assert(omegaDesk != NULL);
+	PQService * pqService = static_cast<PQService*>(call_back_object);
+	
+	// Hack: For some reason the registered callback is now losing the pointer to PQService after being set
+	// by SetFuncsOnReceiveProc(). Broken sometime before April 2012 - Arthur.
+	pqService = mysInstance;
+
+	assert(pqService != NULL);
 	const char * tp_event[] = 
 	{
 		"down",
@@ -313,7 +323,7 @@ void PQService:: onReceivePointFrame(int frame_id, int time_stamp, int moving_po
 	//printf(" frame_id:" << frame_id << " time:"  << time_stamp << " ms" << " moving point count:" << moving_point_count << endl;
 	for(int i = 0; i < moving_point_count; ++ i){
 		TouchPoint tp = moving_point_array[i];
-		omegaDesk->OnTouchPoint(tp);
+		pqService->OnTouchPoint(tp);
 	}
 }
 
@@ -680,7 +690,7 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 	{
 		mysInstance->lockEvents();
 	
-		Touches touch;
+		Touch touch;
 		touch.ID = touchID[tp.id];
 		touch.xPos = tp.x * (float)screenX / (float)serverX;
 		touch.yPos = tp.y * (float)screenY / (float)serverY;
@@ -695,19 +705,22 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 			case TP_DOWN:
 				evt->reset(Event::Down, Service::Pointer, nextID);
 				touchID[tp.id] = nextID;
+				
+				touchGestureManager->addTouch( Event::Down, touch );
 				if( nextID < maxTouches - 100 ){
 					nextID++;
 				} else {
 					nextID = 0;
 				}
-				touchlist[touch.ID] = touch;
 				break;
 			case TP_MOVE:
 				evt->reset(Event::Move, Service::Pointer, touch.ID);
 				touchlist[touch.ID] = touch;
+				touchGestureManager->addTouch( Event::Move, touch );
 				break;
 			case TP_UP:
 				evt->reset(Event::Up, Service::Pointer, touch.ID);
+				touchGestureManager->addTouch( Event::Up, touch );
 				touchlist.erase( touch.ID );
 				break;
 		}		
@@ -730,6 +743,8 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 		//printf(" Server %d,%d Screen %d, %d\n", serverX, serverY, screenX, screenY );
 		//printf("      at %d,%d\n", tp.x, tp.y);
 		mysInstance->unlockEvents();
+
+		//touchGestureManager->generateEvents(mysInstance);
 	}
 }
 

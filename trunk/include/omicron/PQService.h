@@ -38,8 +38,8 @@
 #define __PQ_LAB_TOUCH__SERVICE_H__
 
 using namespace PQ_SDK_MultiTouch;
-
-struct Touches{
+/* // Replaced with TouchGestureManager version
+struct Touch{
 	int ID;
 	float xPos;
 	float yPos;
@@ -52,7 +52,7 @@ struct Touches{
 	int ID_1; // IDs of other touches in the same gesture
 	int ID_2;
 };
-
+*/
 namespace omicron
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,6 +64,7 @@ public:
 
 public:
 	virtual void initialize();
+	virtual void poll();
 	virtual void dispose();
 
 	void setup(Setting& settings);
@@ -80,7 +81,7 @@ private:
 	int nextID;
 	static int move_threshold;// in pixels
 
-	std::map<int,Touches> touchlist; // Internal touch list to generate custom gestures
+	std::map<int,Touch> touchlist; // Internal touch list to generate custom gestures
 	
 	TouchGestureManager* touchGestureManager;
 
