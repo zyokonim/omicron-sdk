@@ -687,9 +687,7 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 	int yWidth = tp.dy;
 
 	if(mysInstance && xWidth <= maxBlobSize && yWidth <= maxBlobSize)
-	{
-		mysInstance->lockEvents();
-	
+	{		
 		Touch touch;
 		touch.ID = touchID[tp.id];
 		touch.xPos = tp.x * (float)screenX / (float)serverX;
@@ -699,52 +697,67 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 
 		touch.timestamp = timestamp;
 
-		Event* evt = mysInstance->writeHead();
+		// Process touch gestures (this is done outside above event creation
+		// during case touchGestureManager needs to create an event)
+		bool valid = false; // Also checks data validity
 		switch(tp.point_event)
 		{
 			case TP_DOWN:
-				evt->reset(Event::Down, Service::Pointer, nextID);
-				touchID[tp.id] = nextID;
-				
-				touchGestureManager->addTouch( Event::Down, touch );
-				if( nextID < maxTouches - 100 ){
-					nextID++;
-				} else {
-					nextID = 0;
-				}
+				valid = touchGestureManager->addTouch( Event::Down, touch );
 				break;
 			case TP_MOVE:
-				evt->reset(Event::Move, Service::Pointer, touch.ID);
-				touchlist[touch.ID] = touch;
-				touchGestureManager->addTouch( Event::Move, touch );
+				valid = touchGestureManager->addTouch( Event::Move, touch );
 				break;
 			case TP_UP:
-				evt->reset(Event::Up, Service::Pointer, touch.ID);
-				touchGestureManager->addTouch( Event::Up, touch );
-				touchlist.erase( touch.ID );
+				valid = touchGestureManager->addTouch( Event::Up, touch );
 				break;
-		}		
-		if( serverX != 0 && serverY != 0 ){
-			evt->setPosition(
-			tp.x * (float)screenX / (float)serverX,
-			tp.y * (float)screenY / (float)serverY);
-
-			evt->setExtraDataType(Event::ExtraDataFloatArray);
-			evt->setExtraDataFloat(0, xWidth * (float)screenX / (float)serverX);
-			evt->setExtraDataFloat(1, yWidth * (float)screenY / (float)serverY);
-		} else {
-			evt->setPosition(tp.x, tp.y);
-
-			evt->setExtraDataType(Event::ExtraDataFloatArray);
-			evt->setExtraDataFloat(0, xWidth);
-			evt->setExtraDataFloat(1, yWidth);
 		}
 
-		//printf(" Server %d,%d Screen %d, %d\n", serverX, serverY, screenX, screenY );
-		//printf("      at %d,%d\n", tp.x, tp.y);
-		mysInstance->unlockEvents();
+		if( valid ){
+			mysInstance->lockEvents();
 
-		//touchGestureManager->generateEvents(mysInstance);
+			Event* evt = mysInstance->writeHead();
+			switch(tp.point_event)
+			{
+				case TP_DOWN:
+					evt->reset(Event::Down, Service::Pointer, nextID);
+					touchID[tp.id] = nextID;
+
+					if( nextID < maxTouches - 100 ){
+						nextID++;
+					} else {
+						nextID = 0;
+					}
+					break;
+				case TP_MOVE:
+					evt->reset(Event::Move, Service::Pointer, touch.ID);
+					touchlist[touch.ID] = touch;
+					break;
+				case TP_UP:
+					evt->reset(Event::Up, Service::Pointer, touch.ID);
+					touchlist.erase( touch.ID );
+					break;
+			}		
+			if( serverX != 0 && serverY != 0 ){
+				evt->setPosition(
+				tp.x * (float)screenX / (float)serverX,
+				tp.y * (float)screenY / (float)serverY);
+
+				evt->setExtraDataType(Event::ExtraDataFloatArray);
+				evt->setExtraDataFloat(0, xWidth * (float)screenX / (float)serverX);
+				evt->setExtraDataFloat(1, yWidth * (float)screenY / (float)serverY);
+			} else {
+				evt->setPosition(tp.x, tp.y);
+
+				evt->setExtraDataType(Event::ExtraDataFloatArray);
+				evt->setExtraDataFloat(0, xWidth);
+				evt->setExtraDataFloat(1, yWidth);
+			}
+
+			//printf(" Server %d,%d Screen %d, %d\n", serverX, serverY, screenX, screenY );
+			//printf("      at %d,%d\n", tp.x, tp.y);
+			mysInstance->unlockEvents();
+		}
 	}
 }
 

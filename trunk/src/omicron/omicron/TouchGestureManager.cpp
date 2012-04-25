@@ -33,7 +33,7 @@ int TouchGestureManager::deadTouchDelay = 1500;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 TouchGestureManager::TouchGestureManager()
 {
-	omsg("TouchGestureManager: TouchGestureManager()");
+	//omsg("TouchGestureManager: TouchGestureManager()");
 	touchListLock = new Lock();
 }
 
@@ -41,6 +41,7 @@ TouchGestureManager::TouchGestureManager()
 void TouchGestureManager::registerPQService( Service* service )
 {
 	pqsInstance = service;
+	omsg("TouchGestureManager: Registered with " + service->getName());
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void TouchGestureManager::poll()
@@ -55,9 +56,9 @@ void TouchGestureManager::poll()
 	//printf("TouchGestureManager: poll()\n");
 	//printf("TouchGestureManager: poll() Time: %d\n", curTime);
 	
-	std::map<int,Touch> swapList;
+	map<int,Touch> swapList;
 
-	std::map<int,Touch>::iterator it;
+	map<int,Touch>::iterator it;
 	for ( it = touchList.begin() ; it != touchList.end(); it++ ){
 		Touch t = (*it).second;
 		
@@ -69,7 +70,7 @@ void TouchGestureManager::poll()
 
 			// Touch has expired - likely due to lost up event. Send new up event.
 			generatePQServiceEvent( Event::Up, t );
-			printf("Auto Remove Touch ID %d\n", t.ID);
+			//printf("Auto Remove Touch ID %d\n", t.ID);
 		}
 		//printf( "TL: Touch ID %d \n", t.timestamp );
 	}
@@ -83,7 +84,9 @@ void TouchGestureManager::poll()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void TouchGestureManager::addTouch(Event::Type eventType, Touch touch)
+// All touches considered for gestures are added by this function.
+// This also serves to error correct touch data: invalid ranges, missing events, etc.
+bool TouchGestureManager::addTouch(Event::Type eventType, Touch touch)
 {
 	float x = touch.xPos;
 	float y = touch.yPos;
@@ -100,38 +103,62 @@ void TouchGestureManager::addTouch(Event::Type eventType, Touch touch)
 
 	// Width data should be > 0 - Else likely bad data
 	if( xW <= 0 || yW <= 0 )
-		return;
-	
-	touchListLock->lock();
+		return false;
 
-	if( touchList.count(ID) == 0 ){
+	touchListLock->lock();
+	
+	if( touchList.count(ID) == 0 && eventType == Event::Down ){
 		addTouchGroup( eventType, x, y, ID );
 		touchList[ID] = touch;
-		printf("New Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
+		//printf("New Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
+	} else if( touchList.count(ID) == 1 && eventType == Event::Move ){
+		addTouchGroup( eventType, x, y, ID );
+		touchList[ID] = touch;
+		//printf("Update Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
+	} else if( touchList.count(ID) == 1 && eventType == Event::Up ){
+		touchList.erase( ID );
+		//printf("Remove Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
 	} else {
-		if( eventType == Event::Move ){
-			addTouchGroup( eventType, x, y, ID );
+
+		// Error correcting steps for missing touch data, dropped packets, etc.
+		if( touchList.count(ID) == 1 && eventType == Event::Down ) {
+			printf("TouchGestureManager: Should-Not-Happen-Warning: Touch down received for existing touch.\n");
+			touchListLock->unlock();
+			return true;
+		} else if( touchList.count(ID) == 0 && eventType == Event::Move ) {
+			//printf("TouchGestureManager: Should-Not-Happen-Warning: Touch move received for non-existant touch.\n");
+
+			// If a touch move for non-existant touch detected, create the down event
 			touchList[ID] = touch;
-			//printf("Update Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
-		} else if( eventType == Event::Up ){
-			touchList.erase( ID );
-			printf("Remove Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
+			generatePQServiceEvent( Event::Down, touch );
+			//printf("(DB) New Touch ID %d pos: %f %f width: %f %f\n", ID, x, y, xW, yW);
+			touchListLock->unlock();
+			return false;
+		} else if( touchList.count(ID) == 0 && eventType == Event::Up ) {
+			printf("TouchGestureManager: Should-Not-Happen-Warning: Touch up received for non-existant touch.\n");
+			touchListLock->unlock();
+			return true;
+		} else {
+			printf("TouchGestureManager: Should-Not-Happen-Warning: Unknown case.\n");
+			touchListLock->unlock();
+			return true;
 		}
+		//printf("Touchlist count for ID %d: %d. Received eventType: %d\n", ID, touchList.count(ID), eventType );
 	}
 
 	touchListLock->unlock();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void TouchGestureManager::addTouch( Event::Type eventType, float x, float y, float xW, float yW, int ID)
-{
-
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void TouchGestureManager::addTouchGroup( Event::Type eventType, float xPos, float yPos, int ID )
 {
-	
+	// Check if new touch is inside an existing TouchGroup
+	map<int,TouchGroup*>::iterator it;
+
+	for ( it = touchGroupList.begin() ; it != touchGroupList.end(); it++ ){
+		TouchGroup* tg = (*it).second;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,6 +171,9 @@ void TouchGestureManager::generatePQServiceEvent( Event::Type eventType, Touch t
 		Event* evt = pqsInstance->writeHead();
 		switch(eventType)
 		{
+			case Event::Down:
+				evt->reset(Event::Down, Service::Pointer, touch.ID);
+				break;
 			case Event::Up:
 				evt->reset(Event::Up, Service::Pointer, touch.ID);
 				break;
