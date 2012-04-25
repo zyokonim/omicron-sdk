@@ -30,6 +30,8 @@
 #include "osystem.h"
 #include "ServiceManager.h"
 
+using namespace std;
+
 struct Touch{
 	int ID;
 	float xPos;
@@ -43,22 +45,59 @@ struct Touch{
 };
 
 namespace omicron {
+	
 
-	class OmegaTouchPoint
-	{
-	private:
-		float xPos;
-		float yPos;
-		float xWidth;
-		float yWidth;
-		int ID;
-
-	public:
-	};
-
+	// Holds the initial and current center of mass of touches
+	// as well as all touches in the group
 	class TouchGroup
 	{
+		private:
+			//TouchGestureManager* parent;
 
+			int ID;
+			float xPos;
+			float yPos;
+			float init_xPos;
+			float init_yPos;
+			
+			float initialDiameter;
+			float longRangeDiameter;
+			float diameter;
+
+
+			map<int,Touch> touchList;
+			map<int,Touch> longRangeTouchList;
+
+			// Maybe replace these with a function call to generate on demand?
+			map<int,Touch> idleTouchList;
+			map<int,Touch> movingTouchList;
+		public:
+			TouchGroup(){
+				initialDiameter = 500; // Currently in pixels -> TODO: Change to screen ratio
+				longRangeDiameter = 4000;
+				diameter = initialDiameter;
+			}
+
+			bool isInsideGroup( Event::Type eventType, float x, float y, int id ){
+				// Check if touch is inside radius of TouchGroup
+				if( x > xPos - diameter/2 && x < xPos + diameter/2 && y > yPos - diameter/2 && y < yPos + diameter/2 ){
+				  addTouch( eventType, x, y, ID );
+				  return true;
+				} else if( x > xPos - longRangeDiameter/2 && x < xPos + longRangeDiameter/2 && y > yPos - longRangeDiameter/2 && y < yPos + longRangeDiameter/2 ){
+				  addLongRangeTouch( eventType, x, y, ID );
+				  return false;
+				} else {
+				  if( longRangeTouchList.count( ID ) > 0 )
+					longRangeTouchList.erase( ID );
+				  return false;
+				}
+			}
+			
+			void addTouch( Event::Type eventType, float x, float y, int ID ){
+			}
+
+			void addLongRangeTouch( Event::Type eventType, float x, float y, int ID ){
+			}
 	};
 
 	class TouchGestureManager
@@ -69,13 +108,12 @@ namespace omicron {
 		void registerPQService(Service*);
 		void poll();
 		
-		void addTouch(Event::Type eventType, Touch touch);
-		void addTouch(Event::Type eventType, float xPos, float yPos, float xWidth, float yWidth, int id);
+		bool addTouch(Event::Type eventType, Touch touch);
 	private:
 		Service* pqsInstance;
 		Lock* touchListLock;
-		std::map<int,Touch> touchList;
-		std::map<int,TouchGroup> touchGroupList;
+		map<int,Touch> touchList;
+		map<int,TouchGroup*> touchGroupList;
 
 		static int deadTouchDelay; 
 
