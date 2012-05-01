@@ -70,11 +70,11 @@ public:
 	void setup(Setting& settings);
 	void initialize(  char* local_ip );
 	int init();
-
 private:
 	static PQService* mysInstance;	
 	static int maxBlobSize;
 	static int screenX, screenY, serverX, serverY, screenOffsetX, screenOffsetY;
+	static bool useGestureManager;
 	const char* server_ip;
 	int touchID[1000]; // Max IDs assigned before resetting
 	static int maxTouches; // Should be same number as touchID array init
