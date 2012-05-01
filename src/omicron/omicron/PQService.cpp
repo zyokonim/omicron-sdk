@@ -38,6 +38,7 @@ int PQService::screenY = 0;
 int PQService::screenOffsetX = 0; 
 int PQService::screenOffsetY = 0;
 int PQService::move_threshold = 1; // pixels
+bool PQService::useGestureManager = false;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void PQService::setup(Setting& settings)
@@ -85,6 +86,12 @@ void PQService::setup(Setting& settings)
 		move_threshold =  settings["moveThreshold"];
 		printf("PQService: move threshold set to %d\n", move_threshold);
 	}
+	if(settings.exists("useGestureManager"))
+	{
+		useGestureManager = settings["useGestureManager"];
+		if( useGestureManager )
+			printf("PQService: Gesture Manager Enabled\n");
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +116,8 @@ void PQService::initialize( char* local_ip )
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void PQService::poll() 
 {
-	touchGestureManager->poll();
+	if( useGestureManager )
+		touchGestureManager->poll();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,8 +132,11 @@ int PQService::init()
 
 	// initialize the handle functions of gestures;
 	//InitFuncOnTG();
-	touchGestureManager = new TouchGestureManager();
-	touchGestureManager->registerPQService(mysInstance);
+	if( useGestureManager ){
+		touchGestureManager = new TouchGestureManager();
+		touchGestureManager->registerPQService(mysInstance);
+		touchGestureManager->setMaxTouchIDs(maxTouches);
+	}
 
 	// set the functions on server callback
 	SetFuncsOnReceiveProc();
@@ -689,7 +700,15 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 	if(mysInstance && xWidth <= maxBlobSize && yWidth <= maxBlobSize)
 	{		
 		Touch touch;
-		touch.ID = touchID[tp.id];
+		
+		// GestureManager needs PQ ID, otherwise PQService manages the ID
+		// Basically PQ IDs recycle after the ID is done. OmegaLib increments IDs
+		// until max ID is reached.
+		if( useGestureManager )
+			touch.ID = tp.id;
+		else
+			touch.ID = touchID[tp.id];
+
 		touch.xPos = tp.x * (float)screenX / (float)serverX;
 		touch.yPos = tp.y * (float)screenY / (float)serverY;
 		touch.xWidth = xWidth * (float)screenX / (float)serverX;
@@ -699,21 +718,20 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 
 		// Process touch gestures (this is done outside above event creation
 		// during case touchGestureManager needs to create an event)
-		bool valid = false; // Also checks data validity
-		switch(tp.point_event)
-		{
-			case TP_DOWN:
-				valid = touchGestureManager->addTouch( Event::Down, touch );
-				break;
-			case TP_MOVE:
-				valid = touchGestureManager->addTouch( Event::Move, touch );
-				break;
-			case TP_UP:
-				valid = touchGestureManager->addTouch( Event::Up, touch );
-				break;
-		}
-
-		if( valid ){
+		if( useGestureManager ){
+			switch(tp.point_event)
+			{
+				case TP_DOWN:
+					touchGestureManager->addTouch( Event::Down, touch );
+					break;
+				case TP_MOVE:
+					touchGestureManager->addTouch( Event::Move, touch );
+					break;
+				case TP_UP:
+					touchGestureManager->addTouch( Event::Up, touch );
+					break;
+			}
+		} else {
 			mysInstance->lockEvents();
 
 			Event* evt = mysInstance->writeHead();
@@ -722,7 +740,6 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 				case TP_DOWN:
 					evt->reset(Event::Down, Service::Pointer, nextID);
 					touchID[tp.id] = nextID;
-
 					if( nextID < maxTouches - 100 ){
 						nextID++;
 					} else {

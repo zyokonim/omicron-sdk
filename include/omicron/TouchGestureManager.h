@@ -29,6 +29,7 @@
 
 #include "osystem.h"
 #include "ServiceManager.h"
+#include <set>
 
 using namespace std;
 
@@ -64,6 +65,7 @@ namespace omicron {
 			float longRangeDiameter;
 			float diameter;
 
+			int lastUpdated;
 
 			map<int,Touch> touchList;
 			map<int,Touch> longRangeTouchList;
@@ -72,32 +74,15 @@ namespace omicron {
 			map<int,Touch> idleTouchList;
 			map<int,Touch> movingTouchList;
 		public:
-			TouchGroup(){
-				initialDiameter = 500; // Currently in pixels -> TODO: Change to screen ratio
-				longRangeDiameter = 4000;
-				diameter = initialDiameter;
-			}
+			TouchGroup(int);
+			int getID();
 
-			bool isInsideGroup( Event::Type eventType, float x, float y, int id ){
-				// Check if touch is inside radius of TouchGroup
-				if( x > xPos - diameter/2 && x < xPos + diameter/2 && y > yPos - diameter/2 && y < yPos + diameter/2 ){
-				  addTouch( eventType, x, y, ID );
-				  return true;
-				} else if( x > xPos - longRangeDiameter/2 && x < xPos + longRangeDiameter/2 && y > yPos - longRangeDiameter/2 && y < yPos + longRangeDiameter/2 ){
-				  addLongRangeTouch( eventType, x, y, ID );
-				  return false;
-				} else {
-				  if( longRangeTouchList.count( ID ) > 0 )
-					longRangeTouchList.erase( ID );
-				  return false;
-				}
-			}
-			
-			void addTouch( Event::Type eventType, float x, float y, int ID ){
-			}
+			bool isInsideGroup( Event::Type eventType, float x, float y, int id );
 
-			void addLongRangeTouch( Event::Type eventType, float x, float y, int ID ){
-			}
+			void addTouch( Event::Type eventType, float x, float y, int ID );
+			void addLongRangeTouch( Event::Type eventType, float x, float y, int ID );
+
+			void process();
 	};
 
 	class TouchGestureManager
@@ -106,18 +91,26 @@ namespace omicron {
 	public:
 		TouchGestureManager();
 		void registerPQService(Service*);
+		void setMaxTouchIDs(int);
 		void poll();
 		
 		bool addTouch(Event::Type eventType, Touch touch);
+		void setNextID( int ID );
 	private:
 		Service* pqsInstance;
 		Lock* touchListLock;
 		map<int,Touch> touchList;
 		map<int,TouchGroup*> touchGroupList;
+		set<int> groupedIDs;
 
+		// Replaces PQService functionality if GestureManager is enabled
+		int touchID[1000]; // Max IDs assigned before resetting
+		static int maxTouches; // Should be same number as touchID array init
+		static int nextID;
+		
 		static int deadTouchDelay; 
 
-		void addTouchGroup( Event::Type eventType, float xPos, float yPos, int id );
+		bool addTouchGroup( Event::Type eventType, float xPos, float yPos, int id );
 
 		void generatePQServiceEvent(Event::Type eventType, Touch touch);
 	};
