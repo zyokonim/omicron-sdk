@@ -544,7 +544,7 @@ void LegacyDirectXInputService::poll()
 			} else if( controllerType[j] == PS3 ){
 				evt->setExtraDataFloat(0, PS3);
 			}
-			evt->setExtraDataFloat(1, js.lX); 
+			evt->setExtraDataFloat(1, js.lX);   // Left analog (-left, +right)
 			evt->setExtraDataFloat(2, js.lY);  // Left analog (-up, +down)
 
 			evt->setExtraDataFloat(3, js.lRx); // Right analog (-left, +right)

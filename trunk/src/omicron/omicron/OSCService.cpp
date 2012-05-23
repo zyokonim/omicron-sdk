@@ -32,6 +32,7 @@ using namespace oscpkt;
 OSCService* OSCService::mysInstance = NULL;
 const char* OSCService::serverIP = "localhost";
 int OSCService::serverPort = 9109;
+UdpSocket OSCService::sock;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void OSCService::setup(Setting& settings)
@@ -48,16 +49,38 @@ void OSCService::setup(Setting& settings)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void OSCService::initialize() 
 {
-	printf("OSCService: Initialize\n");
+	ofmsg("OSCService: Initialize\n");
 	mysInstance = this;
 
 	connectToOSCServer();
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void OSCService::poll() 
 {
+	mysInstance->lockEvents();
+	ServiceManager* sm = mysInstance->getManager();
+	int eventListSize = sm->getAvailableEvents();
+
+	for( int i = 0; i < eventListSize; i++ )
+	{
+		Event* evt = sm->getEvent(i);
+		if( evt->getServiceType() == ServiceType::Audio )
+		{
+			switch( evt->getType() )
+			{
+				case( Event::Update ):
+					float angle = evt->getExtraDataFloat(0);
+
+					Message msg("/OmegaUpdateAngle");
+					msg.pushFloat(angle);
+
+					sendOSCMessage(msg);
+					break;
+			}
+		}
+	}
+	mysInstance->unlockEvents();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,21 +90,99 @@ void OSCService::dispose()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void OSCService::connectToOSCServer()
+void OSCService::connectToOSCServer(char* serverIP, int serverPort)
 {
 	// Create socket and connect to OSC server
-	UdpSocket sock;
 	sock.connectTo(serverIP, serverPort);
 	if (!sock.isOk()) {
 		ofmsg( "OSCService: Error connection to port %1%: %2%", %serverPort %sock.errorMessage() );
 	} else {
-		ofmsg( "OSCService: Client started, will send packets to port %1%", %serverPort );
+		ofmsg( "OSCService: Client started, will send packets to %1% on port %2%", %serverIP %serverPort );
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void OSCService::connectToOSCServer()
+{
+	// Create socket and connect to OSC server
+	sock.connectTo(serverIP, serverPort);
+	if (!sock.isOk()) {
+		ofmsg( "OSCService: Error connection to port %1%: %2%", %serverPort %sock.errorMessage() );
+	} else {
+		ofmsg( "OSCService: Client started, will send packets to %1% on port %2%", %serverIP %serverPort );
 		
 		// Send a test message to server
-		int iping = 1;
-		Message msg("/OmegaOSCPing"); msg.pushInt32(iping);
-		PacketWriter pw;
-		pw.startBundle().startBundle().addMessage(msg).endBundle().endBundle();
-		bool ok = sock.sendPacket(pw.packetData(), pw.packetSize());
+		//int iping = 1;
+		Message msg("/OmegaOSCPing");
+		msg.pushStr("InitTest");
+		msg.pushInt32(1);
+		msg.pushFloat(2.0);
+		msg.pushDouble(3.0);
+		sendOSCMessage(msg);
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool OSCService::sendOSCMessage(Message msg)
+{
+	PacketWriter pw;
+	pw.startBundle().addMessage(msg).endBundle();
+	return sock.sendPacket(pw.packetData(), pw.packetSize());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// OSCClient
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+OSCClient* OSCClient::mysInstance = NULL;
+ServiceManager* OSCClient::serviceManager = NULL;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void OSCClient::setup(Setting& settings)
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void OSCClient::initialize() 
+{
+	mysInstance = this;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void OSCClient::poll() 
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void OSCClient::dispose() 
+{
+	mysInstance = NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void OSCClient::setServiceManager(ServiceManager* sm)
+{
+	serviceManager = sm;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void OSCClient::updateSoundPosition(int objectID, float xPos, float yPos, float zPos, bool isPlaying)
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Update sound via Kinect horizontal angle. i.e. 'angle = atan( xPos / yPos ) * (180/PI)'
+void OSCClient::updateSoundAngle(int objectID, float angle, bool isPlaying)
+{
+	serviceManager->lockEvents();
+
+	Event* evt = serviceManager->writeHead();
+	evt->reset( Event::Update, ServiceType::Audio, objectID );
+
+	evt->setExtraDataType(Event::ExtraDataFloatArray);
+	evt->setExtraDataFloat(0, angle);
+
+	serviceManager->unlockEvents();
 }
