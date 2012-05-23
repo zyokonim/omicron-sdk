@@ -42,11 +42,11 @@ void LegacyNetService::setup(Setting& settings)
 	}
 	if(settings.exists("msgPort"))
 	{
-		serverPort = (const char*)settings["msgPort"];
+		serverPort = settings["msgPort"];
 	}
 	if(settings.exists("dataPort"))
 	{
-		dataPort = (const char*)settings["dataPort"];
+		dataPort = settings["dataPort"];
 	}
 	if(settings.exists("screenX"))
 	{
@@ -88,12 +88,13 @@ void LegacyNetService::initialize()
 	hints.ai_flags = AI_PASSIVE;
 
 	// Resolve the local address and port to be used by the server
-	iResult = getaddrinfo(serverAddress, serverPort, &hints, &result);
+	char charBuf[32];
+	iResult = getaddrinfo(serverAddress, itoa(serverPort,charBuf,10), &hints, &result);
 	if (iResult != 0) {
 		printf("LegacyNetService: getaddrinfo failed: %d\n", iResult);
 		WSACleanup();
 	} else {
-		printf("LegacyNetService: Client set to connect to address %s on port %s\n", serverAddress, serverPort);
+		printf("LegacyNetService: Client set to connect to address %s on port %d\n", serverAddress, serverPort);
 	}
 
 	// Create connection socket
@@ -175,10 +176,11 @@ void LegacyNetService::initHandshake()
 {
 	// Send handshake
 	char sendbuf[50];
+	char portBuf[32];
 	sendbuf[0] = '\0';
 
 	strcat( sendbuf, "data_on," );
-	strcat( sendbuf, dataPort );
+	strcat( sendbuf, itoa(dataPort,portBuf,10) );
 
 	printf("LegacyNetService: Sending handshake: '%s'\n", sendbuf);
 
@@ -212,7 +214,7 @@ void LegacyNetService::initHandshake()
 	//-----------------------------------------------
 	// Bind the socket to any address and the specified port.
 	RecvAddr.sin_family = AF_INET;
-	RecvAddr.sin_port = htons(atoi(dataPort));
+	RecvAddr.sin_port = htons(dataPort);
 	RecvAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	bind(RecvSocket, (SOCKADDR *) &RecvAddr, sizeof(RecvAddr));
 #else
@@ -662,17 +664,17 @@ void LegacyNetService::parseDGram(int result)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void LegacyNetService::setServer(const char* address, const char* port) 
+void LegacyNetService::setServer(const char* address, int port) 
 {
-	printf("Server set to '%s' on port '%s'\n", address, port);
+	printf("Server set to '%s' on port '%d'\n", address, port);
 	serverAddress = address;
 	serverPort = port;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void LegacyNetService::setDataport(const char* port) 
+void LegacyNetService::setDataport(int port) 
 {
-	printf("Dataport set to '%s'\n", port);
+	printf("Dataport set to '%d'\n", port);
 	dataPort = port;
 }
 

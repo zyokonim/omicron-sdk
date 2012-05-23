@@ -33,6 +33,8 @@
 
 class OscManager;
 
+using namespace oscpkt;
+
 namespace omicron
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,102 +51,37 @@ public:
 	virtual void dispose();
 	
 	void connectToOSCServer();
+	void connectToOSCServer(char*, int);
+	bool sendOSCMessage(Message);
 private:
 	static OSCService* mysInstance;
 	static const char* serverIP;
 	static int serverPort;
+
+	static UdpSocket sock;
+};
+
+class OMICRON_API OSCClient: public Service
+{
+public:
+	// Allocator function
+	static OSCClient* New() { return new OSCClient(); }
+
+public:
+	void setup(Setting& settings);
+	virtual void initialize();
+	virtual void poll();
+	virtual void dispose();
+
+	void setServiceManager(ServiceManager* sm);
+	void updateSoundPosition(int, float, float, float, bool);
+	void updateSoundAngle(int, float, bool);
+private:
+	static OSCClient* mysInstance;
+	static ServiceManager* serviceManager;
 };
 
 }; // namespace omicron
 
 #endif
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Testing OSC client example - Only here for reference until OSCService is fully implemented
-using namespace omicron;
-using namespace oscpkt;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//OscManager* OscManager::mysInstance = NULL;
-const int PORT_NUM = 9109;
-
-class OscManager
-{
-public:
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	OscManager()
-	{
-	}
-
-	void connectToServer()
-	{
-
-	}
-	void runClientTest()
-	{
-		UdpSocket sock;
-		sock.connectTo("localhost", PORT_NUM);
-		if (!sock.isOk()) {
-			ofmsg( "OscManager::Error connection to port %1%: %2%", %PORT_NUM %sock.errorMessage() );
-		} else {
-			ofmsg( "OscManager::Client started, will send packets to port %1%", %PORT_NUM );
-			int iping = 1;
-			while (sock.isOk()) {
-				Message msg("/ping"); msg.pushInt32(iping);
-				PacketWriter pw;
-				pw.startBundle().startBundle().addMessage(msg).endBundle().endBundle();
-				bool ok = sock.sendPacket(pw.packetData(), pw.packetSize());
-				ofmsg( "OscManager::Client: sent /ping %1%, ok=%2%" , %iping++ %ok );
-				// wait for a reply ?
-				if (sock.receiveNextPacket(30 /* timeout, in ms */)) {
-					PacketReader pr(sock.packetData(), sock.packetSize());
-					Message *incoming_msg;
-					while (pr.isOk() && (incoming_msg = pr.popMessage()) != 0) {
-						// NOTE Febret to Arthur: This line did not work in linux (using printf or ofmsg): Cannot print message as a string?
-						// (http://gruntthepeon.free.fr/oscpkt/html/classoscpkt_1_1_message_1_1_arg_reader.html)
-						// Commenting out for now.
-						//ofmsg( "OscManager::Client: received %1%", %(const char*)(*incoming_msg) );
-					}
-				}
-			}
-			ofmsg( "OscManager::sock error: %1% -- is the server running?", %sock.errorMessage() );
-		}
-	}
-	/*
-	void runTestServer() {
-	  UdpSocket sock; 
-	  sock.bindTo(PORT_NUM);
-	  if (!sock.isOk()) {
-		  cerr << "Error opening port " << PORT_NUM << ": " << sock.errorMessage() << "\n";
-	  } else {
-		cout << "Server started, will listen to packets on port " << PORT_NUM << std::endl;
-		PacketReader pr;
-		PacketWriter pw;
-		while (sock.isOk()) {      
-		  if (sock.receiveNextPacket(30 )) { // timeout, in ms
-			pr.init(sock.packetData(), sock.packetSize());
-			oscpkt::Message *msg;
-			while (pr.isOk() && (msg = pr.popMessage()) != 0) {
-			  int iarg;
-			  if (msg->match("/ping").popInt32(iarg).isOkNoMoreArgs()) {
-				cout << "Server: received /ping " << iarg << " from " << sock.packetOrigin() << "\n";
-				Message repl; repl.init("/pong").pushInt32(iarg+1);
-				pw.init().addMessage(repl);
-				sock.sendPacketTo(pw.packetData(), pw.packetSize(), sock.packetOrigin());
-			  } else if (msg->match("/OmegaOSCPing").popInt32(iarg).isOkNoMoreArgs()) {
-				cout << "Server: received /OmegaOSCPing " << iarg << " from " << sock.packetOrigin() << "\n";
-				//Message repl; repl.init("/pong").pushInt32(iarg+1);
-				//pw.init().addMessage(repl);
-				//sock.sendPacketTo(pw.packetData(), pw.packetSize(), sock.packetOrigin());
-			  } else {
-				cout << "Server: unhandled message: " << *msg << "\n";
-			  }
-			}
-		  }
-		}
-	  }
-	}
-	*/
-private:
-
-};

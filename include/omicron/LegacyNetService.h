@@ -82,8 +82,8 @@ public:
 	virtual void initialize();
 	virtual void poll();
 	virtual void dispose();
-	void setServer(const char*,const char*);
-	void setDataport(const char*);
+	void setServer(const char*,int);
+	void setDataport(int);
 	void setScreenResolution(int,int);
 	void setTouchTimeout(float);
 private:
@@ -103,8 +103,8 @@ private:
 	sockaddr_in SenderAddr;
 
 	const char* serverAddress;
-	const char* serverPort;
-	const char* dataPort;
+	int serverPort;
+	int dataPort;
 	float touchTimeout;
 
 	#define DEFAULT_BUFLEN 512

@@ -395,7 +395,7 @@ void DirectXInputService::poll()
 
 		evt->setExtraDataType(Event::ExtraDataFloatArray);
 
-		evt->setExtraDataFloat(0, js.lX); 
+		evt->setExtraDataFloat(0, js.lX);  // Left analog (-left, +right)
 		evt->setExtraDataFloat(1, js.lY);  // Left analog (-up, +down)
 		evt->setExtraDataFloat(2, js.lRx); // Right analog (-left, +right)
 		evt->setExtraDataFloat(3, js.lRy); // Right analog (-up, +down)
