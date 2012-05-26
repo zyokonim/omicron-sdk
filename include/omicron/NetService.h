@@ -30,6 +30,7 @@
 
 #include "omicron/osystem.h"
 #include "omicron/ServiceManager.h"
+
 #include "connector/omicronConnectorClient.h"
 
 namespace omicron

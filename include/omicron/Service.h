@@ -29,6 +29,13 @@
 
 #include "osystem.h"
 
+// This makes omicronConnectorClient.h only define the EventBase and EventData classes.
+#define OMICRON_CONNECTOR_LEAN_AND_MEAN
+#include "connector/omicronConnectorClient.h"
+// undefine OMICRON_CONNECTOR_LEAN_AND_MEAN, so eventual includes of omicronConnectorClient.h
+// following this one will include the full header.
+#undef OMICRON_CONNECTOR_LEAN_AND_MEAN
+
 namespace omicron
 {
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,9 +48,20 @@ namespace omicron
 	{
 	friend class ServiceManager;
 	public:
-		//! Enumerates the service classes supported by omicron. Each service class generates 
-		//! events with the same structure.
-		enum ServiceType { Pointer, Mocap, Keyboard, Controller, Ui, Generic, Brain, Wand, Audio }; 
+		//! This enumeration is kept for compatibility reason and may be removed in the future.
+		//! To add new service types modify the relative enumeration in the EventBase class
+		//! (connector/omicronConnectorClient.h)
+		enum ServiceType { 
+			Pointer = EventBase::ServiceTypePointer, 
+			Mocap = EventBase::ServiceTypeMocap, 
+			Keyboard = EventBase::ServiceTypeKeyboard, 
+			Controller = EventBase::ServiceTypeController, 
+			Ui = EventBase::ServiceTypeUi, 
+			Generic = EventBase::ServiceTypeGeneric, 
+			Brain = EventBase::ServiceTypeBrain, 
+			Wand = EventBase::ServiceTypeWand, 
+			Audio = EventBase::ServiceTypeAudio }; 
+
 		enum ServicePollPriority { PollFirst, PollNormal, PollLast }; 
 
 	public:

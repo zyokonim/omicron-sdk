@@ -25,59 +25,284 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-#ifndef __OMICRON_CONNECTOR_CLIENT__
-#define __OMICRON_CONNECTOR_CLIENT__
+// NOTE: This file does not use classic header #define guards, because it can be included
+// multiple times in different configurations within the same translation unit.
 
-#ifdef WIN32
-	#define OMICRON_OS_WIN
-	#pragma comment(lib, "Ws2_32.lib")
+// if OMICRON_CONNECTOR_LEAN_AND_MEAN, only define the omicron::EventBase and omicronConnector::EventData classes.
+// Skip the OmicronConnectorClient class and all socket functionality.
+#ifndef OMICRON_CONNECTOR_LEAN_AND_MEAN
+	#ifdef WIN32
+		#define OMICRON_OS_WIN
+		#pragma comment(lib, "Ws2_32.lib")
+	#endif
+
+	#include <stdio.h>
+	#ifdef OMICRON_OS_WIN
+		#include <winsock2.h>
+		#include <ws2tcpip.h>
+	#else
+		#include <stdlib.h>
+		#include <string.h>
+		#include <netdb.h>
+		#include <sys/types.h>
+		#include <netinet/in.h>
+		#include <sys/socket.h>
+		#include <arpa/inet.h>
+		#include <errno.h>
+		#include <unistd.h> // needed for close()
+		#include <string>
+	#endif
+
+	#ifdef OMICRON_OS_WIN     
+		#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %d\n", WSAGetLastError());
+		#define SOCKET_CLOSE(sock) closesocket(sock);
+		#define SOCKET_CLEANUP() WSACleanup();
+		#define SOCKET_INIT() \
+			int iResult;    \
+			iResult = WSAStartup(MAKEWORD(2,2), &wsaData); \
+			if (iResult != 0) { \
+				printf("NetService: WSAStartup failed: %d\n", iResult); \
+				return; \
+			} else { \
+				printf("NetService: Winsock initialized \n"); \
+			}
+
+	#else
+		#define SOCKET_CLOSE(sock) close(sock);
+		#define SOCKET_CLEANUP()
+		#define SOCKET_INIT()
+		#define SOCKET int
+		#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %s\n", strerror(errno));
+	#endif
+
+	#define OI_READBUF(type, buf, offset, val) val = *((type*)&buf[offset]); offset += sizeof(type);
 #endif
 
-#include <stdio.h>
-#ifdef OMICRON_OS_WIN
-	#include <winsock2.h>
-	#include <ws2tcpip.h>
-#else
-	#include <stdlib.h>
-	#include <string.h>
-	#include <netdb.h>
-	#include <sys/types.h>
-	#include <netinet/in.h>
-	#include <sys/socket.h>
-	#include <arpa/inet.h>
-	#include <errno.h>
-	#include <unistd.h> // needed for close()
-	#include <string>
+#ifndef OMICRON_EVENTBASE_DEFINED
+#define OMICRON_EVENTBASE_DEFINED
+namespace omicron
+{
+	/** 
+		* Yet another key code table to report keys in a window system
+		* independent way. Ordinary keys (letters, numbers, etc) are reported
+		* using the corresponding ascii code. The naming is oriented on the X11
+		* keysym naming.
+		*/
+	enum KeyCode
+	{
+		KC_ESCAPE = 256,
+		KC_BACKSPACE,
+		KC_RETURN,
+		KC_TAB,
+		KC_HOME,
+		KC_LEFT,
+		KC_UP,
+		KC_RIGHT,
+		KC_DOWN,
+		KC_PAGE_UP,
+		KC_PAGE_DOWN,
+		KC_END,
+		KC_F1,
+		KC_F2,
+		KC_F3,
+		KC_F4,
+		KC_F5,
+		KC_F6,
+		KC_F7,
+		KC_F8,
+		KC_F9,
+		KC_F10,
+		KC_F11,
+		KC_F12,
+		KC_F13,
+		KC_F14,
+		KC_F15,
+		KC_F16,
+		KC_F17,
+		KC_F18,
+		KC_F19,
+		KC_F20,
+		KC_F21,
+		KC_F22,
+		KC_F23,
+		KC_F24,
+		KC_SHIFT_L,
+		KC_SHIFT_R,
+		KC_CONTROL_L,
+		KC_CONTROL_R,
+		KC_ALT_L,
+		KC_ALT_R,
+		KC_VOID = 0xFFFFFF /* == XK_VoidSymbol */
+	};
+
+	class EventBase
+	{
+	public:
+		//! Enumerates the service classes supported by omicron. Each service class generates 
+		//! events with the same structure.
+		enum ServiceType { 
+			ServiceTypePointer, 
+			ServiceTypeMocap, 
+			ServiceTypeKeyboard, 
+			ServiceTypeController, 
+			ServiceTypeUi, 
+			ServiceTypeGeneric, 
+			ServiceTypeBrain, 
+			ServiceTypeWand, 
+			ServiceTypeAudio }; 
+
+		//! Supported event types.
+		enum Type 
+		{ 
+			//! Select: generated when the source of the event gets selected or activated.
+			//! Used primarily for use iterface controls.
+			Select,
+			//! Toggle: generated when some boolean state in the event source changes. Can represent
+			//! state changes in physical switches and buttons, or in user interface controls like
+			//! check boxes and radio buttons.
+			Toggle,
+			//!ChangeValue: generated when the source of an event changes it's internal value or state.
+			//! Different from Update because ChangeValue is not usually fired at regular intervals,
+			//! while Update events are normally sent at a constant rate.
+			ChangeValue,
+			//! Update: Generated when the soruce of an event gets updated (what 'update') means depends
+			//! on the event source.
+			Update,
+			//! Move: Generated whenever the source of an event moves.
+			Move, 
+			//! Down: generated when the source of an event goes to a logical 'down' state (i.e. touch on a surface or 
+			//! a mouse button press count as Down events)
+			Down, 
+			//! Up: generated when the source of an event goes to a logical 'up' state (i.e. remove touch from a surface or 
+			//! a mouse button release count as Up events)
+			Up, 
+			//! Trace: generated when a new object is identified by the device managed by the input service 
+			//! (i.e head tracking, or a mocap system rigid body).
+			Trace,
+			//! Alternate name for Trace events
+			Connect = Trace,
+			//! Trace: generated when a traced object is lost by the device managed by the input service 
+			//! (i.e head tracking, or a mocap system rigid body).
+			Untrace,
+			//! Alternate name for Untrace events
+			Disconnect = Untrace,
+
+			//! Click: generated on a down followed by an immediate up event.
+			//! parameters: position
+			Click,
+			//! DoubleClick: generated by a sequence of quick down/up/down/up events.
+			//! parameters: position.
+			DoubleClick,
+			//! MoveLeft: generated when the source of event goes toward the left of the screen.
+			//! parameters: position.
+			MoveLeft,
+			//! MoveRight: generated when the source of event goes toward the right of the screen.
+			//! parameters: position.
+			MoveRight,
+			//! MoveUp: generated when the source of event goes toward the top of the screen.
+			//! parameters: position.
+			MoveUp,
+			//! MoveDown: generated when the source of event goes toward the bottom of the screen.
+			//! parameters: position.
+			MoveDown,
+			//! Zoom: zoom event.
+			Zoom,
+			//! SplitStart: generated at the start of a split/zoom gesture.
+			//! parameters: position (center of gesture) pointSet[0, 1] (individual finger positions) .
+			SplitStart,
+			//! SplitEnd: generated at the end of a split/zoom gesture.
+			//! parameters: position (center of gesture) pointSet[0, 1] (individual finger positions) .
+			SplitEnd,
+			//! Split: generated during a split/zoom gesture. 
+			//! parameters: position (center of gesture) pointSet[0, 1] (individual finger positions), value[0] (delta distance) value[1] (delta ratio) .
+			Split,
+			//! RotateStart: generated at the start of a rotation gesture.
+			//! parameters: position (center of gesture) pointSet[0, 1] (individual finger positions) .
+			RotateStart,
+			//! RotateEnd: generated at the end of a rotation gesture.
+			//! parameters: position (center of gesture) pointSet[0, 1] (individual finger positions) .
+			RotateEnd,
+			//! Rotate: generated when an event source is stationary while a second source is rotating around the first.
+			//! parameters: position (center of gesture) pointSet[0, 1] (individual finger positions), rotation[0] (degrees).
+			Rotate,
+			//! Null: generic null value for event type.
+			Null
+		};
+		//! Defines some generic input event flags
+		enum Flags
+		{
+			//! Used for right mouse button or equivalent events.
+			Left = 1 << 0,
+			//! Generic name for left / main button
+			Button1 = 1 <<0,
+
+			//! Used for right mouse button or equivalent events.
+			Right = 1 << 1,
+			//! Generic name for right / secondary button
+			Button2 = 1 << 1,
+
+			//! Used for middle mouse button or equivalent events.
+			Middle = 1 << 2,
+			//! Generic name for middle / tertiary button
+			Button3 = 1 << 2,
+
+			//! Used for ctrl key presses or equivalent events.
+			Ctrl = 1 << 3,
+			//! Generic name for control key / primary modifier button
+			SpecialButton1 = 1 << 3,
+
+			//! Used for ctrl key presses or equivalent events.
+			Alt = 1 << 4,
+			//! Generic name for alt key / secondary modifier button
+			SpecialButton2 = 1 << 4,
+
+			//! Used for ctrl key presses or equivalent events.
+			Shift = 1 << 5,
+			//! Generic name for shift key / tertiary modifier button
+			SpecialButton3 = 1 << 5,
+
+			//! Generic name for additional button 4
+			Button4 = 1 << 6,
+			//! Generic name for additional button 5
+			Button5 = 1 << 7,
+			//! Generic name for additional button 6
+			Button6 = 1 << 8,
+			//! Generic name for additional button 7
+			Button7 = 1 << 9,
+
+			//! Generic name for digital up button
+			ButtonUp = 1 << 10,
+			//! Generic name for digital down button
+			ButtonDown = 1 << 11,
+			//! Generic name for digital left button
+			ButtonLeft = 1 << 12,
+			//! Generic name for digital right button
+			ButtonRight = 1 << 13,
+
+			//! INTERNAL: Used to mark events that have been processed
+			Processed = 1 << 14,
+			//! User flags should offset this value: 16 user flags available (USER to USER << 16)
+			User = 1 << 15
+		};
+
+		enum ExtraDataType
+		{
+			ExtraDataNull,
+			ExtraDataFloatArray,
+			ExtraDataIntArray,
+			ExtraDataVector3Array,
+			ExtraDataString
+		};
+	};
+}
 #endif
-
-#ifdef OMICRON_OS_WIN     
-	#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %d\n", WSAGetLastError());
-	#define SOCKET_CLOSE(sock) closesocket(sock);
-	#define SOCKET_CLEANUP() WSACleanup();
-	#define SOCKET_INIT() \
-		int iResult;    \
-		iResult = WSAStartup(MAKEWORD(2,2), &wsaData); \
-		if (iResult != 0) { \
-			printf("NetService: WSAStartup failed: %d\n", iResult); \
-			return; \
-		} else { \
-			printf("NetService: Winsock initialized \n"); \
-		}
-
-#else
-	#define SOCKET_CLOSE(sock) close(sock);
-	#define SOCKET_CLEANUP()
-	#define SOCKET_INIT()
-	#define SOCKET int
-	#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %s\n", strerror(errno));
-#endif
-
-#define OI_READBUF(type, buf, offset, val) val = *((type*)&buf[offset]); offset += sizeof(type);
 
 namespace omicronConnector
 {
+#ifndef OMICRON_EVENTDATA_DEFINED
+#define OMICRON_EVENTDATA_DEFINED
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	struct EventData
+	struct EventData: public omicron::EventBase
 	{
 		unsigned int timestamp;
 		unsigned int sourceId;
@@ -99,7 +324,13 @@ namespace omicronConnector
 		unsigned int extraDataMask;
 		unsigned char extraData[ExtraDataSize];
 	};
+#endif
 
+// if OMICRON_CONNECTOR_LEAN_AND_MEAN, only define the omicron::EventBase and omicronConnector::EventData classes.
+// Skip the OmicronConnectorClient class and all socket functionality.
+#ifndef OMICRON_CONNECTOR_LEAN_AND_MEAN
+#ifndef OMICRON_CONNECTORCLIENT_DEFINED
+#define OMICRON_CONNECTORCLIENT_DEFINED
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename ListenerType>
 	class OmicronConnectorClient
@@ -312,6 +543,6 @@ namespace omicronConnector
 			PRINT_SOCKET_ERROR("recvfrom failed");
 		}
 	}
-};
-
 #endif
+#endif
+};
