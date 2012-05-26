@@ -49,7 +49,7 @@ void OSCService::setup(Setting& settings)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void OSCService::initialize() 
 {
-	ofmsg("OSCService: Initialize\n");
+	omsg("OSCService: Initialize\n");
 	mysInstance = this;
 
 	connectToOSCServer();
@@ -65,7 +65,7 @@ void OSCService::poll()
 	for( int i = 0; i < eventListSize; i++ )
 	{
 		Event* evt = sm->getEvent(i);
-		if( evt->getServiceType() == ServiceType::Audio )
+		if( evt->getServiceType() == Service::Audio )
 		{
 			switch( evt->getType() )
 			{
@@ -179,7 +179,7 @@ void OSCClient::updateSoundAngle(int objectID, float angle, bool isPlaying)
 	serviceManager->lockEvents();
 
 	Event* evt = serviceManager->writeHead();
-	evt->reset( Event::Update, ServiceType::Audio, objectID );
+	evt->reset( Event::Update, Service::Audio, objectID );
 
 	evt->setExtraDataType(Event::ExtraDataFloatArray);
 	evt->setExtraDataFloat(0, angle);

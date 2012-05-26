@@ -33,6 +33,11 @@
 #include "omicron/WandService.h"
 #include "omicron/SagePointerService.h"
 
+// NOTE: OSCService needs to be included before NetService to avoid template
+// errors within osc/udp.h
+#ifdef OMICRON_USE_OSC
+	#include "omicron/OSCService.h"
+#endif
 #ifdef OMICRON_USE_DIRECTINPUT
 	#include "omicron/DirectXInputService.h"
 	#include "omicron/LegacyDirectXInputService.h"
@@ -65,9 +70,6 @@
 #endif
 #ifdef OMICRON_USE_THINKGEAR
 	#include "omicron/ThinkGearService.h"
-#endif
-#ifdef OMICRON_USE_OSC
-	#include "omicron/OSCService.h"
 #endif
 using namespace omicron;
 using namespace std;
