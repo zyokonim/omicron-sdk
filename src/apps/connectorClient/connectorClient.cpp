@@ -32,9 +32,44 @@ using namespace omicronConnector;
 class ConnectorListener
 {
 public:
-	static void onEvent(const EventData& e)
+static void onEvent(const EventData& e)
 	{
-		printf("EVENT pos(%f  %f  %f)\n", e.posx, e.posy, e.posz);
+		if (e.type == EventData::Update) {
+			if (e.serviceType == EventData::ServiceTypeMocap)  // Mocap (head I guess
+				fprintf(stderr, "HEAD source %d type %d service %d type %d\n",
+					e.sourceId, e.type, e.serviceId);
+			if (e.serviceType == EventData::ServiceTypeWand)  // Wand
+				fprintf(stderr, "Wand source %d type %d service %d type %d\n",
+					e.sourceId, e.type, e.serviceId);
+			fprintf(stderr, "      pos(%6.3f  %6.3f  %6.3f)\n", e.posx, e.posy, e.posz);
+			fprintf(stderr, "      rot(%6.3f  %6.3f  %6.3f  %6.3f)\n", e.orx, e.ory, e.orz, e.orw);
+			fprintf(stderr, "      flag: %d\n", e.flags);
+			fprintf(stderr, "      extra type: %d\n", e.extraDataType);
+			fprintf(stderr, "      extra items: %d\n", e.extraDataItems);
+			fprintf(stderr, "      extra mask: %d\n", e.extraDataMask);
+			if (e.extraDataItems) {
+				if (e.extraDataType == 1) { //array of floats
+					float *ptr = (float*)(e.extraData);
+					for (int k=0;k<e.extraDataItems;k++) {
+						fprintf(stderr, "      val %2d: [%6.3f]\n", k, ptr[k]);
+					}
+				}
+			}
+			fprintf(stderr, "-----------\n");
+		}
+		else if (e.type == EventData::Down) {
+			//fprintf(stderr, "EVENT down: %d\n", mButton(e.flags));
+		}
+		else if (e.type == EventData::Up) 
+		{
+			fprintf(stderr, "EVENT up: %d\n", e.sourceId, e.type);
+			fprintf(stderr, "      flag: %d\n", e.flags);
+			fprintf(stderr, "      extra: %d\n", e.extraDataType);
+			fprintf(stderr, "      items: %d\n", e.extraDataItems);
+			fprintf(stderr, "      mask: %d\n", e.extraDataMask);
+			fprintf(stderr, "-----------\n");
+		}
+
 	}
 };
 
