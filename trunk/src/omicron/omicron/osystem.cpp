@@ -34,6 +34,13 @@ namespace omicron
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	FILE* sLogFile = NULL;
 	List<ILogListener*> sLogListeners;
+	bool sAppendNewline = true;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	void ologaddnewline(bool enabled)
+	{
+		sAppendNewline = enabled;
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	void ologaddlistener(ILogListener* listener)
@@ -68,10 +75,11 @@ namespace omicron
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	void omsg(const String& str)
 	{
-		printf("%s\n", str.c_str());
+		const char* fmt = sAppendNewline? "%s\n" : "%s";
+		printf(fmt, str.c_str());
 		if(sLogFile)
 		{
-			fprintf(sLogFile, "%s\n", str.c_str());
+			fprintf(sLogFile, fmt, str.c_str());
 			fflush(sLogFile);
 		}
 		foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
@@ -80,10 +88,11 @@ namespace omicron
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	void owarn(const String& str)
 	{
-		printf("!!! %s\n", str.c_str());
+		const char* fmt = sAppendNewline? "!!! %s\n" : "!!! %s";
+		printf(fmt, str.c_str());
 		if(sLogFile)
 		{
-			fprintf(sLogFile, "!!! %s\n", str.c_str());
+			fprintf(sLogFile, fmt, str.c_str());
 			fflush(sLogFile);
 		}
 		foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
@@ -92,10 +101,11 @@ namespace omicron
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	void oerror(const String& str)
 	{
-		printf("*** %s\n", str.c_str());
+		const char* fmt = sAppendNewline? "*** %s\n" : "*** %s";
+		printf(fmt, str.c_str());
 		if(sLogFile)
 		{
-			fprintf(sLogFile, "*** %s\n", str.c_str());
+			fprintf(sLogFile, fmt, str.c_str());
 			fflush(sLogFile);
 		}
 		foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
