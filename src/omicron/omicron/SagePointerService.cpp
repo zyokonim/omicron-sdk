@@ -239,7 +239,8 @@ SagePointerService::~SagePointerService()
 void SagePointerService::setup(Setting& settings)
 {
 	myForcedSourceId = Config::getIntValue("forcedSourceId", settings, -1);
-	myServer->initialize(20005);
+	myServer->setPort(20005);
+	myServer->initialize();
 	myServer->start();
 }
 

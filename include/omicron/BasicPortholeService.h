@@ -100,6 +100,9 @@ namespace omicron {
 		TabletConnection* getConnection(int id);
 
 	private:
+		// NOTE: this class is using the obsolete version of using a TcpServer.
+		// The correct way is to derive BasicPortholeService from TcpServer directly 
+		// (TcpServer derives from Service now)
 		TabletServer* myServer;
         void genSimpleEvent( Event::Type evtType ,Service::ServiceType servType , float x , float y);
         bool withinAnchor( float x , float y , float tolerance );

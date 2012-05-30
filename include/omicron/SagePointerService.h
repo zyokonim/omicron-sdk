@@ -53,6 +53,9 @@ namespace omicron {
 		int getForcedSourceId() { return myForcedSourceId; }
 
 	private:
+		// NOTE: this class is using the obsolete version of using a TcpServer.
+		// The correct way is to derive BasicPortholeService from TcpServer directly 
+		// (TcpServer derives from Service now)
 		SagePointerServer* myServer;
 		int myForcedSourceId;
 	};
