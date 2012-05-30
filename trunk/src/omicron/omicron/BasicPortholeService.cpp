@@ -246,7 +246,8 @@ void BasicPortholeService::setup(Setting& settings)
 	{
 		port = settings["port"];
 	}
-	myServer->initialize(port);
+	myServer->setPort(port);
+	myServer->initialize();
 	myServer->start();
 }
 

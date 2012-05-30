@@ -40,13 +40,12 @@ TcpServer::TcpServer():
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void TcpServer::initialize(int port)
+void TcpServer::initialize()
 {
 	if(!myInitialized)
 	{
-		myPort = port;
 		myInitialized = true;
-		myAcceptor = new tcp::acceptor(myIOService, tcp::endpoint(tcp::v4(), port));
+		myAcceptor = new tcp::acceptor(myIOService, tcp::endpoint(tcp::v4(), myPort));
 	}
 }
 

@@ -28,6 +28,7 @@
 #define __TCP_H__
 
 #include "omicron/osystem.h"
+#include "Service.h"
 
 #ifdef OMICRON_OS_WIN
 	#define NOMINMAX
@@ -109,16 +110,19 @@ namespace omicron {
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	class OMICRON_API TcpServer: public ReferenceType
+	class OMICRON_API TcpServer: public Service
 	{
 	public:
 		TcpServer();
 		~TcpServer();
-		virtual void initialize(int port);
+
+		void setPort(int value) { myPort = value; }
+		int getPort() { return myPort; }
+
+		virtual void initialize();
 		virtual void start();
 		virtual void stop();
 		virtual void poll();
-		int getPort() { return myPort; }
 		TcpConnection* getConnection(int id);
 
 	protected:
