@@ -158,6 +158,10 @@ bool TcpConnection::poll()
 			while(mySocket.available() != 0) handleData();
 		}
 	} 
+	else if(myState == ConnectionClosed)
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -166,6 +170,8 @@ void TcpConnection::close()
 {
 	if(myState == ConnectionOpen)
 	{
+		myState = ConnectionClosed;
+		handleClosed();
 		mySocket.close();
 	}
 	else 
@@ -177,28 +183,38 @@ void TcpConnection::close()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void TcpConnection::write(const String& data)
 {
-	asio::error_code error;
-	asio::write(mySocket, asio::buffer(data), error);
-	if(error)
+	if(mySocket.is_open())
 	{
-		handleError(error);
+		asio::error_code error;
+		asio::write(mySocket, asio::buffer(data), error);
+		if(error)
+		{
+			mySocket.close();
+			handleError(error);
+		}
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void TcpConnection::write(void* data, size_t size)
 {
-	asio::error_code error;
-	asio::write(mySocket, asio::buffer(data, size), error);
-	if(error)
+	if(mySocket.is_open())
 	{
-		handleError(error);
+		asio::error_code error;
+		asio::write(mySocket, asio::buffer(data, size), error);
+		if(error)
+		{
+			mySocket.close();
+			handleError(error);
+		}
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 size_t TcpConnection::readUntil(char* buffer, size_t size, char delimiter)
 {
+	if(mySocket.is_open())
+	{
 		asio::error_code error;
 		size_t bufsize = asio::read_until(mySocket, myInputBuffer, delimiter, error);
 		if(!error)
@@ -210,25 +226,32 @@ size_t TcpConnection::readUntil(char* buffer, size_t size, char delimiter)
 		}
 		else
 		{
+			mySocket.close();
 			handleError(error);
 		}
+	}
 		return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 size_t TcpConnection::read(byte* buffer, size_t size)
 {
+	if(mySocket.is_open())
+	{
 		asio::error_code error;
 		size_t bufsize = asio::read(mySocket, myInputBuffer, asio::transfer_exactly(size), error);
 		if(!error)
 		{
+			myInputBuffer.sgetn((char*)buffer, bufsize);
 			return size;
 		}
 		else
 		{
+			mySocket.close();
 			handleError(error);
 		}
-		return 0;
+	}
+	return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,7 +277,7 @@ void TcpConnection::handleClosed()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void TcpConnection::handleError(const ConnectionError& err)
 {
-	ofwarn("TcpConnection:handleError (id=%1%): %1%", %myConnectionInfo.id %err.message());
+	ofwarn("TcpConnection:handleError (id=%1%): %2%", %myConnectionInfo.id %err.message());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
