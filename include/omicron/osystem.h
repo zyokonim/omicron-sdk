@@ -81,6 +81,9 @@ namespace omicron
 	OMICRON_API void ologremlistener(ILogListener* listener);
 	OMICRON_API void ologopen(const char* filename);
 	OMICRON_API void ologclose();
+	//! Specifies wether the logger will automatically append newlines to log messages.
+	//! True by default.
+	OMICRON_API void ologaddnewline(bool enabled);
 	OMICRON_API void omsg(const String& str);
 	OMICRON_API void owarn(const String& str);
 	OMICRON_API void oerror(const String& str);

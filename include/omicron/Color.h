@@ -79,7 +79,7 @@ namespace omicron
 			if(lname[0] == '#')
 			{
 				uint x;
-				sscanf(lname.c_str(), "%x", &x);			
+				sscanf(lname.c_str(), "#%x", &x);			
 				// red
 				myData[0] = (float)((x & 0xff000000) >> 24) / 256;
 				// green
