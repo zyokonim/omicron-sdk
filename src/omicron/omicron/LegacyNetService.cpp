@@ -28,7 +28,7 @@
 #include "omicron/LegacyNetService.h"
 using namespace omicron;
 
-#ifdef OMICRON_OS_LINUX
+#ifndef OMICRON_OS_WIN
 #include<stdlib.h>
 #endif
 
