@@ -28,9 +28,7 @@
 #include "omicron/LegacyNetService.h"
 using namespace omicron;
 
-#ifndef OMICRON_OS_WIN
 #include<stdlib.h>
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 LegacyNetService::LegacyNetService(){
@@ -156,7 +154,8 @@ void LegacyNetService::initialize()
 
 	// Get the server address
 	char charBuf[32];
-	iResult = getaddrinfo(serverAddress, itoa(serverPort,charBuf,10), &hints, &result);
+	sprintf(charBuf,"%d", serverPort);
+	iResult = getaddrinfo(serverAddress, charBuf, &hints, &result);
 
 	// Generate the socket
 	ConnectSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
@@ -184,8 +183,7 @@ void LegacyNetService::initHandshake()
 	char portBuf[32];
 	sendbuf[0] = '\0';
 
-	strcat( sendbuf, "data_on," );
-	strcat( sendbuf, itoa(dataPort,portBuf,10) );
+	sprintf( sendbuf, "data_on,%d", serverPort );
 
 	printf("LegacyNetService: Sending handshake: '%s'\n", sendbuf);
 
