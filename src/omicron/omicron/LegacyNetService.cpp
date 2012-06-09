@@ -155,7 +155,7 @@ void LegacyNetService::initialize()
 	// Get the server address
 	char charBuf[32];
 	sprintf(charBuf,"%d", serverPort);
-	iResult = getaddrinfo(serverAddress, charBuf, &hints, &result);
+	iResult = getaddrinfo(serverAddress, charBuf, &hints, &res);
 
 	// Generate the socket
 	ConnectSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
@@ -235,7 +235,9 @@ void LegacyNetService::initHandshake()
 	hints.ai_flags = AI_PASSIVE; // use my IP
 
 	// Get the server address
-	getaddrinfo(NULL, dataPort, &hints, &res);
+	char charBuf[256];
+	sprintf(charBuf,"%d", dataPort);
+	getaddrinfo(NULL, charBuf, &hints, &res);
 
 	// Generate the socket
 	RecvSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
