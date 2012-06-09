@@ -28,6 +28,10 @@
 #include "omicron/LegacyNetService.h"
 using namespace omicron;
 
+#ifdef OMICRON_OS_LINUX
+#include<stdlib.h>
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 LegacyNetService::LegacyNetService(){
 	touchTimeout = 0.25; // seconds
@@ -151,7 +155,8 @@ void LegacyNetService::initialize()
 	hints.ai_socktype = SOCK_STREAM;
 
 	// Get the server address
-	getaddrinfo(serverAddress, serverPort, &hints, &res);
+	char charBuf[32];
+	iResult = getaddrinfo(serverAddress, itoa(serverPort,charBuf,10), &hints, &result);
 
 	// Generate the socket
 	ConnectSocket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
