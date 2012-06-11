@@ -71,7 +71,11 @@ if(WIN32)
 	add_subdirectory(apps/legacy-oinputserver)
 endif(WIN32)
 add_subdirectory(apps/eventlogger)
-add_subdirectory(apps/oscClient)
+
+# NOTE: the oscClient application is currently broken on linux builds. Exclude it
+if(WIN32)
+	add_subdirectory(apps/oscClient)
+endif()
 
 if(OMICRON_BUILD_TUTORIALS)
 	omega_add_tutorial(localService)
