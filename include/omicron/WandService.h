@@ -28,6 +28,7 @@
 #define __WAND_SERVICE_H__
 
 #include "osystem.h"
+#include "Timer.h"
 #include "Service.h"
 
 namespace omicron
@@ -49,7 +50,7 @@ namespace omicron
 
 	private:
 		float myUpdateInterval;
-		Stopwatch myUpdateTimer;
+		Timer myUpdateTimer;
 
 		int myRaySourceId;
 
