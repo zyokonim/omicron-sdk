@@ -48,6 +48,7 @@ SET( srcs
 		omicron/Tcp.cpp
 		omicron/WandService.cpp
 		omicron/SagePointerService.cpp
+		omicron/Timer.cpp
 		omicron/TouchGestureManager.cpp
 
 		#omega::xml
@@ -95,6 +96,7 @@ SET( headers
 		${CMAKE_SOURCE_DIR}/include/omicron/Tcp.h
         ${CMAKE_SOURCE_DIR}/include/omicron/WandService.h
         ${CMAKE_SOURCE_DIR}/include/omicron/SagePointerService.h
+        ${CMAKE_SOURCE_DIR}/include/omicron/Timer.h
         ${CMAKE_SOURCE_DIR}/include/omicron/TouchGestureManager.h
 		
 		# eigenwrap

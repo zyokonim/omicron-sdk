@@ -29,6 +29,7 @@
 #define __WIIMOTE__SERVICE_H__
 
 #include "omicron/osystem.h"
+#include "omicron/Timer.h"
 #include "omicron/ServiceManager.h"
 //#include "omicron/dinput.h"
 #include "omicron/wiimote.h"
@@ -86,7 +87,7 @@ namespace omicron {
 	private:
 		static WiimoteService* mysInstance;
 		float myUpdateInterval;
-		Stopwatch myUpdateTimer;
+		Timer myUpdateTimer;
 		wiimote myWiimote;
 		int myEventSourceId;
 		uint myButtonState;
