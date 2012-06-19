@@ -444,8 +444,9 @@ SOCKET OInputServer::startListening(){
 
 			// Make sure handshake is correct
 			String handshake = "data_on";
+			String handshakeLegacy = "omega_legacy_data_on";
 			int dataPort = 7000; // default port
-			if( handshake.find(inMessage) ){
+			if( handshake.find(inMessage) || handshakeLegacy.find(inMessage) ){
 				// Get data port number
 				dataPort = atoi(portCStr);
 				printf("OInputServer: '%s' requests data to be sent on port '%d'\n", clientAddress, dataPort);
