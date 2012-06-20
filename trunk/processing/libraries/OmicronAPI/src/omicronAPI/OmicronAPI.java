@@ -1,5 +1,7 @@
 package omicronAPI;
 
+import hypermedia.net.UDP;
+
 /**************************************************************************************************
  * THE OMICRON PROJECT
  *-------------------------------------------------------------------------------------------------
@@ -26,8 +28,6 @@ package omicronAPI;
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-
-import hypermedia.net.UDP;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -90,12 +90,12 @@ public class OmicronAPI {
 
 	// Fullscreen
 	private boolean fullscreenEnabled = false;
-	private float frameSetDelay = 3; // Delay in seconds before java frame is set
+	private float frameSetDelay = 3; // Delay in seconds before java frame is
+										// set
 
 	/**
-	 * Constructor used if only the fullscreen or scaling functions will be
-	 * used. No connection to the tracker. This must be called in init() to work
-	 * properly.
+	 * Constructor used to setup fullscreen or scaling functions. This must be
+	 * called in init() to work properly.
 	 * 
 	 * @param parent
 	 *            the parent object so the class knows how to get back to the
@@ -108,7 +108,8 @@ public class OmicronAPI {
 
 	/**
 	 * Constructor used to create a connection between an Omicron server and a
-	 * Processing application.
+	 * Processing application. This can be called in setup() if
+	 * fullscreen/scaling functions will not be used.
 	 * 
 	 * @param parent
 	 *            the parent object so the class knows how to get back to the
@@ -123,7 +124,7 @@ public class OmicronAPI {
 	 */
 	public OmicronAPI(PApplet parent, int dataPort, int msgPort,
 			String trackerIP) {
-		Connect(parent, dataPort, msgPort, trackerIP);
+		ConnectToTracker(dataPort, msgPort, trackerIP);
 		eventList = new ArrayList<Event>();
 		this.applet = parent; // This needs to match sketch name i.e.
 								// '(SketchName)parent'
@@ -135,7 +136,8 @@ public class OmicronAPI {
 	 * application to receive all event data.
 	 * 
 	 * @param listener
-	 *            OmicronListener class implemented by the Processing application
+	 *            OmicronListener class implemented by the Processing
+	 *            application
 	 */
 	public void setEventListener(OmicronListener listener) {
 		eventListener = listener;
@@ -205,8 +207,8 @@ public class OmicronAPI {
 		processSpeechEvent(e);
 		processMocapEvent(e);
 		processPointerEvent(e);
-		
-		if( eventListener != null )
+
+		if (eventListener != null)
 			eventListener.onEvent(e);
 	}
 
@@ -256,71 +258,72 @@ public class OmicronAPI {
 			break;
 		}
 	}// processPointerEvent
-	
+
 	private boolean scaleScreen = false;
 	private float screenScale;
 	private float screenOffsetX;
 	private float screenOffsetY;
 	private float targetWidth;
 	private float targetHeight;
-	
+
 	/**
 	 * Gets the screen scale factor based on calculateScreenTransformation()
+	 * 
 	 * @return scale factor
 	 */
-	public float getScreenScale(){
+	public float getScreenScale() {
 		return screenScale;
 	}// getScreenScale
-	
+
 	/**
 	 * Gets the screen x offset factor based on calculateScreenTransformation()
+	 * 
 	 * @return offset factor
 	 */
-	public float getScreenOffsetX(){
+	public float getScreenOffsetX() {
 		return screenOffsetX;
 	}// getScreenOffsetX
-	
+
 	/**
 	 * Gets the screen y offset factor based on calculateScreenTransformation()
+	 * 
 	 * @return offset factor
 	 */
-	public float getScreenOffsetY(){
+	public float getScreenOffsetY() {
 		return screenOffsetY;
 	}// getScreenOffsetY
-	
+
 	/**
-	 * Calculates the scale and offsets to scale the Processing application from a target resolution
-	 * to the current screen resolution. Must be called after size().
+	 * Calculates the scale and offsets to scale the Processing application from
+	 * a target resolution to the current screen resolution. Must be called
+	 * after size().
 	 * 
-	 * This should be used in a Processing sketch as follows:
-	 * setup(){
-	 * 	size(screenWidth,screenHeight);
-	 * 	omicronAPI.calculateScreenScale( targetWidth, targetHeight );
-	 * }
+	 * This should be used in a Processing sketch as follows: setup(){
+	 * size(screenWidth,screenHeight); omicronAPI.calculateScreenScale(
+	 * targetWidth, targetHeight ); }
 	 * 
-	 * draw(){
-	 * 	pushMatrix();
-	 * 	translate( omicronAPI.getScreenOffsetX(), omicronAPI.getScreenOffsetY() );
-	 * 	scale( omicronAPI.getScreenScale() );
+	 * draw(){ pushMatrix(); translate( omicronAPI.getScreenOffsetX(),
+	 * omicronAPI.getScreenOffsetY() ); scale( omicronAPI.getScreenScale() );
 	 * 
-	 * 	// draw stuff...
+	 * // draw stuff...
 	 * 
-	 * 	popMatrix();
-	 * }
+	 * popMatrix(); }
 	 * 
-	 * @param newWidth target width
-	 * @param newHeight target height
+	 * @param newWidth
+	 *            target width
+	 * @param newHeight
+	 *            target height
 	 */
 	public void calculateScreenTransformation(float newWidth, float newHeight) {
 		targetWidth = newWidth;
 		targetHeight = newHeight;
-		
-		//if (scaleScreen) {
-		//	screenScale = 1.0;
-		//	screenOffsetX = 0.0;
-		//	screenOffsetY = 0.0;
-		//	return;
-		//}
+
+		// if (scaleScreen) {
+		// screenScale = 1.0;
+		// screenOffsetX = 0.0;
+		// screenOffsetY = 0.0;
+		// return;
+		// }
 		if (applet.width / applet.height >= targetWidth / targetHeight) {
 			screenScale = applet.height / targetHeight;
 			screenOffsetX = (applet.width - targetWidth * screenScale) * 0.5f;
@@ -330,13 +333,13 @@ public class OmicronAPI {
 			screenOffsetX = 0;
 			screenOffsetY = (applet.height - targetHeight * screenScale) * 0.5f;
 		}
-		
+
 		// Cluster support later
-		//if (cluster) {
-		//	screenScale = 1.0;
-		//	screenOffsetX = -(scaledWidth / N_NODES) * (NODE_ID / N_NODES);
-		//	screenOffsetY = 0;
-		//}
+		// if (cluster) {
+		// screenScale = 1.0;
+		// screenOffsetX = -(scaledWidth / N_NODES) * (NODE_ID / N_NODES);
+		// screenOffsetY = 0;
+		// }
 
 	}// calculateScreenTransformation
 
@@ -379,9 +382,22 @@ public class OmicronAPI {
 	 */
 	private static final int TIMEOUT_TIME = 30;
 
-	private void Connect(Object owner, int clientPort, int serverPort,
-			String serverIP) {
-		this.owner = owner;
+	/**
+	 * Used to create a connection between an Omicron server and a Processing
+	 * application. This can be called in setup() if fullscreen/scaling
+	 * functions will not be used.
+	 * 
+	 * @param clientPort
+	 *            the client port where data should be sent
+	 * @param serverPort
+	 *            the server port where the message to begin data transfer is
+	 *            set
+	 * @param trackerIP
+	 *            the IP address of the Omicron server
+	 */
+	public void ConnectToTracker(int clientPort, int serverPort,
+			String trackerIP) {
+		this.owner = applet;
 
 		// Register this object to the PApplet
 		try {
@@ -399,7 +415,7 @@ public class OmicronAPI {
 		}
 
 		// Open connection to server
-		if (serverPort != 0 && serverIP == null) {
+		if (serverPort != 0 && trackerIP == null) {
 			try {
 				InetAddress address = InetAddress.getLocalHost();
 
@@ -423,13 +439,14 @@ public class OmicronAPI {
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}
-		} else if (serverPort != 0 && serverIP != null) {
-			this.serverName = serverIP;
+		} else if (serverPort != 0 && trackerIP != null) {
+			this.serverName = trackerIP;
 			this.port_tcp = serverPort;
 			this.server = true;
 			// Initialize connection with server
 			clientForServer = new Client((PApplet) owner, serverName, port_tcp);
 			this.connected = true;
+			trackerOn = true;
 		} else {
 			this.server = false;
 			this.connected = false;
@@ -586,10 +603,26 @@ public class OmicronAPI {
 			break;
 		case (SPEECH):
 			sourceID = Integer.valueOf(params[1]);
-			int commandID = Integer.valueOf(params[2]);
-			int serviceID = Integer.valueOf(params[3]);
-			float sourceAngle = Float.valueOf(params[3].trim());
-			float[] speechArray = { commandID, serviceID, sourceAngle };
+
+			int commandID = -1;
+			int systemID = -1;
+			float confidence = -1;
+			float sourceAngle = -1;
+			float angleConfidence = -1;
+
+			if (sourceID == -1) {
+				event.dataString = params[2];
+				confidence = Float.valueOf(params[3]);
+				sourceAngle = Float.valueOf(params[4]);
+				angleConfidence = Float.valueOf(params[5]);
+			} else {
+				commandID = Integer.valueOf(params[2]);
+				systemID = Integer.valueOf(params[3]);
+				sourceAngle = Float.valueOf(params[4]);
+			}
+
+			float[] speechArray = { commandID, systemID, confidence,
+					sourceAngle, angleConfidence };
 			event.sourceID = sourceID;
 			event.dataArray = speechArray;
 			event.dataArraySize = event.dataArray.length;
@@ -811,4 +844,3 @@ public class OmicronAPI {
 		processData(data);
 	}
 }// class
-
