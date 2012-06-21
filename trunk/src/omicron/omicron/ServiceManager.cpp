@@ -35,8 +35,8 @@
 
 // NOTE: OSCService needs to be included before NetService to avoid template
 // errors within osc/udp.h
-#ifdef OMICRON_USE_OSC
-	#include "omicron/OSCService.h"
+#ifdef OMICRON_USE_SOUND
+	#include "omicron/SoundManager.h"
 #endif
 #ifdef OMICRON_USE_DIRECTINPUT
 	#include "omicron/DirectXInputService.h"
@@ -140,7 +140,7 @@ void ServiceManager::registerDefaultServices()
 	registerService("OpenNIService", (ServiceAllocator)OpenNIService::New);
 #endif
 #ifdef OMICRON_USE_OSC
-	registerService("OSCService", (ServiceAllocator)OSCService::New);
+	//registerService("OSCService", (ServiceAllocator)OSCService::New);
 #endif
 ////	 Kinda hack: run application initialize here because for now it is used to register services from
 ////	 external libraries, so it needs to run before setting up services from the config file.

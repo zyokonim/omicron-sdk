@@ -22,64 +22,55 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE 
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************************************************************/
-#ifndef __OSC__SERVICE_H__
-#define __OSC__SERVICE_H__
+#ifndef __SOUND__MANAGER_H__
+#define __SOUND__MANAGER_H__
 
 #include "omicron/osystem.h"
-#include "omicron/ServiceManager.h"
 #include "omicron/StringUtils.h"
 #include "osc/oscpkt.h"
 #include "osc/udp.h"
-
-class OscManager;
+#include "Sound.h"
 
 using namespace oscpkt;
 
 namespace omicron
 {
+
+class SoundManager;
+class Sound;
+
+class OMICRON_API SoundEnvironment
+{
+public:
+	SoundEnvironment(const SoundManager*);
+	void setVolume(float);
+	float getVolume();
+
+	Sound* createSound(char*);
+private:
+	static const SoundManager* soundManager;
+	static float globalVolume;
+};// SoundEnvironment
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class OMICRON_API OSCService: public Service
+class OMICRON_API SoundManager
 {
 public:
-	// Allocator function
-	static OSCService* New() { return new OSCService(); }
+	SoundManager();
+	void connectToServer(char*, int);
+	bool isConnected();
+	SoundEnvironment* getSoundEnvironment();
+	void setEnvironment(SoundEnvironment*);
+	Vector3f getListenerPosition();
+	void setListenerPosition(Vector3f);
 
-public:
-	void setup(Setting& settings);
-	virtual void initialize();
-	virtual void poll();
-	virtual void dispose();
-	
-	void connectToOSCServer();
-	void connectToOSCServer(char*, int);
+	void startSoundServer();
+	void stopSoundServer();
+private:
+	static SoundEnvironment* environment;
+	static UdpSocket serverSocket;
 	bool sendOSCMessage(Message);
-private:
-	static OSCService* mysInstance;
-	static const char* serverIP;
-	static int serverPort;
-
-	static UdpSocket sock;
-};
-
-class OMICRON_API OSCClient: public Service
-{
-public:
-	// Allocator function
-	static OSCClient* New() { return new OSCClient(); }
-
-public:
-	void setup(Setting& settings);
-	virtual void initialize();
-	virtual void poll();
-	virtual void dispose();
-
-	void setServiceManager(ServiceManager* sm);
-	void updateSoundPosition(int, float, float, float, bool);
-	void updateSoundAngle(int, float, bool);
-private:
-	static OSCClient* mysInstance;
-	static ServiceManager* serviceManager;
-};
+};// SoundManager
 
 }; // namespace omicron
 

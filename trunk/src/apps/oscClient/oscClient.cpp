@@ -30,116 +30,93 @@
 #include <time.h>
 using namespace omicron;
 
-#ifdef WIN32
-#include <ws2tcpip.h>
-#include <winsock2.h>
-#define itoa _itoa
-#endif
-
-#include "omicron/OSCService.h"
+#include "omicron/SoundManager.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Based on Winsock UDP Server Example:
-// http://msdn.microsoft.com/en-us/library/ms740148
-class NetClient
-{
-private:
-	WSADATA wsaData;
-	SOCKET SendSocket;
-	sockaddr_in RecvAddr;
-	int Port;
-	//char SendBuf[1024];
-	int BufLen;
-
-public:
-	NetClient::NetClient( const char* address, int port )
-	{
-		// Create a socket for sending data
-		SendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-		// Set up the RecvAddr structure with the IP address of
-		// the receiver
-		RecvAddr.sin_family = AF_INET;
-		RecvAddr.sin_port = htons(port);
-		RecvAddr.sin_addr.s_addr = inet_addr(address);
-		printf("NetClient %s:%i created...\n", address, port);
-	}// CTOR
-
-	void NetClient::sendEvent(char* eventPacket, int length)
-	{
-		// Send a datagram to the receiver
-		sendto(SendSocket, 
-			eventPacket, 
-			length, 
-			0, 
-			(SOCKADDR*) &RecvAddr, 
-			sizeof(RecvAddr));
-	}// SendEvent
-};
-
-#define OI_WRITEBUF(type, buf, offset, val) *((type*)&buf[offset]) = val; offset += sizeof(type);
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class OSCClientTest
+class EventViewer
 {
 public:
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Checks the type of event. If a valid event, creates an event packet and returns true. Else return false.
-	virtual void handleEvent(const Event& evt)
+	virtual bool handleEvent(const Event& evt)
 	{
-		// If the event has been processed locally (i.e. by a filter event service)
-		if(evt.isProcessed()) return;
+		char* eventPacket = new char[256];
+
+		itoa(evt.getServiceType(), eventPacket, 10); // Append input type
+		strcat( eventPacket, ":" );
+		char floatChar[32];
+
+		switch(evt.getServiceType())
+		{
+			case Service::Controller:
+				// Converts id to char, appends to eventPacket
+				sprintf(floatChar,"%d",evt.getSourceId());
+				strcat( eventPacket, floatChar );
+				strcat( eventPacket, "," ); // Spacer
+
+				// See DirectXInputService.cpp for parameter details
+				for( int i = 0; i < evt.getExtraDataItems(); i++ ){
+					sprintf(floatChar,"%d", (int)evt.getExtraDataFloat(i));
+					strcat( eventPacket, floatChar );
+					if( i < evt.getExtraDataItems() - 1 )
+						strcat( eventPacket, "," ); // Spacer
+					else
+						strcat( eventPacket, " " ); // Spacer
+				}
+				strcat( eventPacket, "\n" ); // Spacer
+				//printf(eventPacket);
+				
+				if( evt.getType() != Event::Update )
+				{
+					printf("%d \n",evt.getFlags());
+				}
+
+				return true;
+				break;
+			default:
+				break;
+		}
 		
-		if( evt.getServiceType() == Service::Controller ){
-			//printf("Controller %f %f \n", evt.getExtraDataFloat(0), evt.getExtraDataFloat(1) );
 
-			float pos = evt.getExtraDataFloat(0) / 1000.0;
-			float amp = -(evt.getExtraDataFloat(3) - 1000) / 2000.0;
-			printf("Pos %f Amp %f \n", pos, amp );
-			
-			if( evt.isButtonDown(Event::Button1) ){
-				Message msg("/s_new");
-				msg.pushStr("PlaySound");
-				msg.pushInt32(-1);
-				msg.pushInt32(0);
-				msg.pushInt32(0);
-				msg.pushStr("amp");
-				msg.pushFloat(amp);
-
-				//osc->sendOSCMessage(msg);
-			}
-		}
-		if( evt.getServiceType() == Service::Mocap ){
-			//printf("Controller %f %f \n", evt.getExtraDataFloat(0), evt.getExtraDataFloat(1) );
-
-			float xPos = evt.getPosition(0);
-			float yPos = evt.getPosition(1);
-			float zPos = evt.getPosition(2);
-			float angle = atan( xPos / zPos ) * ( 180 / 3.14159 );
-			printf("Angle %f \n", angle );
-			osc->updateSoundAngle( 0, angle, true );
-		}
+		delete[] eventPacket;
+		return false;
 	}
-	
-
-	void addServiceManager(ServiceManager* sm);
-
 private:
-	OSCClient* osc;
+
+	private:
+		float rx;
+		float ry;
+		float rz;
+
+		float x;
+		float y;
+		float z;
+
+		float mx;
+		float my;
+		float mz;
+
+		float lx;
+		float ly;
+		float lz;
+
 };
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void OSCClientTest::addServiceManager( ServiceManager* sm )
-{
-	osc->setServiceManager(sm);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void main(int argc, char** argv)
 {
-	OSCClientTest app;
+	EventViewer app;
 
+	SoundManager* soundManager = new SoundManager();
+	//soundManager->connectToServer("131.193.77.51",57120);
+	//soundManager->startSoundServer();
+
+	SoundEnvironment* env = soundManager->getSoundEnvironment();
+	Sound* testSound = env->createSound("test");
+	testSound->loadFromFile("test.wav");
+
+	//soundManager->stopSoundServer();
+	
 	// Read config file name from command line or use default one.
 	const char* cfgName = "oscTest.cfg";
 	if(argc == 2) cfgName = argv[1];
@@ -153,8 +130,6 @@ void main(int argc, char** argv)
 
 	ServiceManager* sm = new ServiceManager();
 	sm->setupAndStart(cfg);
-
-	app.addServiceManager(sm);
 
 	float delay = -0.01f; // Seconds to delay sending events (<= 0 disables delay)
 #ifdef _DEBUG
