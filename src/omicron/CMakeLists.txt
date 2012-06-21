@@ -144,10 +144,12 @@ if(OMICRON_USE_OPENNI)
 endif()
 
 # OSC support    
-set(OMICRON_USE_OSC true CACHE BOOL "Enable/disable Open Sound Control support")
-if(OMICRON_USE_OSC)
-	set( srcs	 ${srcs} omicron/OSCService.cpp )
-	set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/OSCService.h )
+set(OMICRON_USE_SOUND true CACHE BOOL "Enable/disable sound support")
+if(OMICRON_USE_SOUND)
+	set( srcs	 ${srcs} omicron/SoundManager.cpp
+						 omicron/Sound.cpp )
+	set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/SoundManager.h
+							${CMAKE_SOURCE_DIR}/include/omicron/Sound.h )
 endif()
 
 # NaturalPoint Motion capture system support

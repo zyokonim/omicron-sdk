@@ -368,6 +368,42 @@ void DirectXInputService::poll()
 			if(dpad == 18000) curButtonState |= Event::ButtonDown;
 			if(dpad == 27000) curButtonState |= Event::ButtonLeft;
 		}
+		else if(gControllerType[j] == PS3)
+		{
+			// Triangle Button
+			if(js.rgbButtons[0] & 0x80) curButtonState |= Event::Button1;
+			// Circle Button
+			if(js.rgbButtons[1] & 0x80) curButtonState |= Event::Button2;
+			// Cross Button
+			if(js.rgbButtons[2] & 0x80) curButtonState |= Event::Button3;
+			// Square Button
+			if(js.rgbButtons[3] & 0x80) curButtonState |= Event::Button4;
+
+			// Left Shoulder Button (L1)
+			if(js.rgbButtons[6] & 0x80) curButtonState |= Event::Button5;
+			// Right Shoulder Button (R1)
+			if(js.rgbButtons[7] & 0x80) curButtonState |= Event::Button6;
+
+			// Left Analog Pad Pressed (L3)
+			if(js.rgbButtons[10] & 0x80) curButtonState |= Event::Button7;
+
+			// Right Analog Pad Pressed (R3)
+			// We could use SpecialButton3 but we leave it out for now.
+
+			// Back Button
+			if(js.rgbButtons[8] & 0x80) curButtonState |= Event::SpecialButton1;
+			// Start Button
+			if(js.rgbButtons[9] & 0x80) curButtonState |= Event::SpecialButton2;
+			
+			// PS Button
+			if(js.rgbButtons[12] & 0x80) curButtonState |= Event::SpecialButton3;
+
+			signed long dpad = (signed long)js.rgdwPOV[0];
+			if(dpad == 0) curButtonState |= Event::ButtonUp;
+			if(dpad == 9000) curButtonState |= Event::ButtonRight;
+			if(dpad == 18000) curButtonState |= Event::ButtonDown;
+			if(dpad == 27000) curButtonState |= Event::ButtonLeft;
+		}
 
 		if(curButtonState != myButtonState[j])
 		{
