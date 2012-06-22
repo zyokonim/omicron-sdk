@@ -104,11 +104,11 @@ bool SoundManager::sendOSCMessage(Message msg)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const SoundManager* SoundEnvironment::soundManager;
+SoundManager* SoundEnvironment::soundManager;
 float SoundEnvironment::globalVolume = 0.5;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundEnvironment::SoundEnvironment(const SoundManager* soundManager)
+SoundEnvironment::SoundEnvironment(SoundManager* soundManager)
 {
 	this->soundManager = soundManager;
 }
@@ -117,5 +117,9 @@ SoundEnvironment::SoundEnvironment(const SoundManager* soundManager)
 Sound* SoundEnvironment::createSound(char* soundName)
 {
 	Sound* newSound = new Sound(soundName);
+	newSound->setSoundManager(soundManager);
+
+	Message msg("/loadSynth");
+	soundManager->sendOSCMessage(msg);
 	return newSound;
 }
