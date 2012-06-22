@@ -28,8 +28,13 @@
 #include "omicron/osystem.h"
 #include "omicron/StringUtils.h"
 
+
+#include "omicron/SoundManager.h"
+
 namespace omicron
 {
+
+class SoundManager;
 
 class OMICRON_API Sound
 {
@@ -40,14 +45,25 @@ public:
 	float getDuration();
 	void setVolumeScale(float);
 	float getVolumeScale();
+	
+	int getBufferID();
+	char* getFilePath();
+
+	// Temp?
+	void setSoundManager(SoundManager*);
+	SoundManager* getSoundManager();
 private:
 
 public:
 private:
 	char* soundName;
-	int buffer;
+	char* filePath;
+	int bufferID;
 	float duration;
 	float volumeScale;
+	
+	// Temp?
+	static SoundManager* manager;
 };// Sound
 
 class OMICRON_API SoundInstance
@@ -68,11 +84,14 @@ public:
 	void setEnvironmentSound(bool);
 	void setVolume(float);
 	float getVolume();
+
+	// Temp?
+	void setSoundManager(SoundManager*);
 private:
 	int getID();
 public:
 private:
-	Sound* soundName;
+	Sound* sound;
 	int instanceID;
 
 	enum State {playing, paused, stopped};
@@ -83,6 +102,9 @@ private:
 	float volume;
 	float pitch;
 	Vector3f position;
+
+	// Temp?
+	static SoundManager* soundManager;
 };// Sound
 
 }; // namespace omicron

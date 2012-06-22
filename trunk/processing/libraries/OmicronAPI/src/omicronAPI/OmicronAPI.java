@@ -38,6 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import processing.core.PApplet;
 import processing.net.Client;
 
+import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -192,6 +193,8 @@ public class OmicronAPI {
 			applet.frame.setLocation(0, 0);
 		}
 
+		processMouseEvent(); // Maps Processing mouse to pointer event
+
 		// Only get events if an event type is enabled
 		if (trackerOn) {
 			ArrayList<Event> localEventList = getEventList();
@@ -258,6 +261,51 @@ public class OmicronAPI {
 			break;
 		}
 	}// processPointerEvent
+
+	private boolean mouseDown = false;
+	private boolean secondMouseDown = false;
+	private float secondMouseX, secondMouseY;
+	private int mouseTouchHoldKeycode = 17;
+
+	private void processMouseEvent() {
+		if (touchListener == null)
+			return;
+
+		if (applet.mousePressed) {
+			if (!mouseDown) {
+				touchListener.touchDown(-1, applet.mouseX, applet.mouseY, 10, 10);
+				mouseDown = true;
+			} else {
+				touchListener.touchMove(-1, applet.mouseX, applet.mouseY, 10, 10);
+			}
+		} else {
+			if (mouseDown) {
+				touchListener.touchUp(-1, applet.mouseX, applet.mouseY, 10, 10);
+				mouseDown = false;
+			}
+		}
+
+		if (applet.keyPressed
+				&& applet.keyEvent.getKeyText(applet.keyCode) == "Ctrl") {
+			if (!secondMouseDown) {
+				touchListener.touchDown(-2, applet.mouseX, applet.mouseY, 10 10);
+				secondMouseDown = true;
+				secondMouseX = applet.mouseX;
+				secondMouseY = applet.mouseY;
+			} else {
+				touchListener.touchMove(-2, secondMouseX, secondMouseY, 10, 10);
+			}
+		} else if (!applet.keyPressed) {
+			if (secondMouseDown) {
+				touchListener.touchUp(-2, secondMouseX, secondMouseY, 10, 10);
+				secondMouseDown = false;
+			}
+		}
+	}// processMouseEvent
+
+	public void setTouchHoldKey(int keyCode) {
+
+	}// setSecondTouchMouseKey
 
 	private boolean scaleScreen = false;
 	private float screenScale;

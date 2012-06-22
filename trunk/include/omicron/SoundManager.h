@@ -42,13 +42,13 @@ class Sound;
 class OMICRON_API SoundEnvironment
 {
 public:
-	SoundEnvironment(const SoundManager*);
+	SoundEnvironment(SoundManager*);
 	void setVolume(float);
 	float getVolume();
 
 	Sound* createSound(char*);
 private:
-	static const SoundManager* soundManager;
+	static SoundManager* soundManager;
 	static float globalVolume;
 };// SoundEnvironment
 
@@ -66,10 +66,12 @@ public:
 
 	void startSoundServer();
 	void stopSoundServer();
+
+	bool sendOSCMessage(Message);
 private:
 	static SoundEnvironment* environment;
 	static UdpSocket serverSocket;
-	bool sendOSCMessage(Message);
+	
 };// SoundManager
 
 }; // namespace omicron

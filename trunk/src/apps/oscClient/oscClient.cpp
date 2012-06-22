@@ -33,90 +33,91 @@ using namespace omicron;
 #include "omicron/SoundManager.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class EventViewer
+class OSCSoundTest
 {
 public:
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	OSCSoundTest()
+	{
+		soundManager = new SoundManager();
+
+		env = soundManager->getSoundEnvironment();
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Checks the type of event. If a valid event, creates an event packet and returns true. Else return false.
 	virtual bool handleEvent(const Event& evt)
 	{
-		char* eventPacket = new char[256];
-
-		itoa(evt.getServiceType(), eventPacket, 10); // Append input type
-		strcat( eventPacket, ":" );
-		char floatChar[32];
-
 		switch(evt.getServiceType())
 		{
 			case Service::Controller:
-				// Converts id to char, appends to eventPacket
-				sprintf(floatChar,"%d",evt.getSourceId());
-				strcat( eventPacket, floatChar );
-				strcat( eventPacket, "," ); // Spacer
+				float leftRightAnalog = evt.getExtraDataFloat(0) / 1000.0f;
+				float upDownAnalog = evt.getExtraDataFloat(1) / 1000.0f;
 
-				// See DirectXInputService.cpp for parameter details
-				for( int i = 0; i < evt.getExtraDataItems(); i++ ){
-					sprintf(floatChar,"%d", (int)evt.getExtraDataFloat(i));
-					strcat( eventPacket, floatChar );
-					if( i < evt.getExtraDataItems() - 1 )
-						strcat( eventPacket, "," ); // Spacer
-					else
-						strcat( eventPacket, " " ); // Spacer
-				}
-				strcat( eventPacket, "\n" ); // Spacer
-				//printf(eventPacket);
+				volume = evt.getExtraDataFloat(4) / 1000.0f;
 				
-				if( evt.getType() != Event::Update )
-				{
-					printf("%d \n",evt.getFlags());
-				}
+				if( evt.getType() == Event::Down ){
 
+					if( evt.getFlags() == Event::Button3){
+						soundManager->connectToServer("131.193.77.51",57120);
+						soundManager->startSoundServer();
+					}
+					if( evt.getFlags() == Event::Button2){
+						soundManager->stopSoundServer();
+					}
+					
+					if( evt.getFlags() == Event::Button5){
+						testSound = env->createSound("test");
+						testSound->loadFromFile("/flower_duet_mono.wav");
+					}
+
+					if( evt.getFlags() == Event::ButtonRight){
+						soundInstance = new SoundInstance(testSound);
+						soundInstance->play();						
+					}
+					if( evt.getFlags() == Event::ButtonLeft){
+						soundInstance->pause();
+					}
+					if( evt.getFlags() == Event::ButtonUp){
+						soundInstance->stop();
+					}
+					if( evt.getFlags() == Event::ButtonDown){
+						soundInstance->setLoop(true);
+					}
+					//printf("%d \n", evt.getFlags() );
+				}
+				
+				if( volume > 0 )
+					printf("Volume: %f \n", volume);
+
+				float zeroTolerence = 0.008f;
+				if( (leftRightAnalog > zeroTolerence || leftRightAnalog < -zeroTolerence) &&
+					(upDownAnalog > zeroTolerence || upDownAnalog < -zeroTolerence)
+					){
+					position[0] = leftRightAnalog;
+					position[1] = upDownAnalog;
+					printf("Pos: %f %f\n", position[0], position[1]);
+				}
 				return true;
 				break;
-			default:
-				break;
 		}
-		
-
-		delete[] eventPacket;
 		return false;
 	}
 private:
-
-	private:
-		float rx;
-		float ry;
-		float rz;
-
-		float x;
-		float y;
-		float z;
-
-		float mx;
-		float my;
-		float mz;
-
-		float lx;
-		float ly;
-		float lz;
-
+	SoundManager* soundManager;
+	Sound* testSound;
+	SoundInstance* soundInstance;
+	SoundEnvironment* env;
+private:
+	Vector3f position;
+	float volume;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void main(int argc, char** argv)
 {
-	EventViewer app;
+	OSCSoundTest app;
 
-	SoundManager* soundManager = new SoundManager();
-	//soundManager->connectToServer("131.193.77.51",57120);
-	//soundManager->startSoundServer();
-
-	SoundEnvironment* env = soundManager->getSoundEnvironment();
-	Sound* testSound = env->createSound("test");
-	testSound->loadFromFile("test.wav");
-
-	//soundManager->stopSoundServer();
-	
 	// Read config file name from command line or use default one.
 	const char* cfgName = "oscTest.cfg";
 	if(argc == 2) cfgName = argv[1];
