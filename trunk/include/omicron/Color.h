@@ -79,15 +79,30 @@ namespace omicron
 			if(lname[0] == '#')
 			{
 				uint x;
-				sscanf(lname.c_str(), "#%x", &x);			
-				// red
-				myData[0] = (float)((x & 0xff000000) >> 24) / 256;
-				// green
-				myData[1] = (float)((x & 0x00ff0000) >> 16) / 256;
-				// blue
-				myData[2] = (float)((x & 0x0000ff00) >> 8) / 256;
-				// alpha
-				myData[3] = (float)((x & 0x000000ff)) / 256;
+				sscanf(lname.c_str(), "#%x", &x);		
+				if(lname.size() == 7)
+				{
+					// Parse rgb
+					myData[0] = (float)((x & 0xff0000) >> 16) / 256;
+					// green
+					myData[1] = (float)((x & 0x00ff00) >> 8) / 256;
+					// blue
+					myData[2] = (float)((x & 0x0000ff)) / 256;
+					// alpha
+					myData[3] = 1.0f;
+				}
+				else
+				{
+					// Parse rgba
+					// red
+					myData[0] = (float)((x & 0xff000000) >> 24) / 256;
+					// green
+					myData[1] = (float)((x & 0x00ff0000) >> 16) / 256;
+					// blue
+					myData[2] = (float)((x & 0x0000ff00) >> 8) / 256;
+					// alpha
+					myData[3] = (float)((x & 0x000000ff)) / 256;
+				}
 			}
 			else
 			{
