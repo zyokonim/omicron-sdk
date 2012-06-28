@@ -119,7 +119,6 @@ The contents of your source file could be something like this:
 
 	using namespace omicron;
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////
 	void onEvent(const Event& e)
 	{
 		// DO stuff with the event.
