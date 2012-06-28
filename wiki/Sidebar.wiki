@@ -1,24 +1,5 @@
- * General
-   * [Concept introduction and design]
-   * [ReleaseNotes Release Notes]
-     * [OmegaProgress omegalib pre 1.0 history]
-   * [Issues Bugs and Issues]
- * Help & Reference
-   * [HowTos How-tos & FAQ]
-   * [BuildSystemReference CMake reference]
-   * [OInputServerReference oinputserver protocol reference]
-   * Tutorials
-     * [Tutorial1]
-     * [Tutorial2]
-     * [Tutorial3]
-     * [Tutorial4]
-     * [Tutorial5]
-     * [Tutorial6]
-     * [Tutorial8]
- * Porthole
-   * [OmegaViewer CS528 VR Project Concept]
-   * [PortholeMarkOne Porthole Mark 1]
- * Internal docs
-   * [PackagingChecklist Packaging checklist]
-   * [MeetingNotes notes from omegalib meetings]
-   * [Future Future plans]
+ * [GettingStarted getting started with omicron]
+ * [ReleaseNotes Release Notes]
+ * [ConfigReference Configuration files reference]
+ * [EventReference omicron Event class explained]
+ * [EventReference API Reference]
