@@ -1,45 +1,58 @@
-#summary Getting started with the omicron SDK
+#summary Getting started
 #sidebar Sidebar
 
-<p>*Last revision:* ver. 1.2<font color=#ff0000> (This documentation is preliminary and may be incomplete)</font></p>*
+= Getting started with omicron =
+This page offers basic information on how to build omicron, and how to start creating applications that use the omicron toolkit.
 
-= Introduction =
-The omicron SDK is a library providing access to a variety of input devices, mostly used in immersive installations and stereo display systems. 
+omicron is distributed as a source-only project. Users are responsible for creating binaries for their operating system and architecture. The build process is kept as simple as possible and should require very little configuration effort by the user.
 
-Some of the devices currently supported by omicron are:
- * All motion capture systems supporting the VRPN protocol
- * NaturalPoint trackers (TrackIR, Optitrack)
- * Wii controllers
- * Xbox 360 controllers
- * Microsoft Kinect
- * SAGE pointer connections
- * PQLabs multitouch overlays
- * iPad touch interfaces and dynamic GUIs through the custom Porthole protocol
- * Thinkgear brainwave interfaces
+== Building omicron ==
 
-omicron abstracts input using modular event services, each providing access to a specific input device. Events can be easily streamed over the network using the omicron connector API. Also, Event services can be chained together to provide advanced functionality.
+=== Operating system support ===
+This is the current supported status of omicron:
+ * *Windows XP/Vista/7:* VS2010 32bit builds and is regularly tested. VS2008 32bit deprecated and may not work. 64bit builds not tested regularly.
+ * *Linux:* 64bit builds and is regularly tested (SUSE). 32bit should build but is tested less often (Ubuntu).
+ * *OSX, Intel:* 64bit currently not supported (builds but fails to link), 32bit not supported
 
-In addition to event services, omicron provides additional utility APIs to simplify the developement of the non-graphics part of VR applications. These APIs are mostly lightweight wrappers on top of well established open source libraries. omicron includes:
- * a configuration file reading system (libconfig)
- * an xml reading/writing API (tinyxml-2 http://www.grinninglizard.com/tinyxml2/index.html)
- * multithreading support (tinythread++ http://tinythread.sourceforge.net/)
- * a simple tcp client/server API (asio http://think-async.com/)
- * a mathematical/geometry library (eigen http://eigen.tuxfamily.org/index.php?title=Main_Page)
+=== Building on Windows ===
+This section explains how to build omicron on Windows. The basic procedure and requirements are similar for all supported operating systems, so you can use this as a general guideline.
+==== Requirements ====
+ * An SVN client [http://tortoisesvn.net/ TortoiseSVN recommended]
+ * Visual Studio 2010 (Visual C++ 2010 Express edition works too, [http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express Download it here])
+ * CMake [http://www.cmake.org/cmake/resources/software.html Download it here]
+ * *if you use the Express Edition of Visual C++* and want to enable Optitrack camera support you will have to download the [http://www.microsoft.com/en-us/download/details.aspx?id=3138 Windows SDK] as well
 
-= Resources =
-[http://omicron-sdk.googlecode.com/svn/refdocs/v1.0/index.html The omicron SDK reference guide (v1.0)]
+==== Step 1: download the code ====
+ * Follow the instruction of your svn client of choice and checkout:
+   * https://omicron-sdk.googlecode.com/svn/trunk/ if you are a *registered committer* for the project.
+   * http://omicron-sdk.googlecode.com/svn/trunk/ if you are an anonymous user.
+
+==== Step 2: running CMake ====
+ * Run cmake-gui.
+ * In the *where is the source code* field, specify the directory where you checked out the source code.
+ * In the *where to build the binaries* field, specify a directory you will want your project files and binaries to be generated.
+ * Hit *Configure*: The option table will look simlar to the following figure:
+<p align="middle"><img src="http://omicron-sdk.googlecode.com/svn/wiki/Building/cmake.png" width="500"/></p><p align="middle">
+_^The Windows CMake GUI. Versions on other operating systems have a similar layout.^_
+</p>
+ * Enable and disable desired options. For a guide on options go to the bottom of this page. *Note:* omicron should build just fine if you leave everything to their default values.
+ * If you changed any options, hit *configure* again. You may have to repeat this proces multiple times if new options appear.
+ * Once you are done configuring all build options, hit *Generate*. If the process ends without errors, you will have Visual Studio solution files under your build directory. 
+
+*SUGGESTION:* Keep both directories under a single 'root' folder. For example you can have something like this
+ * `omicron`: your root folder
+  * `source`: the source code directory, checked out from http://omicron-sdk.googlecode.com/svn/trunk/
+  * `build`: the build and binaries directory
+  
+You should now be able to open the generated Visual Studio solution and build everything.
  
-= Building omicron =
-omicron uses CMake to generate platform-specific build files for the supported platforms. If you are not familiar with CMake go to (*link here*).
-When run for the first time, CMake will set some default options for your build, enabling or disabling features depending on operating system support. Some options may be completely unavailable if unsupported by your environment.
-== omicron CMake options ==
- * `OMICRON_BUILD_TUTORIALS` When enabled, tutorials shipped with omicron will be built.
- * `OMICRON_USE_DIRECTINPUT` Enables DirectInput-based controller support. Works with Wiimote and XBox360 controllers.
- * `OMICRON_USE_LEGACY_NETSERVICE` Enables building of legacy network service support.
- * `OMICRON_USE_NETSERVICE` Enables building of network service support.
- * `OMICRON_USE_OPENNI` Enables building of Microsoft Kinect support.
- * `OMICRON_USE_OPTITRACK` Enables building of Optitrack support.
- * `OMICRON_USE_PQLABS` Enables building of PQLabs multitouch support.
- * `OMICRON_USE_THINKGEAR` Enables building of Thinkgear support.
- * `OMICRON_USE_VRPN` Enables building of VRPN support.
+=== Building on Linux ===
+The basic instructions are the same as for the Windows guide. Under linux, you will use make as your build system. To summarize, the process will be:
+ * Download the code
+ * create a build directory
+ * get in the build directory and run `cmake -i <path-to-source-dir>` or run `ccmake` or `cmake-gui`. The commands will respectively run an interactive shell version of cmake, a curses based version, and a gui version similar to the windows one. 
+ * Follow the same steps as the one in windows to generate a makefile
+ * run `make`
+ * if the build succeeds, get in the `bin` directory and you should find your libraries and compiled demo applications.
 
+== 
