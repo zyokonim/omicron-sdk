@@ -1,6 +1,8 @@
 #summary Getting started
 #sidebar Sidebar
 
+<p>*Last revision:* ver. 1.2 - 28 June 2012</p>
+
 = Getting started with omicron =
 This page offers basic information on how to build omicron, and how to start creating applications that use the omicron toolkit.
 
@@ -55,4 +57,110 @@ The basic instructions are the same as for the Windows guide. Under linux, you w
  * run `make`
  * if the build succeeds, get in the `bin` directory and you should find your libraries and compiled demo applications.
 
-== 
+
+----------------------------------------------------------------------------------------------------------------------- 
+== Adding omicron to your application: omicronConnector ==
+if you want to use omicron-supported input devices in the easiest way possible, the following is the best solution:
+ * You run the omicron input server executable (`oinputserver`) locally or on the machine where the input devices are phisically attached
+ * you add the `omicronConnector` header file to your c++ application
+...and that's pretty much it. You won't need to add any dependencies to your original project, other than one single header file. This is by far the easiest solution, altough it requires you to run the input server as a separate application you connect to.
+
+The following is an example of code using omicronConnector:
+{{{
+	#include <connector/omicronConnectorClient.h>
+
+	using namespace omicronConnector;
+
+	class ConnectorListener
+	{
+	public:
+		static void onEvent(const EventData& e)
+		{
+			// Do stuff with the event...
+		}
+	};
+
+	int main(int argc, char** argv)
+	{
+		OmicronConnectorClient<ConnectorListener> client;
+		client.connect("127.0.0.1", 28000);
+		while(true)
+		{
+			client.poll(); 
+		}
+	}
+}}}
+All you need to do is instantiate a copy of the `OmicronConnectorClient` template, passing it a class with an `onEvent` method as a template argument. After connecting and running a polling loop, the `onEvent` method will be called for each event received from the input server.
+
+== Adding omicron to your application: direct integration ==
+In this scenario, you want to integrate omicron directly inside your application, without running an external input server. This is a slightly more complex but supported alternative to using omicronConnector. We assome you use CMake to manager your application build. In the explanation, we assume *omicronSource* is the root directory of your omicron source installation.
+
+=== Step 1: Create the directory structure ===
+ * Create a new directory (say, `myapp-source`). 
+ * copy omicronSource/FindOmicron.cmake to myapp-source
+
+=== Step 2: Create the source and cmake file ===
+In a new directory, create a source file (say, `myapp.cpp`). Also create a `CMakeLists.txt` file in the same directory, with the following content:
+{{{
+	cmake_minimum_required(VERSION 2.8.1) 
+	project(myapp)
+
+	include(${CMAKE_SOURCE_DIR}/FindOmicron.cmake)
+
+	include_directories(${OMICRON_INCLUDE_DIRS})
+	add_executable(myapp myapp.cpp)
+	target_link_libraries(myapp ${OMICRON_LIB})
+}}}
+You should now be able to run cmake to configure and generate build files for your platform.
+
+The contents of your source file could be something like this:
+{{{
+	#include <omicron.h>
+
+	using namespace omicron;
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////
+	void onEvent(const Event& e)
+	{
+		// DO stuff with the event.
+	}
+
+	int main(int argc, char** argv)
+	{
+		// Add a default filesystem data sources (used to retrieve configuration files and other resources)
+		DataManager* dm = DataManager::getInstance();
+		dm->addSource(new FilesystemDataSource("./"));
+
+		// Load a configuration file for this application and setup the system manager.
+		// Read config file name from command line or use default one.
+		const char* cfgName = "eventlogger.cfg";
+		if(argc == 2) cfgName = argv[1];
+		Config* cfg = new Config(cfgName);
+
+		// Start running services and listening to events.
+		ServiceManager* sm = new ServiceManager();
+		sm->setupAndStart(cfg);
+
+		omsg("eventlogger start logging events...");
+		while(true)
+		{
+			// Poll services for new events.
+			sm->poll(); 
+
+			// Get available events
+			Event evts[OMICRON_MAX_EVENTS];
+			int av;
+			if(0 != (av = sm->getEvents(evts, ServiceManager::MaxEvents)))
+			{
+				for( int evtNum = 0; evtNum< av; evtNum++)
+				{
+					onEvent(evts[evtNum]);
+				}
+			}
+		}
+		delete cfg;
+	}
+}}}
+
+The code is slightly more complex than the omicronConnector example, but not that much. The main difference would be the need to add the input service libraries inside your application binary folder. Also, some input services only run on windows: check the [ServiceReference input service reference page] for more information.
+
