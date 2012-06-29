@@ -28,31 +28,118 @@ The service returns pointer events like a mouse (with flags for left/right click
 
 -------------------------------------------------------------------------------
 == HeartbeatService ==
+A simple service that generates periodic events. Used to test connections and as a skeleton for implementation of new event services.
+
+=== Generated events ===
+ * *Service type:* Generic
+ * *Event types:* `Update`
+ * *Event data fields:* position, orientation.
+ 
+Position and orientation contain an increasing event sequence number pls a floating point offset. This is used to test the correctness of event streaming modules like oinputserver and omicronConnector. The structure of the data is as follows:
+ * position[0] = sequence number
+ * position[0] = sequence number + 0.1
+ * position[0] = sequence number + 0.2
+ * orientation[0] = sequence number + 0.3
+ * orientation[0] = sequence number + 0.4
+ * orientation[0] = sequence number + 0.5
+ * orientation[0] = sequence number + 0.6
+
+=== Configuration parameters ===
+ * `rate (float)`: the number of events per seconds that the service will generate
+
 -------------------------------------------------------------------------------
 == LegacyDirectXInputService ==
+ * *Deprecated*
+This is the old implementation of a controller service supporting XBox and wiimote
+controllers. It is kept for compatiility reasons. Use `DIrectXInputService` or `WiimoteService` if you need X360 gamepad or wiimote support.
+
 -------------------------------------------------------------------------------
 == LegacyNetService ==
+ * *Deprecated*
+Connects to an legacy omicron input server instance to receive remote events.
+
+This service uses a text-based protocol to stream event data. It supports a limited range of input services. It is kept for compatibility reasons but it should not be used in new applications.
+
 -------------------------------------------------------------------------------
 == NaturalPointService ==
+=== Generated events ===
+==== Description =====
+=== Configuration parameters ===
+
 -------------------------------------------------------------------------------
 == NetService ==
+Connects to an omicron input server instance to receive remote events.
+=== Generated events ===
+The events depend on the remote services active on the input server. The only change is the
+*service id* of th event, which is substituted with the local `NetService` service id.
+This is done because in the local context, remote service ids have no meaning, so all events are marked as being originated from `NetService`.
+
+=== Configuration parameters ===
+ * `serverIP (string)`: the name or ip address of the input server (default: localhost)
+ * `msgPort (int)`: the tcp port to use for the initial handshake and reliable message passing (default: 27000)
+ * `dataPort (int)`: the udp port to use for general event passing (default: 7000)
+ 
 -------------------------------------------------------------------------------
 == OpenNIService ==
+=== Generated events ===
+==== Description =====
+=== Configuration parameters ===
+
 -------------------------------------------------------------------------------
 == OptiTrackService ==
+=== Generated events ===
+==== Description =====
+=== Configuration parameters ===
+
 -------------------------------------------------------------------------------
 == PQService ==
+=== Generated events ===
+==== Description =====
+=== Configuration parameters ===
+
 -------------------------------------------------------------------------------
 == SagePointerService ==
--------------------------------------------------------------------------------
-== TabletService ==
+=== Generated events ===
+==== Description =====
+=== Configuration parameters ===
+
 -------------------------------------------------------------------------------
 == TcpServer ==
+Implements a tcp server that listens for incoming tcp connections. This is just a base class for other services that need to use tcp. `TcpServer` generates no events and has no configuration parameters.
+
 -------------------------------------------------------------------------------
 == ThinkGearService ==
+=== Generated events ===
+==== Description =====
+=== Configuration parameters ===
+
 -------------------------------------------------------------------------------
 == VRPNService ==
+=== Generated events ===
+==== Description =====
+=== Configuration parameters ===
+
 -------------------------------------------------------------------------------
 == WandService ==
+This service takes data coming from a Mocap and a Controller service and merges it into a single Wand type event.
+
+Ina VR system, we may want to use a controller (like a wiimote or PS3 move) as a wand device for pointing and selection. To do this, set of markers is usually attached to the device to perform 3d tracking. This means we have two separate input systems used to implement a wand (the gamepad and the 3d tracker). `WandService` joins these two systems into a logical wand, with its own stream of input events. This way, applications don't have to keep track of two separate streams of events to implement wand logic.
+
+=== Generated events ===
+ * *Service type:* Wand
+ * *Event types:* Same as source controller events (Usually `Up`, `Down`, `Update`)
+ * *Event data fields:* position, orientation, plus anything coming from controller source ( usually flags for digital buttons and extra data (float array) for analog inputs)
+==== Description =====
+The event is the same as what is generated by the controller source (check the guide for the controller service you are using), plus position and orientation data coming from the mocap service.
+
+=== Configuration parameters ===
+ * `debug (bool)`: enables debug mode
+ * `raySourceId (int)`: the source id for mocap events to use as the wand device
+ * `controllerService (string)`: the name of the service generating the controller events
+ * `controllerSourceId (int)`: the source id of the controller to use as the wand device
+
 -------------------------------------------------------------------------------
 == WiimoteService ==
+=== Generated events ===
+==== Description =====
+=== Configuration parameters ===
