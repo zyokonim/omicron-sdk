@@ -12,11 +12,9 @@ This place lists all the event services shipped with omicron, together with thei
 Interfaces omicron with tablets running the Porthole application. Porthole is a prototype application for controlling VR application through tablet devices. This service is reimplemented in omegalib to offer advanced functionalities like picture streaming and dynamic gui generation.
 
 === Generated events ===
-*Service type:* Tablet, Ui
-*Event types:* Move, Up, Down, Zoom, Rotate
-*Event data fields:* position, extra data (int array), flags
-
-==== Description =====
+ *Service type:* Tablet, Ui
+ *Event types:* Move, Up, Down, Zoom, Rotate
+ *Event data fields:* position, extra data (int array), flags
 The service returns pointer events like a mouse (with flags for left/right click). The position is in normalized coordinates (0.0 to 1.0). The service also returns Ui type events when the user interacts with gui elements in the porthole application. The extra data int array contains the id of the ui control at index 0.
 
 === Configuration parameters ===
