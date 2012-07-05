@@ -29,6 +29,10 @@
 
 #define EIGEN_DEFAULT_IO_FORMAT Eigen::IOFormat(Eigen::StreamPrecision, 0, ", ", " ", "", "")
 
+// Disable alignment (and vectorization). This is because boost.python code used in omegalib does not like
+// aligned ormal parameters in visual studio builds. This may be solved in future versions.
+#define EIGEN_DONT_ALIGN 
+
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
