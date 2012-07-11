@@ -82,33 +82,6 @@ namespace omicron
 {
 	using boost::Ref;
 
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	class OMICRON_API ReferenceType
-	{
-	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-	public:
-			ReferenceType(): myRefCount(0) {}
-		virtual ~ReferenceType() {}
-			
-		friend void intrusive_ptr_add_ref(ReferenceType const* s)
-			{
-				//oassert(s->ref_count >= 0);
-				//oassert(s != 0);
-				++s->myRefCount;
-			}
-
-		friend void intrusive_ptr_release(ReferenceType const* s)
-			{
-				//oassert(s->ref_count > 0);
-				//oassert(s != 0);
-				if (--s->myRefCount == 0) delete s;
-			}
-	private:
-		mutable boost::detail::atomic_count myRefCount;
-	};
-
-
 	// Basic typedefs
 	typedef unsigned char byte;
 	#ifndef OMICRON_OS_LINUX 
@@ -200,6 +173,36 @@ namespace omicron
 	{
 		Horizontal = 0, 
 		Vertical = 1
+	};
+
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	class OMICRON_API ReferenceType
+	{
+	public:
+		static void printObjCounts();
+	public:
+		ReferenceType();
+		virtual ~ReferenceType();
+
+
+		friend void intrusive_ptr_add_ref(ReferenceType const* s)
+			{
+				//oassert(s->ref_count >= 0);
+				//oassert(s != 0);
+				++s->myRefCount;
+			}
+
+		friend void intrusive_ptr_release(ReferenceType const* s)
+			{
+				//oassert(s->ref_count > 0);
+				//oassert(s != 0);
+				if (--s->myRefCount == 0) delete s;
+			}
+	private:
+		mutable boost::detail::atomic_count myRefCount;
+	protected:
+		static List<ReferenceType*> mysObjList;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////

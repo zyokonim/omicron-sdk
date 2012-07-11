@@ -129,4 +129,39 @@ namespace omicron
 	{
 		exit(code);
 	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	List<ReferenceType*> ReferenceType::mysObjList;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	ReferenceType::ReferenceType(): myRefCount(0) 
+	{
+		mysObjList.push_back(this);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	ReferenceType::~ReferenceType() 
+	{
+		mysObjList.remove(this);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	void ReferenceType::printObjCounts()
+	{
+		Dictionary<const char*, int> objCounts;
+		typedef Dictionary<const char*, int>::Item ObjCountsItem;
+
+		// Count object types
+		foreach(ReferenceType* obj, mysObjList)
+		{
+			const char* typeName = typeid(*obj).name();
+			objCounts[typeName]++;
+		}
+
+		// Print object counts
+		foreach(ObjCountsItem item, objCounts)
+		{
+			ofmsg("%1%: %2%", %item.first %item.second);
+		}
+	}
 }
