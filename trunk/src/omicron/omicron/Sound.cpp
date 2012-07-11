@@ -29,12 +29,14 @@ using namespace omicron;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundManager* Sound::manager;
+int nextBufferID = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Sound::Sound(char* soundName)
 {
 	this->soundName = soundName;
-	bufferID = 0;
+	bufferID = nextBufferID;
+	nextBufferID++;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +44,12 @@ bool Sound::loadFromFile(char* filePath)
 {
 	printf( "%s: Not fully implemented\n", __FUNCTION__);
 	this->filePath = filePath;
+
+	Message msg("/loadBuffer");
+	msg.pushInt32(this->getBufferID());
+	msg.pushStr(this->getFilePath());
+	manager->sendOSCMessage(msg);
+	printf("Loaded buffer ID %d with path %s \n", this->getBufferID(), this->getFilePath());
 	return false;
 }
 
@@ -91,25 +99,27 @@ int Sound::getBufferID()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SoundInstance* Sound::play(){
+	SoundInstance* newInstance = new SoundInstance(this);
+	newInstance->play();
+	return newInstance;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 char* Sound::getFilePath(){
 	return filePath;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundManager* SoundInstance::soundManager;
+int nextInstanceID = 4001;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundInstance::SoundInstance(Sound* sound)
 {
 	this->sound = sound;
-
-	Message msg("/loadBuffer");
-	msg.pushInt32(sound->getBufferID());
-	msg.pushStr(sound->getFilePath());
-	soundManager->sendOSCMessage(msg);
-	
-	printf("Loaded buffer ID %d with path %s \n", sound->getBufferID(), sound->getFilePath());
-	instanceID = 1001; // This should be globally incremented on each new instance. Must be 1001 or greater.
+	instanceID = nextInstanceID; // This should be globally incremented on each new instance. Must be 1001 or greater.
+	nextInstanceID++;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,8 +132,7 @@ void SoundInstance::setLoop(bool value)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool SoundInstance::getLoop()
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
-	return false;
+	return loop;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,16 +192,21 @@ void SoundInstance::setEnvironmentSound(bool value)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SoundInstance::setVolume(float)
+void SoundInstance::setVolume(float value)
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	this->volume = value;
+
+	printf( "%s: for instanceID: %d\n", __FUNCTION__, instanceID);
+	Message msg("/setVol");
+	msg.pushInt32(instanceID);
+	msg.pushFloat(this->volume);
+	soundManager->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 float SoundInstance::getVolume()
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
-	return 0;
+	return volume;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -204,6 +218,5 @@ void SoundInstance::setSoundManager(SoundManager* manager)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int SoundInstance::getID()
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
-	return 0;
+	return instanceID;
 }

@@ -35,13 +35,44 @@ using namespace omicron;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class OSCSoundTest
 {
+private:
+	SoundManager* soundManager;
+	SoundEnvironment* env;
+
+	Sound* testSound;
+	Sound* backgroundMusic;
+	Sound* instantSound;
+
+	SoundInstance* soundInstance;
+	bool instanceCreated;
 public:
+
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	OSCSoundTest()
 	{
-		soundManager = new SoundManager();
+		//soundManager = new SoundManager();
+		//soundManager->connectToServer("131.193.77.211",57120);
+		
+		// More concise method of above two lines
+		//soundManager = new SoundManager("131.193.77.51",57120);
+		//soundManager = new SoundManager("localhost",57120);
+		soundManager->startSoundServer();
 
+		// Get default sound environment
 		env = soundManager->getSoundEnvironment();
+
+		// Load sound assets
+		if( soundManager->isSoundServerRunning() ){
+			backgroundMusic = env->createSound("wind");
+			backgroundMusic->loadFromFile("/wind.wav");
+
+			instantSound = env->createSound("gunshot");
+			instantSound->loadFromFile("/gun.wav");
+		}
+
+		
+		instanceCreated = false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,26 +85,34 @@ public:
 				float leftRightAnalog = evt.getExtraDataFloat(0) / 1000.0f;
 				float upDownAnalog = evt.getExtraDataFloat(1) / 1000.0f;
 
-				volume = evt.getExtraDataFloat(4) / 1000.0f;
+				volume = (1000 + evt.getExtraDataFloat(4)) / 2000.0f;
 				
 				if( evt.getType() == Event::Down ){
 
-					if( evt.getFlags() == Event::Button3){
-						soundManager->connectToServer("131.193.77.51",57120);
-						soundManager->startSoundServer();
+					if( evt.getFlags() == Event::Button3){ // Cross
+						backgroundMusic = env->createSound("wind");
+						backgroundMusic->loadFromFile("/wind.wav");
+
+						instantSound = env->createSound("gunshot");
+						instantSound->loadFromFile("/gun.wav");
 					}
-					if( evt.getFlags() == Event::Button2){
-						soundManager->stopSoundServer();
+					if( evt.getFlags() == Event::Button2){ // Circle
+						
 					}
 					
-					if( evt.getFlags() == Event::Button5){
-						testSound = env->createSound("test");
-						testSound->loadFromFile("/flower_duet_mono.wav");
+					if( evt.getFlags() == Event::Button5){ // L1
+						SoundInstance* gun = new SoundInstance(instantSound);
+						gun->play();		
 					}
 
 					if( evt.getFlags() == Event::ButtonRight){
-						soundInstance = new SoundInstance(testSound);
-						soundInstance->play();						
+						//soundInstance = new SoundInstance(backgroundMusic);
+						//soundInstance->play();
+						
+						// Short version of above
+						soundInstance = backgroundMusic->play();
+
+						instanceCreated = true;
 					}
 					if( evt.getFlags() == Event::ButtonLeft){
 						soundInstance->pause();
@@ -87,8 +126,10 @@ public:
 					//printf("%d \n", evt.getFlags() );
 				}
 				
-				if( volume > 0 )
+				if( instanceCreated && volume > 0 ){
 					printf("Volume: %f \n", volume);
+					soundInstance->setVolume(volume);
+				}
 
 				float zeroTolerence = 0.008f;
 				if( (leftRightAnalog > zeroTolerence || leftRightAnalog < -zeroTolerence) &&
@@ -103,11 +144,8 @@ public:
 		}
 		return false;
 	}
-private:
-	SoundManager* soundManager;
-	Sound* testSound;
-	SoundInstance* soundInstance;
-	SoundEnvironment* env;
+
+	
 private:
 	Vector3f position;
 	float volume;

@@ -35,6 +35,7 @@ namespace omicron
 {
 
 class SoundManager;
+class SoundInstance;
 
 class OMICRON_API Sound
 {
@@ -52,6 +53,8 @@ public:
 	// Temp?
 	void setSoundManager(SoundManager*);
 	SoundManager* getSoundManager();
+
+	SoundInstance* play();
 private:
 
 public:
@@ -61,7 +64,7 @@ private:
 	int bufferID;
 	float duration;
 	float volumeScale;
-	
+
 	// Temp?
 	static SoundManager* manager;
 };// Sound
@@ -84,11 +87,13 @@ public:
 	void setEnvironmentSound(bool);
 	void setVolume(float);
 	float getVolume();
+	
+	int getID();
 
 	// Temp?
 	void setSoundManager(SoundManager*);
 private:
-	int getID();
+	
 public:
 private:
 	Sound* sound;
