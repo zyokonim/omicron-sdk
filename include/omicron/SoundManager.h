@@ -32,12 +32,14 @@
 #include "Sound.h"
 
 using namespace oscpkt;
+using namespace std;
 
 namespace omicron
 {
 
 class SoundManager;
 class Sound;
+class SoundInstance;
 
 class OMICRON_API SoundEnvironment
 {
@@ -47,9 +49,13 @@ public:
 	float getVolume();
 
 	Sound* createSound(char*);
+	SoundInstance* createInstance(Sound*);
+	SoundInstance* getSoundInstance(int);
 private:
 	static SoundManager* soundManager;
 	static float globalVolume;
+	map<int,Sound*> soundList;
+	map<int,SoundInstance*> soundInstanceList;
 };// SoundEnvironment
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,8 +63,9 @@ class OMICRON_API SoundManager
 {
 public:
 	SoundManager();
+	SoundManager(char*, int);
 	void connectToServer(char*, int);
-	bool isConnected();
+	bool isSoundServerRunning();
 	SoundEnvironment* getSoundEnvironment();
 	void setEnvironment(SoundEnvironment*);
 	Vector3f getListenerPosition();

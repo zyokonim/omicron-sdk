@@ -39,6 +39,13 @@ SoundManager::SoundManager()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SoundManager::SoundManager(char* serverIP, int serverPort)
+{
+	environment = new SoundEnvironment(this);
+	connectToServer(serverIP, serverPort);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundManager::connectToServer(char* serverIP, int serverPort)
 {
 	// Create socket and connect to OSC server
@@ -55,6 +62,9 @@ void SoundManager::startSoundServer()
 {
 	Message msg("/startServer");
 	sendOSCMessage(msg);
+
+	Message msg2("/loadSynth");
+	sendOSCMessage(msg2);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,9 +75,14 @@ void SoundManager::stopSoundServer()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool SoundManager::isConnected()
+bool SoundManager::isSoundServerRunning()
 {
-	return serverSocket.isOk();
+	printf( "%s: Not yet implemented\n", __FUNCTION__);
+
+	// Message the server and inquire if the sound server is running
+	serverSocket.receiveNextPacket(-1); // Paramater is timeout in milliseconds. -1 (default) will wait indefinatly 
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,10 +131,23 @@ SoundEnvironment::SoundEnvironment(SoundManager* soundManager)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Sound* SoundEnvironment::createSound(char* soundName)
 {
+	printf( "%s: Not fully implemented\n", __FUNCTION__);
 	Sound* newSound = new Sound(soundName);
 	newSound->setSoundManager(soundManager);
 
-	Message msg("/loadSynth");
-	soundManager->sendOSCMessage(msg);
+	soundList[newSound->getBufferID()] = newSound;
+
 	return newSound;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SoundInstance* SoundEnvironment::createInstance(Sound* sound)
+{
+	printf( "%s: Not fully implemented\n", __FUNCTION__);
+
+	SoundInstance* newInstance = new SoundInstance(sound);
+
+	soundInstanceList[newInstance->getID()] = newInstance;
+
+	return newInstance;
 }
