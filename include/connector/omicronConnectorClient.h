@@ -151,7 +151,8 @@ namespace omicron
 			ServiceTypeWand, 
 			ServiceTypeAudio }; 
 
-		//! Supported event types.
+		//! #PYAPI Supported event types.
+		//! The python API exposed this enum in the EventType object.
 		enum Type 
 		{ 
 			//! Select: generated when the source of the event gets selected or activated.
@@ -228,7 +229,7 @@ namespace omicron
 			//! Null: generic null value for event type.
 			Null
 		};
-		//! Defines some generic input event flags
+		//! #PYAPI Defines some generic input event flags
 		enum Flags
 		{
 			//! Used for right mouse button or equivalent events.
