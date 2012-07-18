@@ -29,10 +29,10 @@
 using namespace omicronConnector;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class ConnectorListener
+class ConnectorListener: public IOmicronConnectorClientListener
 {
 public:
-static void onEvent(const EventData& e)
+virtual void onEvent(const EventData& e)
 	{
 		if (e.type == EventData::Update) {
 			if (e.serviceType == EventData::ServiceTypeMocap)  // Mocap (head I guess
@@ -76,8 +76,9 @@ static void onEvent(const EventData& e)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-	OmicronConnectorClient<ConnectorListener> client;
-	client.connect("127.0.0.1", 28000);
+	ConnectorListener listener;
+	OmicronConnectorClient client(&listener);
+	client.connect("127.0.0.1", 27000);
 	while(true)
 	{
 		client.poll(); 
