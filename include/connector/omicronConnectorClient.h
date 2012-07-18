@@ -302,6 +302,10 @@ namespace omicronConnector
 {
 #ifndef OMICRON_EVENTDATA_DEFINED
 #define OMICRON_EVENTDATA_DEFINED
+
+	#define OFLOAT_PTR(x) *((float*)&x)
+	#define OINT_PTR(x) *((int*)&x)
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	struct EventData: public omicron::EventBase
 	{
@@ -324,6 +328,35 @@ namespace omicronConnector
 		unsigned int extraDataItems;
 		unsigned int extraDataMask;
 		unsigned char extraData[ExtraDataSize];
+
+		bool getExtraDataVector3(int index, float* data) const
+		{
+			if(extraDataType != ExtraDataVector3Array) return false;
+			if(index >= extraDataItems) return false;
+
+			int offset = index * 3 * 4;
+			data[0] = OFLOAT_PTR(extraData[offset]);
+			data[1] = OFLOAT_PTR(extraData[offset + 4]);
+			data[2] = OFLOAT_PTR(extraData[offset + 8]);
+
+			return true;
+		}
+		///////////////////////////////////////////////////////////////////////////////////////////////
+		inline float getExtraDataFloat(int index) const
+		{
+			if(extraDataType != ExtraDataFloatArray) return false;
+			if(index >= extraDataItems) return false;
+
+			return OFLOAT_PTR(extraData[index * 4]);
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////
+		inline int getExtraDataInt(int index) const
+		{
+			if(extraDataType != ExtraDataIntArray) return false;
+			if(index >= extraDataItems) return false;
+			return OINT_PTR(extraData[index * 4]);
+		}
 	};
 #endif
 
@@ -333,10 +366,20 @@ namespace omicronConnector
 #ifndef OMICRON_CONNECTORCLIENT_DEFINED
 #define OMICRON_CONNECTORCLIENT_DEFINED
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename ListenerType>
+	class IOmicronConnectorClientListener
+	{
+	public:
+		virtual void onEvent(const EventData& e) = 0;
+	};
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	//template<typename ListenerType>
 	class OmicronConnectorClient
 	{
 	public:
+		OmicronConnectorClient(IOmicronConnectorClientListener* clistener): listener(clistener)
+		{}
+
 		void connect(const char* server, int port = 27000, int dataPort = 7000);
 		void poll();
 		void dispose();
@@ -347,7 +390,7 @@ namespace omicronConnector
 		void parseDGram(int);
 
 	private:
-		typedef ListenerType Listener;
+		//typedef ListenerType Listener;
 
 	#ifdef OMICRON_OS_WIN	
 		WSADATA wsaData;
@@ -369,11 +412,13 @@ namespace omicronConnector
 		int SenderAddrSize;
 		int recvbuflen;
 		bool readyToReceive;
+
+		IOmicronConnectorClientListener* listener;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename ListenerType>
-	inline void OmicronConnectorClient<ListenerType>::connect(const char* server, int port, int pdataPort) 
+	//template<typename ListenerType>
+	inline void OmicronConnectorClient::connect(const char* server, int port, int pdataPort) 
 	{
 		serverAddress = server;
 		serverPort = port;
@@ -424,8 +469,8 @@ namespace omicronConnector
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename ListenerType>
-	inline void OmicronConnectorClient<ListenerType>::initHandshake() 
+	//template<typename ListenerType>
+	inline void OmicronConnectorClient::initHandshake() 
 	{
 		char sendbuf[50];
 		sprintf(sendbuf, "data_on,%d", dataPort);
@@ -454,8 +499,8 @@ namespace omicronConnector
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename ListenerType>
-	inline void OmicronConnectorClient<ListenerType>::poll()
+	//template<typename ListenerType>
+	inline void OmicronConnectorClient::poll()
 	{
 		if(readyToReceive)
 		{
@@ -485,8 +530,8 @@ namespace omicronConnector
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename ListenerType>
-	inline void OmicronConnectorClient<ListenerType>::dispose() 
+	//template<typename ListenerType>
+	inline void OmicronConnectorClient::dispose() 
 	{
 		// Close the socket when finished receiving datagrams
 		printf("NetService: Finished receiving. Closing socket.\n");
@@ -501,8 +546,8 @@ namespace omicronConnector
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename ListenerType>
-	inline void OmicronConnectorClient<ListenerType>::parseDGram(int result)
+	//template<typename ListenerType>
+	inline void OmicronConnectorClient::parseDGram(int result)
 	{
 		result = recvfrom(RecvSocket, 
 			recvbuf,
@@ -537,7 +582,7 @@ namespace omicronConnector
 			OI_READBUF(unsigned int, eventPacket, offset, ed.extraDataMask); 
 			memcpy(ed.extraData, &eventPacket[offset], EventData::ExtraDataSize);
 
-			ListenerType::onEvent(ed);
+			listener->onEvent(ed);
 		} 
 		else 
 		{
