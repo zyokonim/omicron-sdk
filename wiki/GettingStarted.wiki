@@ -67,23 +67,18 @@ if you want to use omicron-supported input devices in the easiest way possible, 
 
 The following is an example of code using omicronConnector:
 {{{
-	#include <connector/omicronConnectorClient.h>
-
-	using namespace omicronConnector;
-
-	class ConnectorListener
+	class ConnectorListener: public IOmicronConnectorClientListener
 	{
 	public:
-		static void onEvent(const EventData& e)
-		{
-			// Do stuff with the event...
-		}
+		virtual void onEvent(const EventData& e)
+		{ printf("event received\n"); }
 	};
 
 	int main(int argc, char** argv)
 	{
-		OmicronConnectorClient<ConnectorListener> client;
-		client.connect("127.0.0.1", 28000);
+		ConnectorListener listener;
+		OmicronConnectorClient client(&listener);
+		client.connect("127.0.0.1", 27000);
 		while(true)
 		{
 			client.poll(); 
