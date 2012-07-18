@@ -30,21 +30,20 @@
 
 #include "omicron/osystem.h"
 #include "omicron/ServiceManager.h"
-
 #include "connector/omicronConnectorClient.h"
 
 namespace omicron
 {
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	class NetService: public Service
+	class NetService: public Service, omicronConnector::IOmicronConnectorClientListener
 	{
 	public:
 		// Allocator function
 		NetService();
 		static NetService* New() { return new NetService(); }
-		static void onEvent(const omicronConnector::EventData& ed);
 
 	public:
+		virtual void onEvent(const omicronConnector::EventData& ed);
 		virtual void setup(Setting& settings);
 		virtual void initialize();
 		virtual void poll();
@@ -55,7 +54,7 @@ namespace omicron
 	private:
 		static NetService* mysInstance;
 
-		omicronConnector::OmicronConnectorClient<NetService> myClient;
+		omicronConnector::OmicronConnectorClient* myClient;
 
 		String serverAddress;
 		int serverPort;
