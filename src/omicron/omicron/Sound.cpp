@@ -142,6 +142,18 @@ void SoundInstance::play()
 	Message msg("/play");
 	msg.pushInt32(instanceID);
 	msg.pushInt32(sound->getBufferID());
+
+	msg.pushFloat(volume);
+
+	msg.pushFloat( position[0] );
+	msg.pushFloat( position[1] );
+	msg.pushFloat( position[2] );
+	
+	Vector3f audioListener = soundManager->getListenerPosition();
+	msg.pushFloat( audioListener[0] );
+	msg.pushFloat( audioListener[1] );
+	msg.pushFloat( audioListener[2] );
+
 	soundManager->sendOSCMessage(msg);
 }
 
@@ -171,6 +183,15 @@ bool SoundInstance::isPlaying()
 void SoundInstance::setPosition(Vector3f pos)
 {
 	position = pos;
+
+	Message msg("/setObjectLoc");
+	msg.pushInt32(instanceID);
+
+	msg.pushFloat( position[0] );
+	msg.pushFloat( position[1] );
+	msg.pushFloat( position[2] );
+
+	soundManager->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
