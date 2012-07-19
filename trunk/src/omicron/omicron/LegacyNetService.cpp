@@ -560,7 +560,7 @@ void LegacyNetService::parseDGram(int result)
 				evt->reset(Event::Update, Service::Mocap, (int)(params[0] + 0.5));
 
 				evt->setExtraDataType(Event::ExtraDataIntArray);
-				evt->setExtraDataInt(0, params[1] );
+				evt->setExtraDataInt(1, params[1] );
 
 				evt->setPosition(params[2], params[3], params[4]);
 

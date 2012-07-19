@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <time.h>
+
 using namespace omicron;
 
 
@@ -133,6 +134,8 @@ public:
 		
 		vrpnDevice->update(evt);
 		
+		ofmsg("SourceID %2% pos(%1%)", %evt.getPosition() %evt.getSourceId() );
+
 		int offset = 0;
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 
@@ -464,6 +467,7 @@ void main(int argc, char** argv)
 		app.startListening();
 
 		// Get events
+		/*
 		int av = sm->getAvailableEvents();
 		if(av != 0)
 		{
@@ -477,6 +481,7 @@ void main(int argc, char** argv)
 			//if( printOutput )
 			//	printf("------------------------------------------------------------------------------\n");
 		}
+		*/
 	}
 
 	sm->stop();

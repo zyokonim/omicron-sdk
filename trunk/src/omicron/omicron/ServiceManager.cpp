@@ -32,6 +32,7 @@
 #include "omicron/BasicPortholeService.h"
 #include "omicron/WandService.h"
 #include "omicron/SagePointerService.h"
+#include "omicron/GestureService.h"
 
 // NOTE: OSCService needs to be included before NetService to avoid template
 // errors within osc/udp.h
@@ -105,6 +106,7 @@ void ServiceManager::registerDefaultServices()
 	registerService("BasicPortholeService", (ServiceAllocator)BasicPortholeService::New);
 	registerService("WandService", (ServiceAllocator)WandService::New);
 	registerService("SagePointerService", (ServiceAllocator)SagePointerService::New);
+	registerService("GestureService", (ServiceAllocator)GestureService::New);
 
 #ifdef OMICRON_USE_DIRECTINPUT
 	registerService("DirectXInputService", (ServiceAllocator)DirectXInputService::New);
