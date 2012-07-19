@@ -44,7 +44,7 @@ void LegacyNetService::setup(Setting& settings)
 	}
 	if(settings.exists("msgPort"))
 	{
-		serverPort = settings["msgPort"];
+		msgPort = settings["msgPort"];
 	}
 	if(settings.exists("dataPort"))
 	{
@@ -91,12 +91,12 @@ void LegacyNetService::initialize()
 
 	// Resolve the local address and port to be used by the server
 	char charBuf[32];
-	iResult = getaddrinfo(serverAddress, itoa(serverPort,charBuf,10), &hints, &result);
+	iResult = getaddrinfo(serverAddress, itoa(msgPort,charBuf,10), &hints, &result);
 	if (iResult != 0) {
 		printf("LegacyNetService: getaddrinfo failed: %d\n", iResult);
 		WSACleanup();
 	} else {
-		printf("LegacyNetService: Client set to connect to address %s on port %d\n", serverAddress, serverPort);
+		printf("LegacyNetService: Client set to connect to address %s on port %d\n", serverAddress, msgPort);
 	}
 
 	// Create connection socket
@@ -154,7 +154,7 @@ void LegacyNetService::initialize()
 
 	// Get the server address
 	char charBuf[32];
-	sprintf(charBuf,"%d", serverPort);
+	sprintf(charBuf,"%d", msgPort);
 	iResult = getaddrinfo(serverAddress, charBuf, &hints, &res);
 
 	// Generate the socket
@@ -164,10 +164,10 @@ void LegacyNetService::initialize()
 	int result = connect(ConnectSocket, res->ai_addr, res->ai_addrlen);
 
 	if (result == -1) {
-		printf("LegacyNetService: Unable to connect to server '%s' on port '%s': %s\n", serverAddress, serverPort, strerror(errno));
+		printf("LegacyNetService: Unable to connect to server '%s' on port '%s': %s\n", serverAddress, msgPort, strerror(errno));
 		return;
 	} else {
-		printf("LegacyNetService: Connected to server '%s' on port '%s'!\n", serverAddress, serverPort);
+		printf("LegacyNetService: Connected to server '%s' on port '%s'!\n", serverAddress, msgPort);
 	}
 #endif
 	initHandshake();
@@ -183,7 +183,7 @@ void LegacyNetService::initHandshake()
 	char portBuf[32];
 	sendbuf[0] = '\0';
 
-	sprintf( sendbuf, "data_on,%d", serverPort );
+	sprintf( sendbuf, "omega_legacy_data_on,%d", dataPort );
 
 	printf("LegacyNetService: Sending handshake: '%s'\n", sendbuf);
 
@@ -554,11 +554,18 @@ void LegacyNetService::parseDGram(int result)
 				evt->reset(Event::Update, Service::Generic, (int)(params[0] + 0.5));
 				break;
 			case(Service::Mocap): // MoCap
+				// Note: This uses an updated MoCap datagram (additional user field for Kinect)
+				// 'MocapSevice:JointID,UserID,xPos,yPos,zPos,xRot,yRot,zRot,wRot '
 				evt = mysInstance->writeHead();
-				evt->reset(Event::Move, Service::Mocap, (int)(params[0] + 0.5));
-				evt->setPosition(params[1], params[2], params[3]);
+				evt->reset(Event::Update, Service::Mocap, (int)(params[0] + 0.5));
 
-				evt->setOrientation(params[7], params[4], params[5], params[6]);
+				evt->setExtraDataType(Event::ExtraDataFloatArray);
+				evt->setExtraDataFloat(0, params[1] );
+
+				evt->setPosition(params[2], params[3], params[4]);
+
+				evt->setOrientation(params[8], params[5], params[6], params[7]);
+
 				break;
 			case(Service::Pointer): // Touch (points only not gestures)
 				evt = mysInstance->writeHead();
@@ -671,9 +678,9 @@ void LegacyNetService::parseDGram(int result)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void LegacyNetService::setServer(const char* address, int port) 
 {
-	printf("Server set to '%s' on port '%d'\n", address, port);
+	printf("Server set to '%s' on message port '%d'\n", address, port);
 	serverAddress = address;
-	serverPort = port;
+	msgPort = port;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

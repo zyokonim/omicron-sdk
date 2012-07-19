@@ -103,7 +103,7 @@ private:
 	sockaddr_in SenderAddr;
 
 	const char* serverAddress;
-	int serverPort;
+	int msgPort;
 	int dataPort;
 	float touchTimeout;
 
