@@ -1,5 +1,5 @@
 /**************************************************************************************************
- * THE OMICRON PROJECT
+* THE OMICRON PROJECT
  *-------------------------------------------------------------------------------------------------
  * Copyright 2010-2012		Electronic Visualization Laboratory, University of Illinois at Chicago
  * Authors:										
@@ -24,58 +24,35 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-#ifndef __MOCAP_GESTURE_MANAGER_H__
-#define __MOCAP_GESTURE_MANAGER_H__
+#ifndef __GESTURE_SERVICE_H__
+#define __GESTURE_SERVICE_H__
 
-#include "osystem.h"
-#include "ServiceManager.h"
-#include <set>
+#include "omicron/osystem.h"
+#include "omicron/ServiceManager.h"
+#include "omicron/MocapGestureManager.h"
 
-using namespace std;
-
-namespace omicron {
-	class GestureService;
-
-	struct Joint{
-		int ID; // Trackable / Joint ID
-		int userID;
-		Vector3f position;
-		Quaternion orientation;
-
-		Vector3f lastPosition;
-		Quaternion lastOrientation;
-	};
-
-	struct MocapUser{
-		int userID;
-
-		// Convient access to user's head
-		Vector3f position;
-		Quaternion orientation;
-
-		map<int,Joint> joints;
-
-		Joint head;
-		Joint leftHand;
-		Joint rightHand;
-	};
-
-	class MocapGestureManager : public Service
+namespace omicron
+{
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	class GestureService: public Service
 	{
+	public:
+		// Allocator function
+		GestureService();
+		static GestureService* New() { return new GestureService(); }
 
 	public:
-		MocapGestureManager( Service* );
+		virtual void onEvent(const omicronConnector::EventData& ed);
+		virtual void setup(Setting& settings);
+		virtual void initialize();
+		virtual void poll();
+		virtual void dispose();
 
-		void poll();
-
-		void processEvent(const Event& e);
-		void generateGesture( Event::Type, int jointID, int userID, Vector3f position );
 	private:
-		Service* gestureService;
-		map<int,MocapUser> userList;
-
-		float lastClickTime;
+		static GestureService* mysInstance;
+		MocapGestureManager* mocapManager;
 	};
-}
+
+};
 
 #endif

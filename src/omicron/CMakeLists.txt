@@ -51,7 +51,8 @@ SET( srcs
 		omicron/Timer.cpp
 		omicron/TouchGestureManager.cpp
 		omicron/MocapGestureManager.cpp
-
+		omicron/GestureService.cpp
+		
 		#omega::xml
 		omicron/xml/tinystr.cpp
 		omicron/xml/tinyxml.cpp
@@ -100,6 +101,7 @@ SET( headers
         ${CMAKE_SOURCE_DIR}/include/omicron/Timer.h
         ${CMAKE_SOURCE_DIR}/include/omicron/TouchGestureManager.h
 		${CMAKE_SOURCE_DIR}/include/omicron/MocapGestureManager.h
+		${CMAKE_SOURCE_DIR}/include/omicron/GestureService.h
 		
 		# eigenwrap
         ${CMAKE_SOURCE_DIR}/include/omicron/math/EigenWrappers.h
