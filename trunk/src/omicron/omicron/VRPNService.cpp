@@ -111,6 +111,7 @@ void VRPNService::initialize()
 	printf("VRPNService: Initialize\n");
 	mysInstance = this;
 
+
 	for(int i = 0; i < trackerNames.size(); i++)
 	{
 		TrackerInfo& t = trackerNames[i];

@@ -79,6 +79,7 @@ private:
 	static SoundEnvironment* environment;
 	static UdpSocket serverSocket;
 	
+	static Vector3f listenerPosition;
 };// SoundManager
 
 }; // namespace omicron

@@ -30,11 +30,54 @@
 #include <time.h>
 using namespace omicron;
 
-#ifdef WIN32
-#include <ws2tcpip.h>
-#include <winsock2.h>
-#define itoa _itoa
-#endif
+
+	#ifdef WIN32
+		#define OMICRON_OS_WIN
+		#pragma comment(lib, "Ws2_32.lib")
+	#endif
+
+	#include <stdio.h>
+	#ifdef OMICRON_OS_WIN
+		#include <winsock2.h>
+		#include <ws2tcpip.h>
+
+		// VRPN Server (for CalVR)
+		#include "omicron/vrpn/vrpn_tracker.h"
+		#include "omicron/VRPNDevice.h"
+	#else
+		#include <stdlib.h>
+		#include <string.h>
+		#include <netdb.h>
+		#include <sys/types.h>
+		#include <netinet/in.h>
+		#include <sys/socket.h>
+		#include <arpa/inet.h>
+		#include <errno.h>
+		#include <unistd.h> // needed for close()
+		#include <string>
+	#endif
+
+	#ifdef OMICRON_OS_WIN     
+		#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %d\n", WSAGetLastError());
+		#define SOCKET_CLOSE(sock) closesocket(sock);
+		#define SOCKET_CLEANUP() WSACleanup();
+		#define SOCKET_INIT() \
+			int iResult;    \
+			iResult = WSAStartup(MAKEWORD(2,2), &wsaData); \
+			if (iResult != 0) { \
+				printf("NetService: WSAStartup failed: %d\n", iResult); \
+				return; \
+			} else { \
+				printf("NetService: Winsock initialized \n"); \
+			}
+
+	#else
+		#define SOCKET_CLOSE(sock) close(sock);
+		#define SOCKET_CLEANUP()
+		#define SOCKET_INIT()
+		#define SOCKET int
+		#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %s\n", strerror(errno));
+	#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Based on Winsock UDP Server Example:
@@ -87,7 +130,9 @@ public:
 	{
 		// If the event has been processed locally (i.e. by a filter event service)
 		if(evt.isProcessed()) return;
-
+		
+		vrpnDevice->update(evt);
+		
 		int offset = 0;
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 
@@ -123,6 +168,8 @@ public:
 	void startConnection(Config* cfg);
 	SOCKET startListening();
 
+	// VRPN Server (for CalVR)
+	void loop();
 private:
 	void createClient(const char*,int);
 
@@ -139,6 +186,11 @@ private:
 	
 	// Collection of unique clients (IP/port combinations)
 	std::map<char*,NetClient*> netClients;
+
+	// VRPN Server (for CalVR)
+	vrpn_XInputGamepad	*vrpnDevice;
+	vrpn_Tracker_Remote	*tkr;
+	vrpn_Connection		*connection;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,6 +201,15 @@ void OInputServer::startConnection(Config* cfg)
 	ListenSocket = INVALID_SOCKET;
 	recvbuflen = DEFAULT_BUFLEN;
 	int iResult;
+	
+	// VRPN Server Test ///////////////////////////////////////////////
+	const char	*TRACKER_NAME = "Device0";
+	int	CONNECTION_PORT = vrpn_DEFAULT_LISTEN_PORT_NO;	// Port for connection to listen on
+
+	// explicitly open the connection
+	connection = vrpn_create_server_connection(CONNECTION_PORT);
+	vrpnDevice = new vrpn_XInputGamepad(TRACKER_NAME, connection, 1);
+	///////////////////////////////////////////////////////////////////
 
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
@@ -329,6 +390,13 @@ SOCKET OInputServer::startListening()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void OInputServer::loop()
+{
+	// VRPN connection
+	connection->mainloop();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void OInputServer::createClient(const char* clientAddress, int dataPort)
 {
 	// Generate a unique name for client "address:port"
@@ -390,6 +458,7 @@ void main(int argc, char** argv)
 			Sleep(1000.0*delay); // Delay sending of data out
 
 		sm->poll();
+		app.loop();
 
 		// Start listening for clients (non-blocking)
 		app.startListening();

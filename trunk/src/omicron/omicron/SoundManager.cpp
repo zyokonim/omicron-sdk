@@ -31,6 +31,7 @@ using namespace oscpkt;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 UdpSocket SoundManager::serverSocket;
 SoundEnvironment* SoundManager::environment;
+Vector3f SoundManager::listenerPosition;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundManager::SoundManager()
@@ -41,6 +42,7 @@ SoundManager::SoundManager()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundManager::SoundManager(char* serverIP, int serverPort)
 {
+	listenerPosition = Vector3f(0,0,0);
 	environment = new SoundEnvironment(this);
 	connectToServer(serverIP, serverPort);
 }
@@ -80,7 +82,7 @@ bool SoundManager::isSoundServerRunning()
 	printf( "%s: Not yet implemented\n", __FUNCTION__);
 
 	// Message the server and inquire if the sound server is running
-	serverSocket.receiveNextPacket(-1); // Paramater is timeout in milliseconds. -1 (default) will wait indefinatly 
+	serverSocket.receiveNextPacket(1000); // Paramater is timeout in milliseconds. -1 (default) will wait indefinatly 
 
 	return true;
 }
@@ -100,14 +102,21 @@ void SoundManager::setEnvironment(SoundEnvironment* newEnv)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Vector3f SoundManager::getListenerPosition()
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
-	return Vector3f(0,0,0);
+	return listenerPosition;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SoundManager::setListenerPosition(Vector3f)
+void SoundManager::setListenerPosition(Vector3f newPos)
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	listenerPosition = newPos;
+
+	Message msg("/setListLoc");
+
+	msg.pushFloat( listenerPosition[0] );
+	msg.pushFloat( listenerPosition[1] );
+	msg.pushFloat( listenerPosition[2] );
+
+	sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

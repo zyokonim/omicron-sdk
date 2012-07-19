@@ -50,6 +50,7 @@ SET( srcs
 		omicron/SagePointerService.cpp
 		omicron/Timer.cpp
 		omicron/TouchGestureManager.cpp
+		omicron/MocapGestureManager.cpp
 
 		#omega::xml
 		omicron/xml/tinystr.cpp
@@ -98,6 +99,7 @@ SET( headers
         ${CMAKE_SOURCE_DIR}/include/omicron/SagePointerService.h
         ${CMAKE_SOURCE_DIR}/include/omicron/Timer.h
         ${CMAKE_SOURCE_DIR}/include/omicron/TouchGestureManager.h
+		${CMAKE_SOURCE_DIR}/include/omicron/MocapGestureManager.h
 		
 		# eigenwrap
         ${CMAKE_SOURCE_DIR}/include/omicron/math/EigenWrappers.h
@@ -204,8 +206,11 @@ endif()
 if(WIN32)
 	set(OMICRON_USE_VRPN true CACHE BOOL "Enable/disable VRPN Client support")
 	if(OMICRON_USE_VRPN)
-		set( srcs	 ${srcs} omicron/VRPNService.cpp )
+		set( srcs	 ${srcs} omicron/VRPNService.cpp
+					 ${srcs} omicron/VRPNDevice.cpp
+			)
 		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/VRPNService.h
+					 ${CMAKE_SOURCE_DIR}/include/omicron/VRPNDevice.h
 					 ${CMAKE_SOURCE_DIR}/include/omicron/vrpn/vrpn_BaseClass.h
 					 ${CMAKE_SOURCE_DIR}/include/omicron/vrpn/vrpn_Configure.h
 					 ${CMAKE_SOURCE_DIR}/include/omicron/vrpn/vrpn_Connection.h
@@ -215,6 +220,7 @@ if(WIN32)
 					 
 			)
 		include_directories( ${CMAKE_SOURCE_DIR}/include/omicron/VRPNService.h
+							 ${CMAKE_SOURCE_DIR}/include/omicron/VRPNDevice.h
 							 ${CMAKE_SOURCE_DIR}/include/omicron/vrpn
 			)
 	endif()
