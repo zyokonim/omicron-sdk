@@ -34,9 +34,18 @@ class ConnectorListener: public IOmicronConnectorClientListener
 public:
 virtual void onEvent(const EventData& e)
 	{
-		if (e.type == EventData::Update) {
+		if (e.type == EventData::Trace) 
+		{
+			fprintf(stderr, "TRACE source %d\n", e.sourceId);
+		}
+		else if (e.type == EventData::Untrace) 
+		{
+			fprintf(stderr, "UNTRACE source %d\n", e.sourceId);
+		}
+		else if (e.type == EventData::Update) 
+		{
 			if (e.serviceType == EventData::ServiceTypeMocap)  // Mocap (head I guess
-				fprintf(stderr, "HEAD source %d type %d service %d type %d\n",
+				fprintf(stderr, "MOCAP source %d type %d service %d type %d\n",
 					e.sourceId, e.type, e.serviceId);
 			if (e.serviceType == EventData::ServiceTypeWand)  // Wand
 				fprintf(stderr, "Wand source %d type %d service %d type %d\n",
@@ -48,10 +57,22 @@ virtual void onEvent(const EventData& e)
 			fprintf(stderr, "      extra items: %d\n", e.extraDataItems);
 			fprintf(stderr, "      extra mask: %d\n", e.extraDataMask);
 			if (e.extraDataItems) {
-				if (e.extraDataType == 1) { //array of floats
+				if (e.extraDataType == EventData::ExtraDataFloatArray) 
+				{ //array of floats
 					float *ptr = (float*)(e.extraData);
-					for (int k=0;k<e.extraDataItems;k++) {
+					for (int k=0;k<e.extraDataItems;k++) 
+					{
 						fprintf(stderr, "      val %2d: [%6.3f]\n", k, ptr[k]);
+					}
+				}
+				else if (e.extraDataType == EventData::ExtraDataVector3Array) 
+				{ //array of floats
+					float val[3];
+					//float *ptr = (float*)(e.extraData);
+					for (int k = 0; k < e.extraDataItems; k++) 
+					{
+						e.getExtraDataVector3(k, val);
+						fprintf(stderr, "      val %2d: [%6.3f, %6.3f, %6.3f]\n", k, val[0], val[1], val[2]);
 					}
 				}
 			}
@@ -69,7 +90,6 @@ virtual void onEvent(const EventData& e)
 			fprintf(stderr, "      mask: %d\n", e.extraDataMask);
 			fprintf(stderr, "-----------\n");
 		}
-
 	}
 };
 
@@ -78,7 +98,8 @@ int main(int argc, char** argv)
 {
 	ConnectorListener listener;
 	OmicronConnectorClient client(&listener);
-	client.connect("127.0.0.1", 27000);
+	client.connect("137.110.119.244", 27000);
+	//client.connect("127.0.0.1", 27000);
 	while(true)
 	{
 		client.poll(); 
