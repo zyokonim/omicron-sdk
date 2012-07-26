@@ -37,6 +37,7 @@ SET( srcs
 		omicron/Color.cpp
 		omicron/Config.cpp
 		omicron/Lock.cpp
+		omicron/Math.cpp
 		omicron/ServiceManager.cpp
 		omicron/Service.cpp
 		omicron/HeartbeatService.cpp

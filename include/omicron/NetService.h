@@ -28,9 +28,9 @@
 #ifndef __NET_SERVICE_H__
 #define __NET_SERVICE_H__
 
+#include "connector/omicronConnectorClient.h"
 #include "omicron/osystem.h"
 #include "omicron/ServiceManager.h"
-#include "connector/omicronConnectorClient.h"
 
 namespace omicron
 {

@@ -38,143 +38,25 @@
 
 // Define a set of lightweight wrappers around Eigen datatypes used inside omegalib
 // wrappers use low-case names to avoid clashes with their Eigen base classes.
-namespace omicron { namespace math 
-{
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	template< size_t M, typename T = float >
-	class vector: public Eigen::Matrix<T, M, 1>
-	{
-	public:
-		typedef Eigen::Matrix<T, M, 1> Base;
+namespace omicron {  
+	// Typedef for real numbers. swithing this we can change precision of most math types and functions.
+	typedef float real;
 
-		vector(): Base() {}
+	typedef Eigen::Matrix<real, 3, 3>  Matrix3f; //!< A 3x3 float matrix
+	typedef Eigen::Matrix<real, 4, 4>  Matrix4f; //!< A 3x3 float matrix
+	typedef Eigen::Matrix<real, 3, Eigen::Dynamic>  Vectors3f; //!< A 3x3 float matrix
+	typedef Eigen::Matrix<real, 2, 1> Vector2f; //!< A two-component float vector
+	typedef Eigen::Matrix<real, 3, 1> Vector3f; //!< A three-component float vector
+	typedef Eigen::Matrix<real, 4, 1> Vector4f; //!< A four-component float vector
+	typedef Eigen::Matrix<int, 2, 1> Vector2i; //!< A four-component int vector
+	typedef Eigen::Matrix<int, 3, 1> Vector3i; //!< A four-component int vector
+	typedef Eigen::Matrix<int, 4, 1> Vector4i; //!< A four-component int vector
+	typedef Eigen::Quaternion<real> Quaternion; //! A floating point quaternion
+	typedef Eigen::Matrix<unsigned int, 3, 1>     Triangle;
+	typedef Eigen::AngleAxis<real> AngleAxis;
+	typedef Eigen::Transform<real, 3, Eigen::Projective, 0> Transform3;
+	typedef Eigen::Transform<real, 3, Eigen::Affine, 0> AffineTransform3;
 
-		template< typename OtherDerived > 
-		vector(const Eigen::EigenBase< OtherDerived > &other): Base(other) {}
-
-		vector(const T &x, const T &y): Base(x, y) {}
-
-		vector(const T &x, const T &y, const T &z): Base(x, y, z) {}
-
-		template< typename OtherDerived, int ColsAtCompileTime >
-		vector(const Eigen::RotationBase< OtherDerived, ColsAtCompileTime > &r): Base(r) {}
-
-		template<typename OtherDerived >
-		vector(const Eigen::ReturnByValue< OtherDerived > &other): Base(other) {}
-
-		template<int N>
-		vector(const Eigen::Matrix<T, M, N> &other): Base(other) {}
-
-		template< typename OtherDerived >
-		vector(const Eigen::MatrixBase< OtherDerived > &other): Base(other) {}
-
-		vector(const T &x, const T &y, const T &z, const T &w): Base(x, y, z, w) {}
-
-		//std::ostream& operator<<(std::ostream& os)
-		//{
-		//	return os << this->format(Eigen::IOFormat(Eigen::StreamPrecision, 0, ", ", " ", "", ""));
-		//}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	template< size_t M, size_t N, typename T = float >
-	class matrix: public Eigen::Matrix<T, M, N>
-	{
-	public:
-		typedef Eigen::Matrix<T, M, N> Base;
-
-		matrix(): Base() {}
-
-		template< typename OtherDerived > 
-		matrix(const Eigen::EigenBase< OtherDerived > &other): Base(other) {}
-
-		//matrix(const T &x, const T &y): Matrix(x, y) {}
-
-		//matrix(const T &x, const T &y, const T &z): Matrix (x, y, z) {}
-
-		template< typename OtherDerived, size_t ColsAtCompileTime>
-		matrix(const Eigen::RotationBase< OtherDerived, ColsAtCompileTime > &r): Base (r) {}
-
-		template<typename OtherDerived >
-		matrix(const Eigen::ReturnByValue< OtherDerived > &other): Base(other) {}
-
-		matrix(const Base&other): Base (other) {}
-
-		template< typename OtherDerived >
-		matrix(const Eigen::MatrixBase< OtherDerived > &other): Base(other) {}
-
-		matrix(const T &x, const T &y, const T &z, const T &w): Base (x, y, z, w) {}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	template< int Dim, typename T = float, int Mode = Eigen::Projective, int Options = 0 >
-	class transform: public Eigen::Transform<T, Dim, Mode, Options>
-	{
-	public:
-		typedef Eigen::Transform<T, Dim, Mode, Options> Base;
-
-		transform(): Base() {}
-
-		template<typename OtherDerived >
-		transform(const Eigen::EigenBase< OtherDerived > &other): Base (other) {}
-
-		template<typename OtherScalarType >
-		transform (const Eigen::Transform< OtherScalarType, Dim, Mode, Options > &other): Base (other) {}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	template < typename Scalar >
-	class quaternion : public Eigen::Quaternion<Scalar>
-	{
-	public:
-		typedef Eigen::Quaternion<Scalar> Base;
-
-		quaternion (const Scalar *data): Base(data) {}
-
-		template<typename Derived >	
-		quaternion (const Eigen::MatrixBase< Derived > &other): Base (other) {}
-
-		quaternion (const typename Base::AngleAxisType &aa): Base (aa) {}
-
-		quaternion (Scalar w, Scalar x, Scalar y, Scalar z): Base (w, x, y, z) {}
-
-		quaternion (): Base() {}
-
-		template<class Derived >
-		quaternion (const Eigen::QuaternionBase< Derived > &other): Base (other) {}
-
-		float getPitch()
-		{
-			float x = this->x();
-			float y = this->y();
-			float z = this->z();
-			float w = this->w();
-		  return atan2(2*(y*z + w*x), w*w - x*x - y*y + z*z);
-		}
-
-		float getYaw()
-		{
-			float x = this->x();
-			float y = this->y();
-			float z = this->z();
-			float w = this->w();
-		  return asin(-2*(x*z - w*y));
-		}
-
-		float getRoll()
-		{
-			float x = this->x();
-			float y = this->y();
-			float z = this->z();
-			float w = this->w();
-		  return atan2(2*(x*y + w*z), w*w + x*x - y*y - z*z);
-		}
-	};
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename S> vector<2, S> vector3to2(vector<3, S> in) 
-	{ return vector<2, S>(in[0], in[1]); }
-}; // namespace math
 }; //namespace omicron
 
 #endif

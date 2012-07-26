@@ -38,7 +38,7 @@
 
 #include "EigenWrappers.h"
 
-namespace omicron { namespace math {
+namespace omicron { 
        /** The "positive side" of the plane is the half space to which the
             plane normal points. The "negative side" is the other half
             space. The flag "no side" indicates the plane itself.
@@ -60,7 +60,6 @@ namespace omicron { namespace math {
             respectively), and a constant (D) which is the distance along
             the normal you have to go to move the plane back to the origin.
      */
-	template<typename T>
     class Plane
     {
     public:
@@ -69,14 +68,14 @@ namespace omicron { namespace math {
         inline Plane ();
         inline Plane (const Plane& rhs);
         /** Construct a plane through a normal, and a distance to move the plane along the normal.*/
-        inline Plane (const vector<3,T>& rkNormal, float fConstant);
+        inline Plane (const Vector3f& rkNormal, float fConstant);
 		/** Construct a plane using the 4 constants directly **/
 		inline Plane (float a, float b, float c, float d);
-        inline Plane (const vector<3,T>& rkNormal, const vector<3,T>& rkPoint);
-        inline Plane (const vector<3,T>& rkPoint0, const vector<3,T>& rkPoint1,
-            const vector<3,T>& rkPoint2);
+        inline Plane (const Vector3f& rkNormal, const Vector3f& rkPoint);
+        inline Plane (const Vector3f& rkPoint0, const Vector3f& rkPoint1,
+            const Vector3f& rkPoint2);
 
-        inline PlaneSide getSide (const vector<3,T>& rkPoint) const;
+        inline PlaneSide getSide (const Vector3f& rkPoint) const;
 
         /**
         returns the side where the aligneBox is. the flag BOTH_SIDE indicates an intersecting box.
@@ -93,7 +92,7 @@ namespace omicron { namespace math {
             NEGATIVE_SIDE if the box complete lies on the "negative side" of the plane,
             and BOTH_SIDE if the box intersects the plane.
         */
-        inline PlaneSide getSide (const vector<3,T>& centre, const vector<3,T>& halfSize) const;
+        inline PlaneSide getSide (const Vector3f& centre, const Vector3f& halfSize) const;
 
         /** This is a pseudodistance. The sign of the return value is
             positive if the point is on the positive side of the plane,
@@ -103,14 +102,14 @@ namespace omicron { namespace math {
             The absolute value of the return value is the true distance only
             when the plane normal is a unit length vector.
         */
-        inline float getDistance (const vector<3,T>& rkPoint) const;
+        inline float getDistance (const Vector3f& rkPoint) const;
 
         /** Redefine this plane based on 3 points. */
-        inline void redefine(const vector<3,T>& rkPoint0, const vector<3,T>& rkPoint1,
-            const vector<3,T>& rkPoint2);
+        inline void redefine(const Vector3f& rkPoint0, const Vector3f& rkPoint1,
+            const Vector3f& rkPoint2);
 
 		/** Redefine this plane based on a normal and a point. */
-		inline void redefine(const vector<3,T>& rkNormal, const vector<3,T>& rkPoint);
+		inline void redefine(const Vector3f& rkNormal, const Vector3f& rkPoint);
 
 		/** Project a vector onto the plane. 
 		@remarks This gives you the element of the input vector that is perpendicular 
@@ -119,7 +118,7 @@ namespace omicron { namespace math {
 			from the original vector, since parallel + perpendicular = original.
 		@param v The input vector
 		*/
-		inline vector<3,T> projectVector(const vector<3,T>& v) const;
+		inline Vector3f projectVector(const Vector3f& v) const;
 
         /** Normalises the plane.
             @remarks
@@ -132,69 +131,77 @@ namespace omicron { namespace math {
         */
         inline float normalise(void);
 
-		vector<3,T> normal;
+		Vector3f normal;
         float d;
 
         /// Comparison operator
-        bool operator==(const Plane<T>& rhs) const
+        bool operator==(const Plane& rhs) const
         {
             return (rhs.d == d && rhs.normal == normal);
         }
-        bool operator!=(const Plane<T>& rhs) const
+        bool operator!=(const Plane& rhs) const
         {
             return (rhs.d != d && rhs.normal != normal);
         }
     };
 
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-	Plane<T>::Plane ()
+	inline
+	
+	Plane::Plane ()
 	{
-		normal = vector<3,T>::Zero();
+		normal = Vector3f::Zero();
 		d = 0.0;
 	}
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-	Plane<T>::Plane (const Plane<T>& rhs)
+	inline
+	
+	Plane::Plane (const Plane& rhs)
 	{
 		normal = rhs.normal;
 		d = rhs.d;
 	}
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-	Plane<T>::Plane (const vector<3,T>& rkNormal, float fConstant)
+	inline
+	
+	Plane::Plane (const Vector3f& rkNormal, float fConstant)
 	{
 		normal = rkNormal;
 		d = -fConstant;
 	}
 	//---------------------------------------------------------------------
-	template<typename T> inline
-	Plane<T>::Plane (float a, float b, float c, float _d)
+	inline
+	
+	Plane::Plane (float a, float b, float c, float _d)
 		: normal(a, b, c), d(_d)
 	{
 	}
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-	Plane<T>::Plane (const vector<3,T>& rkNormal, const vector<3,T>& rkPoint)
+	inline
+	
+	Plane::Plane (const Vector3f& rkNormal, const Vector3f& rkPoint)
 	{
 		redefine(rkNormal, rkPoint);
 	}
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-	Plane<T>::Plane (const vector<3,T>& rkPoint0, const vector<3,T>& rkPoint1,
-		const vector<3,T>& rkPoint2)
+	inline
+	
+	Plane::Plane (const Vector3f& rkPoint0, const Vector3f& rkPoint1,
+		const Vector3f& rkPoint2)
 	{
 		redefine(rkPoint0, rkPoint1, rkPoint2);
 	}
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-	float Plane<T>::getDistance (const vector<3,T>& rkPoint) const
+	inline
+	
+	float Plane::getDistance (const Vector3f& rkPoint) const
 	{
 		return normal.dot(rkPoint) + d;
 	}
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-	PlaneSide Plane<T>::getSide (const vector<3,T>& rkPoint) const
+	inline
+	
+	PlaneSide Plane::getSide (const Vector3f& rkPoint) const
 	{
 		float fDistance = getDistance(rkPoint);
 
@@ -209,8 +216,8 @@ namespace omicron { namespace math {
 
 
 	//-----------------------------------------------------------------------
-/*	template<typename T> inline
-	typename Plane<T>::side Plane<T>::getSide (const AlignedBox3& box) const
+/*	
+	typename Plane::side Plane::getSide (const AlignedBox3& box) const
 	{
 		if (box.isNull()) 
 			return NO_SIDE;
@@ -220,8 +227,9 @@ namespace omicron { namespace math {
         return getSide(box.getCenter(), box.getHalfSize());
 	}*/
     //-----------------------------------------------------------------------
-	template<typename T> inline
-    PlaneSide Plane<T>::getSide (const vector<3,T>& centre, const vector<3,T>& halfSize) const
+	inline
+	
+    PlaneSide Plane::getSide (const Vector3f& centre, const Vector3f& halfSize) const
     {
         // Calculate the distance between box centre and the plane
         float dist = getDistance(centre);
@@ -239,25 +247,27 @@ namespace omicron { namespace math {
         return BOTH_SIDE;
     }
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-	void Plane<T>::redefine(const vector<3,T>& rkPoint0, const vector<3,T>& rkPoint1,
-		const vector<3,T>& rkPoint2)
+	inline
+	
+	void Plane::redefine(const Vector3f& rkPoint0, const Vector3f& rkPoint1,
+		const Vector3f& rkPoint2)
 	{
-		vector<3,T> kEdge1 = rkPoint1 - rkPoint0;
-		vector<3,T> kEdge2 = rkPoint2 - rkPoint0;
+		Vector3f kEdge1 = rkPoint1 - rkPoint0;
+		Vector3f kEdge2 = rkPoint2 - rkPoint0;
 		normal = kEdge1.cross(kEdge2);
 		normal.normalize();
 		d = -normal.dot(rkPoint0);
 	}
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-	void Plane<T>::redefine(const vector<3,T>& rkNormal, const vector<3,T>& rkPoint)
+	inline
+	
+	void Plane::redefine(const Vector3f& rkNormal, const Vector3f& rkPoint)
 	{
 		normal = rkNormal;
 		d = -rkNormal.dot(rkPoint);
 	}
 	//-----------------------------------------------------------------------
-	//vector<3,T> Plane<T>::projectVector(const vector<3,T>& p) const
+	//Vector3f Plane::projectVector(const Vector3f& p) const
 	//{
 	//	// We know plane normal is unit length, so use simple method
 	//	Matrix3f xform;
@@ -275,10 +285,10 @@ namespace omicron { namespace math {
 	//}
 
 	//-----------------------------------------------------------------------
-	template<typename T> inline
-    float Plane<T>::normalise(void)
+	inline
+    float Plane::normalise(void)
     {
-        float fLength = normal.length();
+		float fLength = normal.norm();
 
         // Will also work for zero-sized vectors, but will change nothing
         if (fLength > 1e-08f)
@@ -290,8 +300,6 @@ namespace omicron { namespace math {
 
         return fLength;
     }
-
-}; // namespace math
 }; //namespace omicron
 
 #endif

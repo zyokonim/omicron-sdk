@@ -33,15 +33,14 @@
 #include "Math.h"
 #include "Plane.h"
 
-namespace omicron { namespace math 
-{
+namespace omicron { 
 	/** Represents a convex volume bounded by planes.
     */
-	template<typename T>
+	
     class PlaneBoundedVolume
     {
     public:
-        typedef std::vector<Plane<T> > PlaneList;
+        typedef std::vector<Plane > PlaneList;
         /// Publicly accessible plane list, you can modify this direct
         PlaneList planes;
         PlaneSide outside;
@@ -54,21 +53,21 @@ namespace omicron { namespace math
         /** Intersection test with AABB
         @remarks May return false positives but will never miss an intersection.
         */
-        inline bool intersects(const AlignedBox3<T>& box) const
+        inline bool intersects(const AlignedBox3& box) const
         {
             if (box.isNull()) return false;
             if (box.isInfinite()) return true;
 
             // Get centre of the box
-            vector<3,T> centre = box.getCenter();
+            Vector3f centre = box.getCenter();
             // Get the half-size of the box
-            vector<3,T> halfSize = box.getHalfSize();
+            Vector3f halfSize = box.getHalfSize();
             
-            typename PlaneList::const_iterator i, iend;
+            PlaneList::const_iterator i, iend;
             iend = planes.end();
             for (i = planes.begin(); i != iend; ++i)
             {
-                const Plane<T> & plane = *i;
+                const Plane & plane = *i;
 
                 PlaneSide side = plane.getSide(centre, halfSize);
                 if (side == outside)
@@ -82,16 +81,16 @@ namespace omicron { namespace math
             return true;
 
         }
-        /** Intersection test with Sphere<T>
+        /** Intersection test with Sphere
         @remarks May return false positives but will never miss an intersection.
         */
-        inline bool intersects(const Sphere<T>& sphere) const
+        inline bool intersects(const Sphere& sphere) const
         {
-            typename PlaneList::const_iterator i, iend;
+            PlaneList::const_iterator i, iend;
             iend = planes.end();
             for (i = planes.begin(); i != iend; ++i)
             {
-                const Plane<T> & plane = *i;
+                const Plane & plane = *i;
 
                 // Test which side of the plane the sphere is
                 float d = plane.getDistance(sphere.getCenter());
@@ -106,17 +105,16 @@ namespace omicron { namespace math
 
         }
 
-        /** Intersection test with a Ray<T>
+        /** Intersection test with a Ray
         @returns std::pair of hit (bool) and distance
         @remarks May return false positives but will never miss an intersection.
         */
-        inline std::pair<bool, float> intersects(const Ray<T>& ray)
+        inline std::pair<bool, float> intersects(const Ray& ray)
         {
-            return Math<T>::intersects(ray, planes, outside == Plane<T> ::POSITIVE_SIDE);
+            return Math::intersects(ray, planes, outside == POSITIVE_SIDE);
         }
 
     };
-}
 }
 
 #endif
