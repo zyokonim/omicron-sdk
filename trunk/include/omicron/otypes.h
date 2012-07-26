@@ -137,29 +137,7 @@ namespace omicron
 	{
 	};
 
-	// Math and linear algebra typedefs
-	typedef math::Math<float> Math;
-	typedef math::Sphere<float> Sphere;
-	typedef math::Plane<float> Plane;
-	typedef math::Ray<float> Ray;
-	typedef math::AlignedBox3<float> AlignedBox3;
-	typedef math::matrix< 3, 3, float >  Matrix3f; //!< A 3x3 float matrix
-	typedef math::matrix< 4, 4, float >  Matrix4f; //!< A 3x3 float matrix
-	typedef math::matrix< 3, Eigen::Dynamic, float >  Vectors3f; //!< A 3x3 float matrix
-	typedef math::vector< 2, float > Vector2f; //!< A two-component float vector
-	typedef math::vector< 3, float > Vector3f; //!< A three-component float vector
-	typedef math::vector< 4, float > Vector4f; //!< A four-component float vector
-	typedef math::vector< 2, int > Vector2i; //!< A four-component int vector
-	typedef math::vector< 3, int > Vector3i; //!< A four-component int vector
-	typedef math::vector< 4, int > Vector4i; //!< A four-component int vector
-	typedef math::quaternion<float> Quaternion; //! A floating point quaternion
-	typedef math::vector< 3, uint >      Triangle;
-	typedef Eigen::AngleAxis<float> AngleAxis;
-	typedef math::transform<3, float> Transform3;
-	typedef math::transform<3, float, Eigen::Affine> AffineTransform3;
-	typedef math::Rect Rect;
-
-		// Misc typedefs
+	// Misc typedefs
 	typedef libconfig::Setting Setting;
 
 

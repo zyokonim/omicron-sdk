@@ -494,7 +494,7 @@ namespace omicronConnector
 		RecvAddr.sin_family = AF_INET;
 		RecvAddr.sin_port = htons(dataPort);
 		RecvAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-		bind(RecvSocket, (const sockaddr*) &RecvAddr, sizeof(RecvAddr));
+		::bind(RecvSocket, (const sockaddr*) &RecvAddr, sizeof(RecvAddr));
 		readyToReceive = true;
 	}
 

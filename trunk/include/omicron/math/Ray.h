@@ -32,37 +32,36 @@
 #include "Plane.h"
 #include "PlaneBoundedVolume.h"
 
-namespace omicron { namespace math 
-{
+namespace omicron { 
 	/** Representation of a ray in space, i.e. a line with an origin and direction. */
-	template<typename T>
+	
     class Ray
     {
     protected:
-        vector<3,T> mOrigin;
-        vector<3,T> mDirection;
+        Vector3f mOrigin;
+        Vector3f mDirection;
     public:
-        Ray():mOrigin(vector<3,T>::Zero()), mDirection(vector<3,T>::UnitZ()) {}
-        Ray(const vector<3,T>& origin, const vector<3,T>& direction)
+        Ray():mOrigin(Vector3f::Zero()), mDirection(Vector3f::UnitZ()) {}
+        Ray(const Vector3f& origin, const Vector3f& direction)
             :mOrigin(origin), mDirection(direction) {}
 
         /** Sets the origin of the ray. */
-        void setOrigin(const vector<3,T>& origin) {mOrigin = origin;} 
+        void setOrigin(const Vector3f& origin) {mOrigin = origin;} 
         /** Gets the origin of the ray. */
-        const vector<3,T>& getOrigin(void) const {return mOrigin;} 
+        const Vector3f& getOrigin(void) const {return mOrigin;} 
 
         /** Sets the direction of the ray. */
-        void setDirection(const vector<3,T>& dir) {mDirection = dir;} 
+        void setDirection(const Vector3f& dir) {mDirection = dir;} 
         /** Gets the direction of the ray. */
-        const vector<3,T>& getDirection(void) const {return mDirection;} 
+        const Vector3f& getDirection(void) const {return mDirection;} 
 
 		/** Gets the position of a point t units along the ray. */
-		vector<3,T> getPoint(float t) const { 
-			return vector<3,T>(mOrigin + (mDirection * t));
+		Vector3f getPoint(float t) const { 
+			return Vector3f(mOrigin + (mDirection * t));
 		}
 		
 		/** Gets the position of a point t units along the ray. */
-		vector<3,T> operator*(float t) const { 
+		Vector3f operator*(float t) const { 
 			return getPoint(t);
 		}
 
@@ -72,9 +71,9 @@ namespace omicron { namespace math
 			indicate the distance along the ray at which it intersects. 
 			This can be converted to a point in space by calling getPoint().
 		*/
-		std::pair<bool, float> intersects(const Plane<T>& p) const
+		std::pair<bool, float> intersects(const Plane& p) const
 		{
-			return Math<T>::intersects(*this, p);
+			return Math::intersects(*this, p);
 		}
         /** Tests whether this ray intersects the given plane bounded volume. 
         @returns A pair structure where the first element indicates whether
@@ -82,9 +81,9 @@ namespace omicron { namespace math
         indicate the distance along the ray at which it intersects. 
         This can be converted to a point in space by calling getPoint().
         */
-        std::pair<bool, float> intersects(const PlaneBoundedVolume<T>& p) const
+        std::pair<bool, float> intersects(const PlaneBoundedVolume& p) const
         {
-            return Math<T>::intersects(*this, p.planes, p.outside == Plane<T>::POSITIVE_SIDE);
+            return Math::intersects(*this, p.planes, p.outside == POSITIVE_SIDE);
         }
 		/** Tests whether this ray intersects the given sphere. 
 		@returns A pair structure where the first element indicates whether
@@ -92,9 +91,9 @@ namespace omicron { namespace math
 			indicate the distance along the ray at which it intersects. 
 			This can be converted to a point in space by calling getPoint().
 		*/
-		std::pair<bool, float> intersects(const Sphere<T>& s) const
+		std::pair<bool, float> intersects(const Sphere& s) const
 		{
-			return Math<T>::intersects(*this, s);
+			return Math::intersects(*this, s);
 		}
 		/** Tests whether this ray intersects the given box. 
 		@returns A pair structure where the first element indicates whether
@@ -102,28 +101,27 @@ namespace omicron { namespace math
 			indicate the distance along the ray at which it intersects. 
 			This can be converted to a point in space by calling getPoint().
 		*/
-		std::pair<bool, float> intersects(const AlignedBox3<T>& box) const
+		std::pair<bool, float> intersects(const AlignedBox3& box) const
 		{
-			return Math<T>::intersects(*this, box);
+			return Math::intersects(*this, box);
 		}
 
 		/** Computes the projection of a point.
 		@returns the distance
 		*/
-		vector<3,T> projectPoint(const vector<3,T>& point) const
+		Vector3f projectPoint(const Vector3f& point) const
 		{
-			const vector<3,T>& v = mDirection;
-			const vector<3,T> w = point - mOrigin;
+			const Vector3f& v = mDirection;
+			const Vector3f w = point - mOrigin;
 			
 			float c1 = w.dot(v);
 			float c2 = v.dot(v);
 			float b = c1 / c2;
-			 vector<3,T> pb = mOrigin + b * v;
+			 Vector3f pb = mOrigin + b * v;
 			 return pb;
 		}
     };
 	/** @} */
 	/** @} */
-}
 }
 #endif

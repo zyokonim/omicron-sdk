@@ -39,8 +39,7 @@
 #include "Sphere.h"
 //#include "EigenWrappers.h"
 
-namespace omicron { namespace math 
-{
+namespace omicron { 
 	/** A 3D box aligned with the x/y/z axes.
 	@remarks
 	This class represents a simple box which is aligned with the
@@ -50,7 +49,6 @@ namespace omicron { namespace math
 	for an axis-aligned bounding box (AABB) for collision and
 	visibility determination.
 	*/
-	template<typename T>
 	class AlignedBox3
 	{
 	public:
@@ -62,10 +60,10 @@ namespace omicron { namespace math
 		};
 	protected:
 
-		vector<3,T> mMinimum;
-		vector<3,T> mMaximum;
+		Vector3f mMinimum;
+		Vector3f mMaximum;
 		Extent mExtent;
-		mutable vector<3,T>* mpCorners;
+		mutable Vector3f* mpCorners;
 
 	public:
 		/*
@@ -88,21 +86,21 @@ namespace omicron { namespace math
 			NEAR_LEFT_TOP = 5,
 			NEAR_RIGHT_TOP = 4
 		} CornerEnum;
-		inline AlignedBox3() : mMinimum(vector<3,T>::Zero()), mMaximum(vector<3,T>::Ones()), mpCorners(0)
+		inline AlignedBox3() : mMinimum(Vector3f::Zero()), mMaximum(Vector3f::Ones()), mpCorners(0)
 		{
 			// Default to a null box 
 			setMinimum( -0.5, -0.5, -0.5 );
 			setMaximum( 0.5, 0.5, 0.5 );
 			mExtent = EXTENT_NULL;
 		}
-		inline AlignedBox3(Extent e) : mMinimum(vector<3,T>::Zero()), mMaximum(vector<3,T>::Ones()), mpCorners(0)
+		inline AlignedBox3(Extent e) : mMinimum(Vector3f::Zero()), mMaximum(Vector3f::Ones()), mpCorners(0)
 		{
 			setMinimum( -0.5, -0.5, -0.5 );
 			setMaximum( 0.5, 0.5, 0.5 );
 			mExtent = e;
 		}
 
-		inline AlignedBox3(const AlignedBox3 & rkBox) : mMinimum(vector<3,T>::Zero()), mMaximum(vector<3,T>::Ones()), mpCorners(0)
+		inline AlignedBox3(const AlignedBox3 & rkBox) : mMinimum(Vector3f::Zero()), mMaximum(Vector3f::Ones()), mpCorners(0)
 
 		{
 			if (rkBox.isNull())
@@ -113,14 +111,14 @@ namespace omicron { namespace math
 				setExtents( rkBox.mMinimum, rkBox.mMaximum );
 		}
 
-		inline AlignedBox3( const vector<3,T>& min, const vector<3,T>& max ) : mMinimum(vector<3,T>::Zero()), mMaximum(vector<3,T>::Ones()), mpCorners(0)
+		inline AlignedBox3( const Vector3f& min, const Vector3f& max ) : mMinimum(Vector3f::Zero()), mMaximum(Vector3f::Ones()), mpCorners(0)
 		{
 			setExtents( min, max );
 		}
 
 		inline AlignedBox3(
 			float mx, float my, float mz,
-			float Mx, float My, float Mz ) : mMinimum(vector<3,T>::Zero()), mMaximum(vector<3,T>::Ones()), mpCorners(0)
+			float Mx, float My, float Mz ) : mMinimum(Vector3f::Zero()), mMaximum(Vector3f::Ones()), mpCorners(0)
 		{
 			setExtents( mx, my, mz, Mx, My, Mz );
 		}
@@ -150,7 +148,7 @@ namespace omicron { namespace math
 
 		/** Gets the minimum corner of the box.
 		*/
-		inline const vector<3,T>& getMinimum(void) const
+		inline const Vector3f& getMinimum(void) const
 		{ 
 			return mMinimum; 
 		}
@@ -158,14 +156,14 @@ namespace omicron { namespace math
 		/** Gets a modifiable version of the minimum
 		corner of the box.
 		*/
-		inline vector<3,T>& getMinimum(void)
+		inline Vector3f& getMinimum(void)
 		{ 
 			return mMinimum; 
 		}
 
 		/** Gets the maximum corner of the box.
 		*/
-		inline const vector<3,T>& getMaximum(void) const
+		inline const Vector3f& getMaximum(void) const
 		{ 
 			return mMaximum;
 		}
@@ -173,7 +171,7 @@ namespace omicron { namespace math
 		/** Gets a modifiable version of the maximum
 		corner of the box.
 		*/
-		inline vector<3,T>& getMaximum(void)
+		inline Vector3f& getMaximum(void)
 		{ 
 			return mMaximum;
 		}
@@ -181,13 +179,13 @@ namespace omicron { namespace math
 
 		/** Sets the minimum corner of the box.
 		*/
-		inline void setMinimum( const vector<3,T>& vec )
+		inline void setMinimum( const Vector3f& vec )
 		{
 			mExtent = EXTENT_FINITE;
 			mMinimum = vec;
 		}
 
-		inline void setMinimum( T x, T y, T z )
+		inline void setMinimum( real x, real y, real z )
 		{
 			mExtent = EXTENT_FINITE;
 			mMinimum.x() = x;
@@ -198,30 +196,30 @@ namespace omicron { namespace math
 		/** Changes one of the components of the minimum corner of the box
 		used to resize only one dimension of the box
 		*/
-		inline void setMinimumX(T x)
+		inline void setMinimumX(real x)
 		{
 			mMinimum.x() = x;
 		}
 
-		inline void setMinimumY(T y)
+		inline void setMinimumY(real y)
 		{
 			mMinimum.y() = y;
 		}
 
-		inline void setMinimumZ(T z)
+		inline void setMinimumZ(real z)
 		{
 			mMinimum.z() = z;
 		}
 
 		/** Sets the maximum corner of the box.
 		*/
-		inline void setMaximum( const vector<3,T>& vec )
+		inline void setMaximum( const Vector3f& vec )
 		{
 			mExtent = EXTENT_FINITE;
 			mMaximum = vec;
 		}
 
-		inline void setMaximum( T x, T y, T z )
+		inline void setMaximum( real x, real y, real z )
 		{
 			mExtent = EXTENT_FINITE;
 			mMaximum.x() = x;
@@ -232,24 +230,24 @@ namespace omicron { namespace math
 		/** Changes one of the components of the maximum corner of the box
 		used to resize only one dimension of the box
 		*/
-		inline void setMaximumX( T x )
+		inline void setMaximumX( real x )
 		{
 			mMaximum.x() = x;
 		}
 
-		inline void setMaximumY( T y )
+		inline void setMaximumY( real y )
 		{
 			mMaximum.y() = y;
 		}
 
-		inline void setMaximumZ( T z )
+		inline void setMaximumZ( real z )
 		{
 			mMaximum.z() = z;
 		}
 
 		/** Sets both minimum and maximum extents at once.
 		*/
-		inline void setExtents( const vector<3,T>& min, const vector<3,T>& max )
+		inline void setExtents( const Vector3f& min, const Vector3f& max )
 		{
             assert( (min.x() <= max.x() && min.y() <= max.y() && min.z() <= max.z()) &&
                 "The minimum corner of the box must be less than or equal to maximum corner" );
@@ -260,8 +258,8 @@ namespace omicron { namespace math
 		}
 
 		inline void setExtents(
-			T mx, T my, T mz,
-			T Mx, T My, T Mz )
+			real mx, real my, real mz,
+			real Mx, real My, real Mz )
 		{
             assert( (mx <= Mx && my <= My && mz <= Mz) &&
                 "The minimum corner of the box must be less than or equal to maximum corner" );
@@ -302,7 +300,7 @@ namespace omicron { namespace math
 		</pre>
 		@remarks as this implementation uses a static member, make sure to use your own copy !
 		*/
-		inline const vector<3,T>* getAllCorners(void) const
+		inline const Vector3f* getAllCorners(void) const
 		{
 			assert( (mExtent == EXTENT_FINITE) && "Can't get corners of a null or infinite AAB" );
 
@@ -313,7 +311,7 @@ namespace omicron { namespace math
 			//   around face (looking onto the face)
 			// Only for optimization/compatibility.
 			if (!mpCorners)
-				mpCorners = new vector<3,T>[8];
+				mpCorners = new Vector3f[8];
 
 			mpCorners[0] = mMinimum;
 			mpCorners[1].x() = mMinimum.x(); mpCorners[1].y() = mMaximum.y(); mpCorners[1].z() = mMinimum.z();
@@ -330,35 +328,35 @@ namespace omicron { namespace math
 
 		/** gets the position of one of the corners
 		*/
-		vector<3,T> getCorner(CornerEnum cornerToGet) const
+		Vector3f getCorner(CornerEnum cornerToGet) const
 		{
 			switch(cornerToGet)
 			{
 			case FAR_LEFT_BOTTOM:
 				return mMinimum;
 			case FAR_LEFT_TOP:
-				return vector<3,T>(mMinimum.x(), mMaximum.y(), mMinimum.z());
+				return Vector3f(mMinimum.x(), mMaximum.y(), mMinimum.z());
 			case FAR_RIGHT_TOP:
-				return vector<3,T>(mMaximum.x(), mMaximum.y(), mMinimum.z());
+				return Vector3f(mMaximum.x(), mMaximum.y(), mMinimum.z());
 			case FAR_RIGHT_BOTTOM:
-				return vector<3,T>(mMaximum.x(), mMinimum.y(), mMinimum.z());
+				return Vector3f(mMaximum.x(), mMinimum.y(), mMinimum.z());
 			case NEAR_RIGHT_BOTTOM:
-				return vector<3,T>(mMaximum.x(), mMinimum.y(), mMaximum.z());
+				return Vector3f(mMaximum.x(), mMinimum.y(), mMaximum.z());
 			case NEAR_LEFT_BOTTOM:
-				return vector<3,T>(mMinimum.x(), mMinimum.y(), mMaximum.z());
+				return Vector3f(mMinimum.x(), mMinimum.y(), mMaximum.z());
 			case NEAR_LEFT_TOP:
-				return vector<3,T>(mMinimum.x(), mMaximum.y(), mMaximum.z());
+				return Vector3f(mMinimum.x(), mMaximum.y(), mMaximum.z());
 			case NEAR_RIGHT_TOP:
 				return mMaximum;
 			default:
-				return vector<3,T>();
+				return Vector3f();
 			}
 		}
 
 		/** Merges the passed in box into the current box. The result is the
 		box which encompasses both.
 		*/
-		void merge( const AlignedBox3<T>& rhs )
+		void merge( const AlignedBox3& rhs )
 		{
 			// Do nothing if rhs null, or this is infinite
 			if ((rhs.mExtent == EXTENT_NULL) || (mExtent == EXTENT_INFINITE))
@@ -378,8 +376,8 @@ namespace omicron { namespace math
 			// Otherwise merge
 			else
 			{
-				vector<3,T> min = mMinimum.cwiseMin(rhs.mMinimum);
-				vector<3,T> max = mMaximum.cwiseMax(rhs.mMaximum);
+				Vector3f min = mMinimum.cwiseMin(rhs.mMinimum);
+				Vector3f max = mMaximum.cwiseMax(rhs.mMaximum);
 				setExtents(min, max);
 			}
 
@@ -387,7 +385,7 @@ namespace omicron { namespace math
 
 		/** Extends the box to encompass the specified point (if needed).
 		*/
-		inline void merge( const vector<3,T>& point )
+		inline void merge( const Vector3f& point )
 		{
 			switch (mExtent)
 			{
@@ -416,13 +414,13 @@ namespace omicron { namespace math
 		AABB. Useful when you have a local AABB for an object which
 		is then transformed.
 		*/
-		//inline void transform( const matrix<4,4,T>& matrix )
+		//inline void transform( const Matrix4f& matrix )
 		//{
 		//	// Do nothing if current null or infinite
 		//	if( mExtent != EXTENT_FINITE )
 		//		return;
 
-		//	vector<3,T> oldMin, oldMax, currentCorner;
+		//	Vector3f oldMin, oldMax, currentCorner;
 
 		//	// Getting the old values so that we can use the existing merge method.
 		//	oldMin = mMinimum;
@@ -481,24 +479,24 @@ namespace omicron { namespace math
 		AABB. Useful when you have a local AABB for an object which
 		is then transformed.
 		@note
-		The matrix must be an affine matrix. @see matrix<4,4,T>::isAffine.
+		The matrix must be an affine matrix. @see Matrix4f::isAffine.
 		*/
-		inline void transformAffine(const transform<3, T, Eigen::Affine>& tf)
+		inline void transformAffine(const AffineTransform3& tf)
 		{
 			// Do nothing if current null or infinite
 			if ( mExtent != EXTENT_FINITE )
 				return;
 
-			vector<3,T> centre = getCenter();
-			vector<3,T> halfSize = getHalfSize();
+			Vector3f centre = getCenter();
+			Vector3f halfSize = getHalfSize();
 
-			matrix<4,4,T> m = tf.matrix();
+			Matrix4f m = tf.matrix();
 
-			vector<3,T> newCentre = tf * centre;
-			vector<3,T> newHalfSize(
-				Math<T>::abs(m(0, 0)) * halfSize.x() + Math<T>::abs(m(0, 1)) * halfSize.y() + Math<T>::abs(m(0, 2)) * halfSize.z(), 
-				Math<T>::abs(m(1, 0)) * halfSize.x() + Math<T>::abs(m(1, 1)) * halfSize.y() + Math<T>::abs(m(1, 2)) * halfSize.z(),
-				Math<T>::abs(m(2, 0)) * halfSize.x() + Math<T>::abs(m(2, 1)) * halfSize.y() + Math<T>::abs(m(2, 2)) * halfSize.z());
+			Vector3f newCentre = tf * centre;
+			Vector3f newHalfSize(
+				Math::abs(m(0, 0)) * halfSize.x() + Math::abs(m(0, 1)) * halfSize.y() + Math::abs(m(0, 2)) * halfSize.z(), 
+				Math::abs(m(1, 0)) * halfSize.x() + Math::abs(m(1, 1)) * halfSize.y() + Math::abs(m(1, 2)) * halfSize.z(),
+				Math::abs(m(2, 0)) * halfSize.x() + Math::abs(m(2, 1)) * halfSize.y() + Math::abs(m(2, 2)) * halfSize.z());
 
 			setExtents(newCentre - newHalfSize, newCentre + newHalfSize);
 		}
@@ -539,7 +537,7 @@ namespace omicron { namespace math
 		}
 
 		/** Returns whether or not this box intersects another. */
-		inline bool intersects(const AlignedBox3<T>& b2) const
+		inline bool intersects(const AlignedBox3& b2) const
 		{
 			// Early-fail for nulls
 			if (this->isNull() || b2.isNull())
@@ -570,7 +568,7 @@ namespace omicron { namespace math
 		}
 
 		/// Calculate the area of intersection of this box and another
-		inline AlignedBox3 intersection(const AlignedBox3<T>& b2) const
+		inline AlignedBox3 intersection(const AlignedBox3& b2) const
 		{
             if (this->isNull() || b2.isNull())
 			{
@@ -585,11 +583,12 @@ namespace omicron { namespace math
 				return *this;
 			}
 
-			vector<3,T> intMin = mMinimum;
-            vector<3,T> intMax = mMaximum;
+			Vector3f intMin = mMinimum;
+            Vector3f intMax = mMaximum;
 
-            intMin.makeCeil(b2.getMinimum());
-            intMax.makeFloor(b2.getMaximum());
+
+			intMin = intMin.cwiseMax(b2.getMinimum());
+			intMax = intMax.cwiseMax(b2.getMaximum());
 
             // Check intersection isn't null
             if (intMin.x() < intMax.x() &&
@@ -612,12 +611,12 @@ namespace omicron { namespace math
 
 			case EXTENT_FINITE:
 				{
-					vector<3,T> diff = mMaximum - mMinimum;
+					Vector3f diff = mMaximum - mMinimum;
 					return diff.x() * diff.y() * diff.z();
 				}
 
 			case EXTENT_INFINITE:
-				return Math<T>::PositiveInfinity;
+				return Math::PositiveInfinity;
 
 			default: // shut up compiler
 				assert( false && "Never reached" );
@@ -626,30 +625,30 @@ namespace omicron { namespace math
 		}
 
 		/** Scales the AABB by the vector given. */
-		inline void scale(const vector<3,T>& s)
+		inline void scale(const Vector3f& s)
 		{
 			// Do nothing if current null or infinite
 			if (mExtent != EXTENT_FINITE)
 				return;
 
 			// NB assumes centered on origin
-			vector<3,T> min = mMinimum * s;
-			vector<3,T> max = mMaximum * s;
+			Vector3f min = mMinimum.cwiseProduct(s);
+			Vector3f max = mMaximum.cwiseProduct(s);
 			setExtents(min, max);
 		}
 
 		/** Tests whether this box intersects a sphere. */
-		bool intersects(const Sphere<T>& s) const
+		bool intersects(const Sphere& s) const
 		{
-			return Math<T>::intersects(s, *this); 
+			return Math::intersects(s, *this); 
 		}
 		/** Tests whether this box intersects a plane. */
-		bool intersects(const Plane<T>& p) const
+		bool intersects(const Plane& p) const
 		{
-			return Math<T>::intersects(p, *this);
+			return Math::intersects(p, *this);
 		}
 		/** Tests whether the vector point is within this box. */
-		bool intersects(const vector<3,T>& v) const
+		bool intersects(const Vector3f& v) const
 		{
 			switch (mExtent)
 			{
@@ -670,63 +669,63 @@ namespace omicron { namespace math
 			}
 		}
 		/// Gets the centre of the box
-		vector<3,T> getCenter(void) const
+		Vector3f getCenter(void) const
 		{
 			assert( (mExtent == EXTENT_FINITE) && "Can't get center of a null or infinite AAB" );
 
-			return vector<3,T>(
+			return Vector3f(
 				(mMaximum.x() + mMinimum.x()) * 0.5f,
 				(mMaximum.y() + mMinimum.y()) * 0.5f,
 				(mMaximum.z() + mMinimum.z()) * 0.5f);
 		}
 		/// Gets the size of the box
-		vector<3,T> getSize(void) const
+		Vector3f getSize(void) const
 		{
 			switch (mExtent)
 			{
 			case EXTENT_NULL:
-				return vector<3,T>::Zero();
+				return Vector3f::Zero();
 
 			case EXTENT_FINITE:
 				return mMaximum - mMinimum;
 
 			case EXTENT_INFINITE:
-				return vector<3,T>(
-					Math<T>::PositiveInfinity,
-					Math<T>::PositiveInfinity,
-					Math<T>::PositiveInfinity);
+				return Vector3f(
+					Math::PositiveInfinity,
+					Math::PositiveInfinity,
+					Math::PositiveInfinity);
 
 			default: // shut up compiler
 				assert( false && "Never reached" );
-				return vector<3,T>::Zero();
+				return Vector3f::Zero();
 			}
 		}
 		/// Gets the half-size of the box
-		vector<3,T> getHalfSize(void) const
+		Vector3f getHalfSize(void) const
 		{
 			switch (mExtent)
 			{
 			case EXTENT_NULL:
-				return vector<3,T>::Zero();
+				return Vector3f::Zero();
 
 			case EXTENT_FINITE:
 				return (mMaximum - mMinimum) * 0.5;
 
 			case EXTENT_INFINITE:
-				return vector<3,T>(
-					Math<T>::PositiveInfinity,
-					Math<T>::PositiveInfinity,
-					Math<T>::PositiveInfinity);
+				return Vector3f(
+					Math::PositiveInfinity,
+					Math::PositiveInfinity,
+					Math::PositiveInfinity);
 
 			default: // shut up compiler
 				assert( false && "Never reached" );
-				return vector<3,T>::Zero();
+				return Vector3f::Zero();
 			}
 		}
 
         /** Tests whether the given point contained by this box.
         */
-        bool contains(const vector<3,T>& v) const
+        bool contains(const Vector3f& v) const
         {
             if (isNull())
                 return false;
@@ -740,7 +739,7 @@ namespace omicron { namespace math
 
         /** Tests whether another box contained by this box.
         */
-        bool contains(const AlignedBox3<T>& other) const
+        bool contains(const AlignedBox3& other) const
         {
             if (other.isNull() || this->isInfinite())
                 return true;
@@ -758,7 +757,7 @@ namespace omicron { namespace math
 
         /** Tests 2 boxes for equality.
         */
-        bool operator== (const AlignedBox3<T>& rhs) const
+        bool operator== (const AlignedBox3& rhs) const
         {
             if (this->mExtent != rhs.mExtent)
                 return false;
@@ -772,7 +771,7 @@ namespace omicron { namespace math
 
         /** Tests 2 boxes for inequality.
         */
-        bool operator!= (const AlignedBox3<T>& rhs) const
+        bool operator!= (const AlignedBox3& rhs) const
         {
             return !(*this == rhs);
         }
@@ -783,7 +782,7 @@ namespace omicron { namespace math
 
 		// This method is kinda dangerous. It sets the extent to finite, without any guarantee
 		// it's actually going to be so.
-		vector<3,T>& operator[]( const size_t i )
+		Vector3f& operator[]( const size_t i )
 		{
 			assert( i < 2 );
 			mExtent = EXTENT_FINITE;
@@ -791,7 +790,7 @@ namespace omicron { namespace math
 			return mMaximum;
 		}
         
-		const vector<3,T>& operator[]( const size_t i ) const
+		const Vector3f& operator[]( const size_t i ) const
 		{
 			assert( i < 2 );
 			if(i == 0) return mMinimum;
@@ -800,6 +799,5 @@ namespace omicron { namespace math
 
 	};
 
-}
 }
 #endif
