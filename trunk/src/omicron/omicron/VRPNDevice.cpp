@@ -90,9 +90,6 @@ void vrpn_XInputGamepad::mainloop() {
 }
 
 void vrpn_XInputGamepad::update(const Event& evt) {
-	
-	XINPUT_STATE state;
-	DWORD rv;
 
 	server_mainloop();
 	/*if ((rv = XInputGetState(_controllerIndex, &state)) != ERROR_SUCCESS) {

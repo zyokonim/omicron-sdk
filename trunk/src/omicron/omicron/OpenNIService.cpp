@@ -389,8 +389,9 @@ void OpenNIService::poll(void)
 						if( omg_UserGenerator.GetSkeletonCap().IsTracking(aUsers[i]) ) {
 							Event* theEvent = myOpenNI->writeHead();
 							// j is the kinect index, used as service / device id
-							theEvent->reset(Event::Move, Service::Mocap, aUsers[i], j);
+							theEvent->reset(Event::Update, Service::Mocap, aUsers[i], j);
 
+                            theEvent->setExtraDataType(Event::ExtraDataVector3Array);
 
 							joint2eventPointSet(aUsers[i], OMICRON_SKEL_HEAD, theEvent, j);
 							joint2eventPointSet(aUsers[i], OMICRON_SKEL_NECK, theEvent, j);
@@ -436,7 +437,9 @@ void OpenNIService::poll(void)
 				else
 				{
 					Event* theEvent = myOpenNI->writeHead();
-					theEvent->reset(Event::Move, Service::Mocap, aUsers[i]);
+					theEvent->reset(Event::Update, Service::Mocap, aUsers[i]);
+
+                    theEvent->setExtraDataType(Event::ExtraDataVector3Array);
 
 					joint2eventPointSet(aUsers[i], OMICRON_SKEL_HEAD, theEvent);
 					joint2eventPointSet(aUsers[i], OMICRON_SKEL_NECK, theEvent);
@@ -587,7 +590,7 @@ void XN_CALLBACK_TYPE OpenNIService::User_NewUser(xn::UserGenerator& generator, 
 // Callback: An existing user was lost
 void XN_CALLBACK_TYPE OpenNIService::User_LostUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie)
 {
-	//ofmsg("Lost user %1%\n", %(int)nId);
+	ofmsg("Lost user %1%\n", %(int)nId);
 	myOpenNI->lockEvents();
 	Event* theEvent = myOpenNI->writeHead();
 	theEvent->reset(Event::Untrace, Service::Mocap, nId);

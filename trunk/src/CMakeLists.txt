@@ -67,15 +67,11 @@ add_subdirectory(omicron)
 # oinputserver currently works only on Windows (uses WINSOCK)
 if(WIN32)
 	add_subdirectory(apps/sageinputserver)
-	add_subdirectory(apps/oinputserver)
 	add_subdirectory(apps/legacy-oinputserver)
 endif(WIN32)
+add_subdirectory(apps/oinputserver)
+add_subdirectory(apps/soundTest)
 add_subdirectory(apps/eventlogger)
-
-# NOTE: the soundtest application is currently broken on linux builds. Exclude it
-if(WIN32)
-	add_subdirectory(apps/soundtest)
-endif()
 
 if(OMICRON_BUILD_TUTORIALS)
 	omega_add_tutorial(localService)

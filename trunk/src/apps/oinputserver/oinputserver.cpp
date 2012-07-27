@@ -4,6 +4,7 @@
  * Copyright 2010-2012		Electronic Visualization Laboratory, University of Illinois at Chicago
  * Authors:										
  *  Alessandro Febretti		febret@gmail.com
+ *  Arthur Nishimoto		anishimoto42@gmail.com
  *-------------------------------------------------------------------------------------------------
  * Copyright (c) 2010-2011, Electronic Visualization Laboratory, University of Illinois at Chicago
  * All rights reserved.
@@ -28,94 +29,94 @@
 #include <vector>
 
 #include <time.h>
-
 using namespace omicron;
 
+#include <stdio.h>
 
-	#ifdef WIN32
-		#define OMICRON_OS_WIN
-		#pragma comment(lib, "Ws2_32.lib")
-	#endif
+#ifdef WIN32
+	#define OMICRON_OS_WIN
+	#pragma comment(lib, "Ws2_32.lib")
+#endif
 
-	#include <stdio.h>
-	#ifdef OMICRON_OS_WIN
-		#include <winsock2.h>
-		#include <ws2tcpip.h>
+#ifdef OMICRON_OS_WIN
+	#include <winsock2.h>
+	#include <ws2tcpip.h>
 
-		// VRPN Server (for CalVR)
-		#include "omicron/vrpn/vrpn_tracker.h"
-		#include "omicron/VRPNDevice.h"
-	#else
-		#include <stdlib.h>
-		#include <string.h>
-		#include <netdb.h>
-		#include <sys/types.h>
-		#include <netinet/in.h>
-		#include <sys/socket.h>
-		#include <arpa/inet.h>
-		#include <errno.h>
-		#include <unistd.h> // needed for close()
-		#include <string>
-	#endif
+	// VRPN Server (for CalVR)
+#ifdef OMICRON_USE_VRPN
+	#include "omicron/vrpn/vrpn_tracker.h"
+	#include "omicron/VRPNDevice.h"
+#endif
+#else
+	#include <stdlib.h>
+	#include <string.h>
+	#include <netdb.h>
+	#include <sys/types.h>
+	#include <netinet/in.h>
+	#include <sys/socket.h>
+	#include <arpa/inet.h>
+	#include <errno.h>
+	#include <unistd.h> // needed for close()
+	#include <string>
+#endif
 
-	#ifdef OMICRON_OS_WIN     
-		#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %d\n", WSAGetLastError());
-		#define SOCKET_CLOSE(sock) closesocket(sock);
-		#define SOCKET_CLEANUP() WSACleanup();
-		#define SOCKET_INIT() \
-			int iResult;    \
-			iResult = WSAStartup(MAKEWORD(2,2), &wsaData); \
-			if (iResult != 0) { \
-				printf("NetService: WSAStartup failed: %d\n", iResult); \
-				return; \
-			} else { \
-				printf("NetService: Winsock initialized \n"); \
-			}
-
-	#else
-		#define SOCKET_CLOSE(sock) close(sock);
-		#define SOCKET_CLEANUP()
-		#define SOCKET_INIT()
-		#define SOCKET int
-		#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %s\n", strerror(errno));
-	#endif
+#ifdef OMICRON_OS_WIN
+	#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %d\n", WSAGetLastError());
+	#define SOCKET_CLOSE(sock) closesocket(sock);
+	#define SOCKET_CLEANUP() WSACleanup();
+	#define SOCKET_INIT() \
+		iResult = WSAStartup(MAKEWORD(2,2), &wsaData); \
+		if (iResult != 0) { \
+			printf("NetService: WSAStartup failed: %d\n", iResult); \
+			return; \
+		} else { \
+			printf("NetService: Winsock initialized \n"); \
+		}
+#else
+	#define SOCKET_CLOSE(sock) close(sock);
+	#define SOCKET_CLEANUP()
+	#define SOCKET_INIT()
+	#define SOCKET int
+	#define PRINT_SOCKET_ERROR(msg) printf(msg" - socket error: %s\n", strerror(errno));
+	#define INVALID_SOCKET -1
+	#define SOCKET_ERROR   -1
+	#define ioctlsocket ioctl // Used for setting socket blocking mode
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Based on Winsock UDP Server Example:
 // http://msdn.microsoft.com/en-us/library/ms740148
+// Also based on Beej's Guide to Network Programming:
+// http://beej.us/guide/bgnet/output/html/multipage/clientserver.html
 class NetClient
 {
 private:
-	WSADATA wsaData;
-	SOCKET SendSocket;
-	sockaddr_in RecvAddr;
-	int Port;
-	//char SendBuf[1024];
-	int BufLen;
+	SOCKET sendSocket;
+	sockaddr_in recvAddr;
 
 public:
-	NetClient::NetClient( const char* address, int port )
+	NetClient( const char* address, int port )
 	{
-		// Create a socket for sending data
-		SendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		// Create a UDP socket for sending data
+		sendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 		// Set up the RecvAddr structure with the IP address of
 		// the receiver
-		RecvAddr.sin_family = AF_INET;
-		RecvAddr.sin_port = htons(port);
-		RecvAddr.sin_addr.s_addr = inet_addr(address);
+		recvAddr.sin_family = AF_INET;
+		recvAddr.sin_port = htons(port);
+		recvAddr.sin_addr.s_addr = inet_addr(address);
 		printf("NetClient %s:%i created...\n", address, port);
 	}// CTOR
 
-	void NetClient::sendEvent(char* eventPacket, int length)
+	void sendEvent(char* eventPacket, int length)
 	{
 		// Send a datagram to the receiver
-		sendto(SendSocket, 
+		sendto(sendSocket, 
 			eventPacket, 
 			length, 
-			0, 
-			(SOCKADDR*) &RecvAddr, 
-			sizeof(RecvAddr));
+			0,
+            (const struct sockaddr*)&recvAddr,
+			sizeof(recvAddr));
 	}// SendEvent
 };
 
@@ -131,12 +132,14 @@ public:
 	{
 		// If the event has been processed locally (i.e. by a filter event service)
 		if(evt.isProcessed()) return;
-		
+
+#ifdef OMICRON_USE_VRPN
 		vrpnDevice->update(evt);
-		
+#endif
 		ofmsg("SourceID %2% pos(%1%)", %evt.getPosition() %evt.getSourceId() );
 
 		int offset = 0;
+		
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 
 		OI_WRITEBUF(int, eventPacket, offset, evt.getServiceId()); 
@@ -153,7 +156,8 @@ public:
 		
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataType()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataItems()); 
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataMask()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataMask());
+		
 		if(evt.getExtraDataType() != Event::ExtraDataNull)
 		{
 			memcpy(&eventPacket[offset], evt.getExtraDataBuffer(), evt.getExtraDataSize());
@@ -176,9 +180,8 @@ public:
 private:
 	void createClient(const char*,int);
 
-	WSADATA wsaData;
 	const char* serverPort;
-	SOCKET ListenSocket;
+	SOCKET listenSocket;    
 	
 	#define DEFAULT_BUFLEN 512
 	char eventPacket[DEFAULT_BUFLEN];
@@ -190,21 +193,28 @@ private:
 	// Collection of unique clients (IP/port combinations)
 	std::map<char*,NetClient*> netClients;
 
+#ifdef OMICRON_USE_VRPN
 	// VRPN Server (for CalVR)
 	vrpn_XInputGamepad	*vrpnDevice;
 	vrpn_Tracker_Remote	*tkr;
 	vrpn_Connection		*connection;
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void OInputServer::startConnection(Config* cfg)
 {
+#ifdef OMICRON_OS_WIN
+	WSADATA wsaData;
+#endif
+
 	Setting& sCfg = cfg->lookup("config");
 	serverPort = strdup(Config::getStringValue("serverPort", sCfg, "27000").c_str());
-	ListenSocket = INVALID_SOCKET;
+	listenSocket = INVALID_SOCKET;
 	recvbuflen = DEFAULT_BUFLEN;
 	int iResult;
-	
+
+#ifdef OMICRON_USE_VRPN
 	// VRPN Server Test ///////////////////////////////////////////////
 	const char	*TRACKER_NAME = "Device0";
 	int	CONNECTION_PORT = vrpn_DEFAULT_LISTEN_PORT_NO;	// Port for connection to listen on
@@ -213,22 +223,14 @@ void OInputServer::startConnection(Config* cfg)
 	connection = vrpn_create_server_connection(CONNECTION_PORT);
 	vrpnDevice = new vrpn_XInputGamepad(TRACKER_NAME, connection, 1);
 	///////////////////////////////////////////////////////////////////
+#endif
 
 	// Initialize Winsock
-	iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-	if (iResult != 0) 
-	{
-		oferror("OInputServer: WSAStartup failed: %1%", %iResult);
-		return;
-	} 
-	else 
-	{
-		oerror("OInputServer: Winsock initialized");
-	}
+    SOCKET_INIT();
 
 	struct addrinfo *result = NULL, *ptr = NULL, hints;
 
-	ZeroMemory(&hints, sizeof (hints));
+    memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
@@ -239,7 +241,7 @@ void OInputServer::startConnection(Config* cfg)
 	if (iResult != 0) 
 	{
 		ofmsg("OInputServer: getaddrinfo failed: %1%", %iResult);
-		WSACleanup();
+        SOCKET_CLEANUP();
 	} 
 	else 
 	{
@@ -247,17 +249,18 @@ void OInputServer::startConnection(Config* cfg)
 	}
 
 	// Create a SOCKET for the server to listen for client connections
-	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+	listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
 	// If iMode != 0, non-blocking mode is enabled.
 	u_long iMode = 1;
-	ioctlsocket(ListenSocket,FIONBIO,&iMode);
 
-	if (ListenSocket == INVALID_SOCKET) 
+	ioctlsocket(listenSocket,FIONBIO,&iMode);
+	
+	if (listenSocket == INVALID_SOCKET) 
 	{
-		printf("OInputServer: Error at socket(): %ld\n", WSAGetLastError());
+        PRINT_SOCKET_ERROR("OInputServer::startConnection");
 		freeaddrinfo(result);
-		WSACleanup();
+        SOCKET_CLEANUP(); 
 		return;
 	} 
 	else 
@@ -266,13 +269,14 @@ void OInputServer::startConnection(Config* cfg)
 	}
 
 	// Setup the TCP listening socket
-	iResult = bind( ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+	iResult = bind( listenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) 
 	{
-		printf("OInputServer: bind failed: %d\n", WSAGetLastError());
+        PRINT_SOCKET_ERROR("OInputServer::startConnection: bind failed");
 		freeaddrinfo(result);
-		closesocket(ListenSocket);
-		WSACleanup();
+
+		SOCKET_CLOSE(listenSocket);
+		SOCKET_CLEANUP();
 		return;
 	}
 }
@@ -280,37 +284,38 @@ void OInputServer::startConnection(Config* cfg)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SOCKET OInputServer::startListening()
 {
-	SOCKET ClientSocket;
+	SOCKET clientSocket;
 
 	// Listen on socket
-	if ( listen( ListenSocket, SOMAXCONN ) == SOCKET_ERROR )
+	if ( listen( listenSocket, SOMAXCONN ) == SOCKET_ERROR )
 	{
-		printf( "OInputServer: Error at bind(): %ld\n", WSAGetLastError() );
-		closesocket(ListenSocket);
-		WSACleanup();
-		return NULL;
+		PRINT_SOCKET_ERROR("OInputServer::startListening: bind failed");
+		SOCKET_CLOSE(listenSocket);
+		SOCKET_CLEANUP();
+		return 0;
 	} 
 	else
 	{
 		//printf("NetService: Listening on socket.\n");
 	}
 
-	ClientSocket = INVALID_SOCKET;
+	clientSocket = INVALID_SOCKET;
 	sockaddr_in clientInfo;
-	int ret = sizeof(struct sockaddr);
+	int addrSize = sizeof(struct sockaddr);
 	const char* clientAddress;
 
 	// Accept a client socket
-	ClientSocket = accept(ListenSocket, (SOCKADDR*)&clientInfo, &ret);
+	clientSocket = accept(listenSocket, (struct sockaddr *)&clientInfo, (socklen_t*)&addrSize);
 
-	if (ClientSocket == INVALID_SOCKET) 
+	if (clientSocket == INVALID_SOCKET) 
 	{
 		//printf("NetService: accept failed: %d\n", WSAGetLastError());
 		// Commented out: We do not want to close the listen socket
 		// since we are using a non-blocking socket until we are done listening for clients.
-		//closesocket(ListenSocket);
+		//closesocket(listenSocket);
 		//WSACleanup();
-		return NULL;
+		//return NULL;
+        return 0;
 	} 
 	else 
 	{
@@ -331,7 +336,7 @@ SOCKET OInputServer::startListening()
 	printf("OInputServer: Waiting for client handshake\n");
 	do 
 	{
-		iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+		iResult = recv(clientSocket, recvbuf, recvbuflen, 0);
 		if (iResult > 0)
 		{
 			//printf("Service: Bytes received: %d\n", iResult);
@@ -360,7 +365,7 @@ SOCKET OInputServer::startListening()
 			}
 
 			// Make sure handshake is correct
-			String handshake = "data_on";
+			String handshake = "omicron_data_on";
 			int dataPort = 7000; // default port
 			if( handshake.find(inMessage) )
 			{
@@ -389,14 +394,16 @@ SOCKET OInputServer::startListening()
 	} while (!gotData);
 	
 
-	return ClientSocket;
+	return clientSocket;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void OInputServer::loop()
 {
+#ifdef OMICRON_USE_VRPN
 	// VRPN connection
 	connection->mainloop();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -407,7 +414,13 @@ void OInputServer::createClient(const char* clientAddress, int dataPort)
 	strcpy( addr, clientAddress );
 	char buf[32];
 	strcat( addr, ":" );
+
+#ifdef OMICRON_OS_WIN
 	strcat( addr, itoa(dataPort,buf,10) );
+#else
+	snprintf(buf, 32, "%d",dataPort);
+    strcat(addr, buf);
+#endif
 	
 	// Iterate through client map. If client name already exists,
 	// do not add to list.
@@ -426,7 +439,7 @@ void OInputServer::createClient(const char* clientAddress, int dataPort)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void main(int argc, char** argv)
+int  main(int argc, char** argv)
 {
 	OInputServer app;
 
@@ -456,10 +469,6 @@ void main(int argc, char** argv)
 	omsg("OInputServer: Starting to listen for clients...");
 	while(true)
 	{
-		// TODO: Use StopWatch
-		if( delay > 0.0 )
-			Sleep(1000.0*delay); // Delay sending of data out
-
 		sm->poll();
 		app.loop();
 
@@ -467,7 +476,6 @@ void main(int argc, char** argv)
 		app.startListening();
 
 		// Get events
-		/*
 		int av = sm->getAvailableEvents();
 		if(av != 0)
 		{
@@ -481,7 +489,6 @@ void main(int argc, char** argv)
 			//if( printOutput )
 			//	printf("------------------------------------------------------------------------------\n");
 		}
-		*/
 	}
 
 	sm->stop();
