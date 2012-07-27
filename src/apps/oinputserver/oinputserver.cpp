@@ -136,8 +136,6 @@ public:
 #ifdef OMICRON_USE_VRPN
 		vrpnDevice->update(evt);
 #endif
-		ofmsg("SourceID %2% pos(%1%)", %evt.getPosition() %evt.getSourceId() );
-
 		int offset = 0;
 		
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
