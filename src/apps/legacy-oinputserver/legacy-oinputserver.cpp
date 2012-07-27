@@ -444,7 +444,7 @@ SOCKET OInputServer::startListening(){
 
 			// Make sure handshake is correct
 			String handshake = "data_on";
-			String handshakeLegacy = "omega_legacy_data_on";
+			String handshakeLegacy = "omicron_legacy_data_on";
 			int dataPort = 7000; // default port
 			if( handshake.find(inMessage) || handshakeLegacy.find(inMessage) ){
 				// Get data port number

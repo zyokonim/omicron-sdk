@@ -180,10 +180,10 @@ void LegacyNetService::initHandshake()
 {
 	// Send handshake
 	char sendbuf[50];
-	char portBuf[32];
+
 	sendbuf[0] = '\0';
 
-	sprintf( sendbuf, "omega_legacy_data_on,%d", dataPort );
+	sprintf( sendbuf, "omicron_legacy_data_on,%d", dataPort );
 
 	printf("LegacyNetService: Sending handshake: '%s'\n", sendbuf);
 

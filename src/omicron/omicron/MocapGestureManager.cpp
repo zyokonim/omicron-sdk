@@ -160,8 +160,8 @@ void MocapGestureManager::processEvent( const Event& e )
 			
 			float curt = (float)((double)clock() / CLOCKS_PER_SEC);
 
-			float swipeThreshold = 0.08;
-			float clickThreshold = 0.08;
+			float swipeThreshold = 0.08f;
+			float clickThreshold = 0.08f;
 			if( -xDiff > swipeThreshold )
 				ofmsg("%1% Swipe left", %curt);
 			else if( xDiff > swipeThreshold )

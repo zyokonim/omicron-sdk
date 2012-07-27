@@ -170,7 +170,7 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 	SoundTest app;
 
@@ -219,4 +219,6 @@ void main(int argc, char** argv)
 	delete sm;
 	delete cfg;
 	delete dm;
+	
+	return 0;
 }
