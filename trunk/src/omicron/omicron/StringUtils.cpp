@@ -67,9 +67,9 @@ void StringUtils::trim(String& str, bool left, bool right)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-StringVector StringUtils::split( const String& str, const String& delims, unsigned int maxSplits)
+Vector<String> StringUtils::split( const String& str, const String& delims, unsigned int maxSplits)
 {
-    StringVector ret;
+    Vector<String> ret;
     // Pre-allocate some space for performance
     ret.reserve(maxSplits ? maxSplits+1 : 10);    // 10 is guessed capacity for most case
 
@@ -110,9 +110,9 @@ StringVector StringUtils::split( const String& str, const String& delims, unsign
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-StringVector StringUtils::tokenise( const String& str, const String& singleDelims, const String& doubleDelims, unsigned int maxSplits)
+Vector<String> StringUtils::tokenise( const String& str, const String& singleDelims, const String& doubleDelims, unsigned int maxSplits)
 {
-    StringVector ret;
+    Vector<String> ret;
     // Pre-allocate some space for performance
     ret.reserve(maxSplits ? maxSplits+1 : 10);    // 10 is guessed capacity for most case
 
