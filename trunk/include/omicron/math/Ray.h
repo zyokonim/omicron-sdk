@@ -29,6 +29,7 @@
 #ifndef __RAY_H_
 #define __RAY_H_
 
+#include "Math.h"
 #include "Plane.h"
 #include "PlaneBoundedVolume.h"
 

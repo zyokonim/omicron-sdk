@@ -28,6 +28,22 @@
  // omicron always builds as a shared library
 #define OMICRON_SHARED
  
+// WIN32 Platform-specific includes & macros.
+#ifdef WIN32
+	#ifdef OMICRON_SHARED
+	#define WIN32_LEAN_AND_MEAN
+	#ifdef OMICRON_EXPORTING
+		#define OMICRON_API    __declspec(dllexport)
+	#else
+		#define OMICRON_API    __declspec(dllimport)
+	#endif
+	#else
+		#define OMICRON_API
+	#endif
+#else
+	#define OMICRON_API
+#endif
+
 // Operating system
 #cmakedefine OMICRON_OS_WIN
 #cmakedefine OMICRON_OS_OSX

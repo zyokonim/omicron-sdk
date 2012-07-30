@@ -70,7 +70,7 @@ if(WIN32)
 	add_subdirectory(apps/legacy-oinputserver)
 endif(WIN32)
 add_subdirectory(apps/oinputserver)
-add_subdirectory(apps/soundTest)
+add_subdirectory(apps/soundtest)
 add_subdirectory(apps/eventlogger)
 
 if(OMICRON_BUILD_TUTORIALS)

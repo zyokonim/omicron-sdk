@@ -24,7 +24,10 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
+#include "omicron/osystem.h"
 #include "omicron/math/Math.h"
+#include "omicron/math/Ray.h"
+#include "omicron/math/Sphere.h"
 
 using namespace omicron;
 
