@@ -29,6 +29,7 @@
 
 #include <cmath>
 
+#include "omicronConfig.h"
 #include "Plane.h"
 #include "EigenWrappers.h"
 

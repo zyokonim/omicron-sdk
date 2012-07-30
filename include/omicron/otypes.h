@@ -114,9 +114,6 @@ namespace omicron
 			typedef KeyValue<K, T> Item;
 			typedef std::pair<  typename Dictionary<K, T>::iterator,  typename Dictionary<K, T>::iterator> Range;
 			typedef std::pair<  typename Dictionary<K, T>::const_iterator,  typename Dictionary<K, T>::const_iterator> ConstRange;
-
-			// convenience 'exists' method.
-			bool exists(const K& elem) { return find(K) != end(); }
 		};
 
 	template<typename T> class Vector: public std::vector<T>
