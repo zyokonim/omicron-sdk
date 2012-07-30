@@ -1126,8 +1126,6 @@ Ray Math::unprojectNormalized(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-inline
-	
 Vector3f Math::project(
 	const Vector3f& point, const AffineTransform3& mmodelview, 
 	const Transform3& mprojection, const Rect& rviewport)
@@ -1178,8 +1176,6 @@ Vector3f Math::project(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-inline
-	
 Vector3f Math::normal(
 	const Vector3f& aa, 
 	const Vector3f& bb, 
@@ -1197,8 +1193,6 @@ Vector3f Math::normal(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-inline
-	
 AffineTransform3 Math::computeMatchingPointsTransform(
 	const Vectors3f& src, 
 	const Vectors3f& dst)
@@ -1208,7 +1202,6 @@ AffineTransform3 Math::computeMatchingPointsTransform(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-inline
 void Math::swapMinMax(real& min, real& max)
 {
 	if(min > max)
