@@ -1,3 +1,4 @@
+* [http://ombase.1067372.n5.nabble.com/ Support Forum]*
  * [GettingStarted getting started with omicron]
  * [ReleaseNotes Release Notes]
  * [ServiceReference Input services reference]
@@ -5,5 +6,3 @@
  * [Unity using omicron in Unity]
  * [http://omegalib.googlecode.com/svn/refdocs/trunk/html/namespaceomicron.html API Reference: omicron]
  * [http://omegalib.googlecode.com/svn/refdocs/trunk/html/namespaceomicron_connector.html API Reference: omicronConnector]
-
-* [http://ombase.1067372.n5.nabble.com/ Forum]
