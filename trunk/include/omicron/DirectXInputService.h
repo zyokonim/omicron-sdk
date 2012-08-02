@@ -59,8 +59,8 @@ public:
 private:
 	static DirectXInputService* mysInstance;
 	float myUpdateInterval;
-	// 4 = max number of controllers.
-	uint myButtonState[4];
+	// 10 = max number of controllers.
+	uint myButtonState[10];
 };
 
 }; // namespace omicron

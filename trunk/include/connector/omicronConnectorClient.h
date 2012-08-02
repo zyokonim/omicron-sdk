@@ -61,10 +61,10 @@
 			int iResult;    \
 			iResult = WSAStartup(MAKEWORD(2,2), &wsaData); \
 			if (iResult != 0) { \
-				printf("NetService: WSAStartup failed: %d\n", iResult); \
+				printf("OmicronConnectorClient: WSAStartup failed: %d\n", iResult); \
 				return; \
 			} else { \
-				printf("NetService: Winsock initialized \n"); \
+				printf("OmicronConnectorClient: Winsock initialized \n"); \
 			}
 
 	#else
@@ -428,7 +428,6 @@ namespace omicronConnector
 		sprintf(srvPortChr, "%d", serverPort);
 
 		SOCKET_INIT();
-		printf("NetService: Initializing using linux\n");
 
 		struct addrinfo hints, *res;
 

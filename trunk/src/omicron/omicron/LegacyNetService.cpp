@@ -528,6 +528,7 @@ void LegacyNetService::parseDGram(int result)
 		int Wii_Nunchuk = 3;
 		int Wii_MotionPlus = 4;
 
+
 		for(int i = 0; i < msgLen; i++ ){
 			if( msgStr[i] == ':' ){
 				inputType = atoi( msgStr.substr(lastIndex,i).c_str() );
@@ -611,7 +612,7 @@ void LegacyNetService::parseDGram(int result)
 
 				break;
 			case(Service::Controller):
-
+				/* // Currently broken will need to be updated
 				evt = mysInstance->writeHead();
 				evt->reset(Event::Up, Service::Controller, params[0]);
 
@@ -656,6 +657,7 @@ void LegacyNetService::parseDGram(int result)
 						evt->setExtraDataFloat(i, params[i+1]);
 					}
 				}
+				*/
 				break;
 			default:
 				printf("LegacyNetService: Unsupported input type %d \n", inputType);

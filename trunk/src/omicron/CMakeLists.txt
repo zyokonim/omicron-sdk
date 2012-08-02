@@ -148,6 +148,15 @@ if(OMICRON_USE_OPENNI)
 	endif(WIN32)
 endif()
 
+# Kinect for Windows support
+if(WIN32)
+	set(OMICRON_USE_KINECT_FOR_WINDOWS false CACHE BOOL "Enable/disable Kinect for Windows support")
+	if(OMICRON_USE_KINECT_FOR_WINDOWS)
+		set( srcs	 ${srcs} omicron/MSKinectService.cpp )
+		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/MSKinectService.h )
+	endif()
+endif()
+
 # OSC support    
 set(OMICRON_USE_SOUND true CACHE BOOL "Enable/disable sound support")
 if(OMICRON_USE_SOUND)

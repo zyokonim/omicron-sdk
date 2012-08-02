@@ -35,6 +35,15 @@ int gNumControllers = 0;
 //int wiimoteID = -1;
 int gControllerType[10]; // Stores the type enum for each controller added
 
+struct ControllerInfo{
+	DirectXInputService::ControllerType type;
+	bool connected;
+	int controllerID;
+	unsigned long guidInstanceID;
+};
+
+std::map<int,ControllerInfo*> controllerInfo;
+
 //-----------------------------------------------------------------------------
 // Name: EnumJoysticksCallback()
 // Desc: Called once for each enumerated joystick. If we find one, create a
@@ -43,6 +52,22 @@ int gControllerType[10]; // Stores the type enum for each controller added
 BOOL CALLBACK enumJoysticksCallback( const DIDEVICEINSTANCE* pdidInstance,
                                      VOID* pContext )
 {
+	// Iterate through added controllers to find controller callback belongs to
+	for( int i = 0; i < controllerInfo.size(); i++ )
+	{
+		ControllerInfo* controller = controllerInfo[i];
+		
+		// Is this the right controller?
+		if( controller->guidInstanceID == pdidInstance->guidInstance.Data1 )
+		{
+			if( !controller->connected ){
+				printf("DirectXInputService: Controller ID %d reconnected.\n",controller->controllerID);
+				controller->connected = true;
+			}
+			return DIENUM_CONTINUE; // Controller exists do not add again
+		}
+	}
+
 	HRESULT hr; // Result flag
 	printf("DirectXInputService: EnumJoysticksCallback called.\n");
 
@@ -58,20 +83,41 @@ BOOL CALLBACK enumJoysticksCallback( const DIDEVICEINSTANCE* pdidInstance,
 			// 'Xbox360' product ID: 44106846
 			printf("DirectXInputService: Connecting to Xbox 360 controller.\n",pdidInstance->guidProduct.Data1);
 			gControllerType[gNumControllers] = omicron::DirectXInputService::Xbox360;
+
+			ControllerInfo* newController = new ControllerInfo();
+			newController->controllerID = gNumControllers;
+			newController->guidInstanceID = pdidInstance->guidInstance.Data1;
+			newController->type = omicron::DirectXInputService::Xbox360;
+			newController->connected = true;
+			controllerInfo[gNumControllers] = newController;
 		} 
 		else if( pdidInstance->guidProduct.Data1 == 50890888 )
 		{ 
 			// 'PS3 Sixaxis' product ID: 44106846
 			printf("DirectXInputService: Connecting to PS3 Sixaxis controller.\n",pdidInstance->guidProduct.Data1);
 			gControllerType[gNumControllers] = omicron::DirectXInputService::PS3;
+
+			ControllerInfo* newController = new ControllerInfo();
+			newController->controllerID = gNumControllers;
+			newController->guidInstanceID = pdidInstance->guidInstance.Data1;
+			newController->type = omicron::DirectXInputService::PS3;
+			newController->connected = true;
+			controllerInfo[gNumControllers] = newController;
 		}
 		else 
 		{
 			printf("DirectXInputService: Connecting to controller GUID %d.\n",pdidInstance->guidProduct.Data1);
 			gControllerType[gNumControllers] = omicron::DirectXInputService::Invalid;
+
+			ControllerInfo* newController = new ControllerInfo();
+			newController->controllerID = gNumControllers;
+			newController->guidInstanceID = pdidInstance->guidInstance.Data1;
+			newController->type = omicron::DirectXInputService::Invalid;
+			newController->connected = true;
+			controllerInfo[gNumControllers] = newController;
 		}
 		printf("DirectXInputService: Connecting to controller ID %d.\n",gNumControllers);
-		
+
 		gNumControllers++;
 		return DIENUM_CONTINUE;
 	}
@@ -266,7 +312,7 @@ void DirectXInputService::checkForNewControllers()
 	{
 		if( FAILED( hr = sJoystick[i]->SetDataFormat( &c_dfDIJoystick2 ) ) )
 		{
-			printf("DirectXInputService: Failed set joystick data format.\n");
+			//printf("DirectXInputService: Failed set joystick data format.\n");
 			return;
 		}
 	}
@@ -293,6 +339,7 @@ void DirectXInputService::poll()
 	{
 		return;
 	}
+	checkForNewControllers();
 	lastt = curt;
 
 	HRESULT hr;
@@ -326,7 +373,10 @@ void DirectXInputService::poll()
 		// Get the input's device state
 		if(FAILED( hr = sJoystick[j]->GetDeviceState( sizeof( DIJOYSTATE2 ), &js )))
 		{
-			printf("DirectXInputService: Failed to get input's device state for controller %d.\n", j);
+			
+			ControllerInfo* controller = controllerInfo[j];
+			controller->connected = false;
+			printf("DirectXInputService: Failed to get input's device state for controller %d. GUIDID %d.\n",j, controller->guidInstanceID);
 			break; // The device should have been acquired during the Poll()
 		}
 
@@ -380,20 +430,20 @@ void DirectXInputService::poll()
 			if(js.rgbButtons[3] & 0x80) curButtonState |= Event::Button4;
 
 			// Left Shoulder Button (L1)
-			if(js.rgbButtons[6] & 0x80) curButtonState |= Event::Button5;
+			if(js.rgbButtons[4] & 0x80) curButtonState |= Event::Button5;
 			// Right Shoulder Button (R1)
-			if(js.rgbButtons[7] & 0x80) curButtonState |= Event::Button6;
+			if(js.rgbButtons[5] & 0x80) curButtonState |= Event::Button6;
 
 			// Left Analog Pad Pressed (L3)
-			if(js.rgbButtons[10] & 0x80) curButtonState |= Event::Button7;
+			if(js.rgbButtons[9] & 0x80) curButtonState |= Event::Button7;
 
 			// Right Analog Pad Pressed (R3)
 			// We could use SpecialButton3 but we leave it out for now.
 
-			// Back Button
+			// Select Button
 			if(js.rgbButtons[8] & 0x80) curButtonState |= Event::SpecialButton1;
 			// Start Button
-			if(js.rgbButtons[9] & 0x80) curButtonState |= Event::SpecialButton2;
+			if(js.rgbButtons[11] & 0x80) curButtonState |= Event::SpecialButton2;
 			
 			// PS Button
 			if(js.rgbButtons[12] & 0x80) curButtonState |= Event::SpecialButton3;
@@ -431,11 +481,11 @@ void DirectXInputService::poll()
 
 		evt->setExtraDataType(Event::ExtraDataFloatArray);
 
-		evt->setExtraDataFloat(0, js.lX);  // Left analog (-left, +right)
-		evt->setExtraDataFloat(1, js.lY);  // Left analog (-up, +down)
-		evt->setExtraDataFloat(2, js.lRx); // Right analog (-left, +right)
-		evt->setExtraDataFloat(3, js.lRy); // Right analog (-up, +down)
-		evt->setExtraDataFloat(4, js.lZ); // Trigger 2 (+left, -right)
+		evt->setExtraDataFloat(0, js.lX / 1000.0f);  // Left analog (-left, +right)
+		evt->setExtraDataFloat(1, js.lY / 1000.0f);  // Left analog (-up, +down)
+		evt->setExtraDataFloat(2, js.lRx / 1000.0f); // Right analog (-left, +right)
+		evt->setExtraDataFloat(3, js.lRy / 1000.0f); // Right analog (-up, +down)
+		evt->setExtraDataFloat(4, js.lZ / 1000.0f); // Trigger 2 (+left, -right)
 		
 		unlockEvents();
 	}
