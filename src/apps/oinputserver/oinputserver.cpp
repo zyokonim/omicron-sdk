@@ -67,10 +67,10 @@ using namespace omicron;
 	#define SOCKET_INIT() \
 		iResult = WSAStartup(MAKEWORD(2,2), &wsaData); \
 		if (iResult != 0) { \
-			printf("NetService: WSAStartup failed: %d\n", iResult); \
+			printf("%s: WSAStartup failed: %d\n", typeid(*this).name(), iResult); \
 			return; \
 		} else { \
-			printf("NetService: Winsock initialized \n"); \
+			printf("%s: Winsock initialized \n",  typeid(*this).name()); \
 		}
 #else
 	#define SOCKET_CLOSE(sock) close(sock);
@@ -93,10 +93,13 @@ class NetClient
 private:
 	SOCKET sendSocket;
 	sockaddr_in recvAddr;
+	bool legacyMode;
 
 public:
 	NetClient( const char* address, int port )
 	{
+		legacyMode = false;
+
 		// Create a UDP socket for sending data
 		sendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -106,6 +109,29 @@ public:
 		recvAddr.sin_port = htons(port);
 		recvAddr.sin_addr.s_addr = inet_addr(address);
 		printf("NetClient %s:%i created...\n", address, port);
+	}// CTOR
+
+	NetClient( const char* address, int port, int legacy )
+	{
+		legacyMode = legacy;
+
+		// Create a UDP socket for sending data
+		sendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+		// Set up the RecvAddr structure with the IP address of
+		// the receiver
+		recvAddr.sin_family = AF_INET;
+		recvAddr.sin_port = htons(port);
+		recvAddr.sin_addr.s_addr = inet_addr(address);
+
+		if( legacyMode )
+		{
+			printf("Legacy NetClient %s:%i created...\n", address, port);
+		}
+		else
+		{
+			printf("NetClient %s:%i created...\n", address, port);
+		}
 	}// CTOR
 
 	void sendEvent(char* eventPacket, int length)
@@ -118,6 +144,16 @@ public:
             (const struct sockaddr*)&recvAddr,
 			sizeof(recvAddr));
 	}// SendEvent
+
+	void setLegacy(bool value)
+	{
+		legacyMode = value;
+	}// setLegacy
+
+	bool isLegacy()
+	{
+		return legacyMode;
+	}// isLegacy
 };
 
 #define OI_WRITEBUF(type, buf, offset, val) *((type*)&buf[offset]) = val; offset += sizeof(type);
@@ -165,18 +201,196 @@ public:
 		while( itr != netClients.end() )
 		{
 			NetClient* client = itr->second;
+
+			if( client->isLegacy() )
+				handleLegacyEvent(evt);
+
 			client->sendEvent(eventPacket, offset);
 			itr++;
 		}
 	}
 	
+	virtual bool handleLegacyEvent(const Event& evt)
+	{
+		//itoa(evt.getServiceType(), eventPacket, 10); // Append input type
+		sprintf(eventPacket, "%d", evt.getServiceType());
+
+		strcat( eventPacket, ":" );
+		char floatChar[32];
+		
+		switch(evt.getServiceType())
+		{
+		case Service::Pointer:
+			//printf(" Touch type %d \n", evt.getType()); 
+			//printf("               at %f %f \n", x, y ); 
+
+			// Converts gesture type to char, appends to eventPacket
+			sprintf(floatChar,"%d",evt.getType());
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts id to char, appends to eventPacket
+			sprintf(floatChar,"%d",evt.getSourceId());
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts x to char, appends to eventPacket
+			sprintf(floatChar,"%f",evt.getPosition(0));
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts y to char, appends to eventPacket
+			sprintf(floatChar,"%f",evt.getPosition(1));
+			strcat( eventPacket, floatChar );
+
+			if( evt.getExtraDataItems() == 2){ // TouchPoint down/up/move
+				// Converts xWidth to char, appends to eventPacket
+				strcat( eventPacket, "," ); // Spacer
+				sprintf(floatChar,"%f", evt.getExtraDataFloat(0) );
+				strcat( eventPacket, floatChar );
+				
+				// Converts yWidth to char, appends to eventPacket
+				strcat( eventPacket, "," ); // Spacer
+				sprintf(floatChar,"%f", evt.getExtraDataFloat(1) );
+				strcat( eventPacket, floatChar );
+			} else { // Touch Gestures
+				// Converts value to char, appends to eventPacket
+				strcat( eventPacket, "," ); // Spacer
+				sprintf(floatChar,"%f", evt.getExtraDataFloat(0) );
+				strcat( eventPacket, floatChar );
+				
+				// Converts value to char, appends to eventPacket
+				strcat( eventPacket, "," ); // Spacer
+				sprintf(floatChar,"%f", evt.getExtraDataFloat(1) );
+				strcat( eventPacket, floatChar );
+
+				// Converts value to char, appends to eventPacket
+				strcat( eventPacket, "," ); // Spacer
+				sprintf(floatChar,"%f", evt.getExtraDataFloat(2) );
+				strcat( eventPacket, floatChar );
+
+				// Converts value to char, appends to eventPacket
+				strcat( eventPacket, "," ); // Spacer
+				sprintf(floatChar,"%f", evt.getExtraDataFloat(3) );
+				strcat( eventPacket, floatChar );
+
+				if( evt.getType() == Event::Rotate ){
+					// Converts rotation to char, appends to eventPacket
+					strcat( eventPacket, "," ); // Spacer
+					sprintf(floatChar,"%f", evt.getExtraDataFloat(4) );
+					strcat( eventPacket, floatChar );
+				} else if( evt.getType() == Event::Split ){
+					// Converts values to char, appends to eventPacket
+					strcat( eventPacket, "," ); // Spacer
+					sprintf(floatChar,"%f", evt.getExtraDataFloat(4) ); // Delta distance
+					strcat( eventPacket, floatChar );
+
+					strcat( eventPacket, "," ); // Spacer
+					sprintf(floatChar,"%f", evt.getExtraDataFloat(5) ); // Delta ratio
+					strcat( eventPacket, floatChar );
+				}
+			}
+
+			strcat( eventPacket, " " ); // Spacer
+
+			return true;
+			break;
+
+		case Service::Mocap:
+		{
+			// Converts id to char, appends to eventPacket
+			sprintf(floatChar,"%d",evt.getSourceId());
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts xPos to char, appends to eventPacket
+			sprintf(floatChar,"%f",evt.getPosition(0));
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts yPos to char, appends to eventPacket
+			sprintf(floatChar,"%f",evt.getPosition(1));
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts zPos to char, appends to eventPacket
+			sprintf(floatChar,"%f",evt.getPosition(2));
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts xRot to char, appends to eventPacket
+			sprintf(floatChar,"%f",evt.getOrientation().x());
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts yRot to char, appends to eventPacket
+			sprintf(floatChar,"%f",evt.getOrientation().y());
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts zRot to char, appends to eventPacket
+			sprintf(floatChar,"%f",evt.getOrientation().z());
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// Converts zRot to char, appends to eventPacket
+			sprintf(floatChar,"%f",evt.getOrientation().w());
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, " " ); // Spacer
+			return true;
+			break;
+		}
+
+		case Service::Controller:
+			// Converts id to char, appends to eventPacket
+			sprintf(floatChar,"%d",evt.getSourceId());
+			strcat( eventPacket, floatChar );
+			strcat( eventPacket, "," ); // Spacer
+
+			// See DirectXInputService.cpp for parameter details
+			
+			for( int i = 0; i < evt.getExtraDataItems(); i++ ){
+				sprintf(floatChar,"%d", (int)evt.getExtraDataFloat(i));
+				strcat( eventPacket, floatChar );
+				if( i < evt.getExtraDataItems() - 1 )
+					strcat( eventPacket, "," ); // Spacer
+				else
+					strcat( eventPacket, " " ); // Spacer
+			}
+			return true;
+			break;
+		case Service::Brain:
+			// Converts id to char, appends to eventPacket
+			sprintf(floatChar,"%d",evt.getSourceId());
+			strcat( eventPacket, floatChar );
+			for( int i = 0; i < 12; i++ ){
+				strcat( eventPacket, "," ); // Spacer
+				sprintf(floatChar,"%d", (int)evt.getExtraDataFloat(i));
+				strcat( eventPacket, floatChar );
+			}
+			return true;
+			break;
+		case Service::Generic:
+			// Converts id to char, appends to eventPacket
+			sprintf(floatChar,"%d",evt.getSourceId());
+			strcat( eventPacket, floatChar );
+			return true;
+			break;
+		default: break;
+		}
+		
+		delete[] eventPacket;
+		return false;
+	}
+
 	void startConnection(Config* cfg);
 	SOCKET startListening();
 
 	// VRPN Server (for CalVR)
 	void loop();
 private:
-	void createClient(const char*,int);
+	enum dataMode { omicron, omicron_legacy };
+	void createClient(const char*,int,bool);
 
 	const char* serverPort;
 	SOCKET listenSocket;    
@@ -345,13 +559,14 @@ SOCKET OInputServer::startListening()
 
 			// Iterate through message string and
 			// separate 'data_on,' from the port number
-			int portIndex = -1;
+			int portIndex = iResult;
 			for( int i = 0; i < iResult; i++ )
 			{
 				if( recvbuf[i] == ',' )
 				{
 					portIndex = i + 1;
-				} 
+					inMessage[i] = '\n';
+				}
 				else if( i < portIndex )
 				{
 					inMessage[i] = recvbuf[i];
@@ -363,15 +578,25 @@ SOCKET OInputServer::startListening()
 			}
 
 			// Make sure handshake is correct
-			String handshake = "omicron_data_on";
+			char* handshake = "omicron_data_on";
+			char* legacyHandshake = "omicron_legacy_data_on";
 			int dataPort = 7000; // default port
-			if( handshake.find(inMessage) )
+
+			if( strcmp(inMessage, legacyHandshake) == 1 )
+			{
+				// Get data port number
+				dataPort = atoi(portCStr);
+				printf("OInputServer: '%s' requests legacy data to be sent on port '%d'\n", clientAddress, dataPort);
+				createClient( clientAddress, dataPort, true );
+			}
+			else if( strcmp(inMessage, handshake) == 1 )
 			{
 				// Get data port number
 				dataPort = atoi(portCStr);
 				printf("OInputServer: '%s' requests data to be sent on port '%d'\n", clientAddress, dataPort);
-				createClient( clientAddress, dataPort );
+				createClient( clientAddress, dataPort, false );
 			}
+
 			gotData = true;
 			delete inMessage;
 			delete portCStr;
@@ -405,7 +630,7 @@ void OInputServer::loop()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void OInputServer::createClient(const char* clientAddress, int dataPort)
+void OInputServer::createClient(const char* clientAddress, int dataPort, bool legacy)
 {
 	// Generate a unique name for client "address:port"
 	char* addr = new char[128];
@@ -429,11 +654,21 @@ void OInputServer::createClient(const char* clientAddress, int dataPort)
 		if( strcmp(p->first, addr) == 0 )
 		{
 			printf("OInputServer: NetClient already exists: %s \n", addr );
+
+			// Check dataMode: if different, update client
+			if( p->second->isLegacy() != legacy )
+			{
+				if( legacy )
+					printf("OInputServer: NetClient %s now using legacy omicron data \n", addr );
+				else
+					printf("OInputServer: NetClient %s now using omicron data \n", addr );
+				p->second->setLegacy(legacy);
+			}
 			return;
 		}
 	}
 
-	netClients[addr] = new NetClient( clientAddress, dataPort );
+	netClients[addr] = new NetClient( clientAddress, dataPort, legacy );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
