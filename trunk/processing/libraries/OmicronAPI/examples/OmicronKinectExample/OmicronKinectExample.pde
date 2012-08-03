@@ -33,7 +33,7 @@ public void init() {
   omicronManager = new OmicronAPI(this);
 
   // Removes the title bar for full screen mode (present mode will not work on Cyber-commons wall)
-  omicronManager.setFullscreen(false);
+  omicronManager.setFullscreen(true);
 }
 
 // Program initializations
