@@ -4,7 +4,7 @@
  * Description: Omicron Processing example for running a fullscreen application on the Cyber-Commons wall.
  *
  * Class: 
- * System: Processing 2.0.5 (beta), SUSE 12.1
+ * System: Processing 2.0a5, SUSE 12.1, Windows 7
  * Author: Arthur Nishimoto
  * Version: 1.0
  *
