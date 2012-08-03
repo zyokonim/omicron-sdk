@@ -4,7 +4,7 @@
  * Description: Omicron Processing example for running a fullscreen touch application on the Cyber-Commons wall.
  *
  * Class: 
- * System: Processing 2.0.5 (beta), SUSE 12.1
+ * System: Processing 2.0a5, SUSE 12.1, Windows 7
  * Author: Arthur Nishimoto
  * Version: 1.0
  *
@@ -19,7 +19,7 @@ import processing.net.*;
 import omicronAPI.*;
 
 OmicronAPI omicronManager;
-MyTouchListener touchListener;
+TouchListener touchListener;
 
 // Link to this Processing applet - used for touchDown() callback example
 PApplet applet;
@@ -43,7 +43,7 @@ void setup() {
   omicronManager.ConnectToTracker(7001, 7340, "localhost");
   
   // Create a listener to get events
-  touchListener = new MyTouchListener();
+  touchListener = new TouchListener();
   
   // Register listener with OmicronAPI
   omicronManager.setTouchListener(touchListener);
@@ -60,9 +60,12 @@ void draw() {
   omicronManager.process();
 }// draw
 
-// See MyTouchListener on how to use this function call
-// In this example MyTouchListener draws a solid ellipse
+// See TouchListener on how to use this function call
+// In this example TouchListener draws a solid ellipse
 // Ths functions here draws a ring around the solid ellipse
+
+// NOTE: Mouse pressed, dragged, and released events will also trigger these
+//       using an ID of -1 and an xWidth and yWidth value of 10.
 void touchDown(int ID, float xPos, float yPos, float xWidth, float yWidth){
   noFill();
   stroke(255,0,0);

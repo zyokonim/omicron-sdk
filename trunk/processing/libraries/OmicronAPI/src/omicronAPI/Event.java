@@ -36,7 +36,7 @@ public class Event {
 	public int sourceID; // Device IDs (touch ids, mocap joints, etc.)
 	public int eventID; // Event type i.e. click, move, etc.
 	public int serviceID; // Used for pointer to denote types (Mouse, touch)
-	public int serviceType; // Pointer, mocap, voice, etc.
+	public OmicronAPI.ServiceType serviceType; // Pointer, mocap, voice, etc.
 
 	public float[] dataArray;
 	int dataArraySize = 0;
@@ -70,7 +70,7 @@ public class Event {
 			return -1;
 	}
 
-	public int getServiceType() {
+	public OmicronAPI.ServiceType getServiceType() {
 		return serviceType;
 	}
 
