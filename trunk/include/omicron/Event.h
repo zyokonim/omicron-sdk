@@ -57,6 +57,7 @@ namespace omicron
 	public:
 		static const int ExtraDataSize = 1024;
 		static const int MaxExtraDataItems = 32;
+		static Event::Flags parseButtonName(const String& name);
 
 	public:
 		Event();
@@ -158,6 +159,24 @@ namespace omicron
 		int myExtraDataValidMask;
 		byte myExtraData[ExtraDataSize];
 	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline 
+	Event::Flags Event::parseButtonName(const String& name)
+	{
+		if(name == "Button1") return Button1;
+		if(name == "Button2") return Button2;
+		if(name == "Button3") return Button3;
+		if(name == "Button4") return Button4;
+		if(name == "Button5") return Button5;
+		if(name == "Button6") return Button6;
+		if(name == "Button7") return Button7;
+		if(name == "ButtonLeft") return ButtonLeft;
+		if(name == "ButtonRight") return ButtonRight;
+		if(name == "ButtonUp") return ButtonUp;
+		if(name == "ButtonDown") return ButtonDown;
+		return (Event::Flags)0;
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline Event::Event():
