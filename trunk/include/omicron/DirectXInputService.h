@@ -32,6 +32,7 @@
 #include "omicron/osystem.h"
 #include "omicron/ServiceManager.h"
 #include "omicron/dinput.h"
+#include <set>
 
 namespace omicron
 {
@@ -59,6 +60,7 @@ public:
 private:
 	static DirectXInputService* mysInstance;
 	float myUpdateInterval;
+	float myCheckControllerInterval;
 	// 10 = max number of controllers.
 	uint myButtonState[10];
 };
