@@ -165,14 +165,19 @@ void VRPNService::dispose()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void VRPNService::generateEvent(vrpn_TRACKERCB t, int id) 
 {
-	
-	mysInstance->lockEvents();
-	Event* evt = mysInstance->writeHead();
-	evt->reset(Event::Update, Service::Mocap, id);
-	evt->setPosition(t.pos[0], t.pos[1], t.pos[2]);
+	 //static float lastt;
+	 //float curt = (float)((double)clock() / CLOCKS_PER_SEC);
+	 //if(curt - lastt > mysInstance->myUpdateInterval)
+	 //{
+		 mysInstance->lockEvents();
+		 Event* evt = mysInstance->writeHead();
+		 evt->reset(Event::Update, Service::Mocap, id);
+		 evt->setPosition(t.pos[0], t.pos[1], t.pos[2]);
 
-	//double euler[3];
-	//q_to_euler(euler, t.quat);
-	evt->setOrientation(t.quat[3], t.quat[0], t.quat[1], t.quat[2]);
-	mysInstance->unlockEvents();
+		// //double euler[3];
+		// //q_to_euler(euler, t.quat);
+		 evt->setOrientation(t.quat[3], t.quat[0], t.quat[1], t.quat[2]);
+		 mysInstance->unlockEvents();
+		 //lastt = curt;
+	 //}
 }

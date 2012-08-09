@@ -429,7 +429,7 @@ void OInputServer::startConnection(Config* cfg)
 #ifdef OMICRON_USE_VRPN
 	// VRPN Server Test ///////////////////////////////////////////////
 	const char	*TRACKER_NAME = "Device0";
-	int	CONNECTION_PORT = vrpn_DEFAULT_LISTEN_PORT_NO;	// Port for connection to listen on
+	int	CONNECTION_PORT = 3891;//vrpn_DEFAULT_LISTEN_PORT_NO;	// Port for connection to listen on
 
 	// explicitly open the connection
 	connection = vrpn_create_server_connection(CONNECTION_PORT);
@@ -578,7 +578,8 @@ SOCKET OInputServer::startListening()
 			}
 
 			// Make sure handshake is correct
-			char* handshake = "omicron_data_on";
+			char* handshake = "data_on";
+			char* omicronHandshake = "omicron_data_on";
 			char* legacyHandshake = "omicron_legacy_data_on";
 			int dataPort = 7000; // default port
 
@@ -589,11 +590,26 @@ SOCKET OInputServer::startListening()
 				printf("OInputServer: '%s' requests legacy data to be sent on port '%d'\n", clientAddress, dataPort);
 				createClient( clientAddress, dataPort, true );
 			}
+			else if( strcmp(inMessage, omicronHandshake) == 1 )
+			{
+				// Get data port number
+				dataPort = atoi(portCStr);
+				printf("OInputServer: '%s' requests data to be sent on port '%d'\n", clientAddress, dataPort);
+				createClient( clientAddress, dataPort, false );
+			}
 			else if( strcmp(inMessage, handshake) == 1 )
 			{
 				// Get data port number
 				dataPort = atoi(portCStr);
 				printf("OInputServer: '%s' requests data to be sent on port '%d'\n", clientAddress, dataPort);
+				createClient( clientAddress, dataPort, false );
+			}
+			else
+			{
+				// Get data port number
+				dataPort = atoi(portCStr);
+				printf("OInputServer: '%s' requests data to be sent on port '%d'\n", clientAddress, dataPort);
+				printf("OInputServer: '%s' using unknown handshake '%s'\n", clientAddress, inMessage);
 				createClient( clientAddress, dataPort, false );
 			}
 
@@ -700,6 +716,7 @@ int  main(int argc, char** argv)
 #endif
 
 	omsg("OInputServer: Starting to listen for clients...");
+	int i = 0;
 	while(true)
 	{
 		sm->poll();
@@ -710,6 +727,7 @@ int  main(int argc, char** argv)
 
 		// Get events
 		int av = sm->getAvailableEvents();
+		//ofmsg("------------------------loop %1%  av %2%", %i++ %av);
 		if(av != 0)
 		{
 			// TODO: Instead of copying the event list, we can lock the main one.
@@ -722,6 +740,11 @@ int  main(int argc, char** argv)
 			//if( printOutput )
 			//	printf("------------------------------------------------------------------------------\n");
 		}
+#ifdef WIN32
+		Sleep(1);
+#else
+		usleep(1000);
+#endif	
 	}
 
 	sm->stop();

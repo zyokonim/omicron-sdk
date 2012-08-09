@@ -246,6 +246,7 @@ DirectXInputService* DirectXInputService::mysInstance = NULL;
 void DirectXInputService::setup(Setting& settings)
 {
 	myUpdateInterval = Config::getFloatValue("updateInterval", settings, 0.01f);
+	myCheckControllerInterval = Config::getFloatValue("checkControllerInterval", settings, 2.00f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -334,12 +335,18 @@ void DirectXInputService::checkForNewControllers()
 void DirectXInputService::poll() 
 {
 	static float lastt;
+	static float checkControllerLastt;
 	float curt = (float)((double)clock() / CLOCKS_PER_SEC);
 	if(curt - lastt <= myUpdateInterval)
 	{
 		return;
 	}
-	checkForNewControllers();
+	
+	if(curt - checkControllerLastt > myCheckControllerInterval)
+	{
+		checkForNewControllers();
+		checkControllerLastt = curt;
+	}
 	lastt = curt;
 
 	HRESULT hr;

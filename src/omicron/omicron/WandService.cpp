@@ -73,7 +73,9 @@ void WandService::poll()
 		// Process mocap events.
 		if(evt->isFrom(Service::Mocap, myRaySourceId))
 		{
-			evt->setProcessed();
+			// Do not mark the mocap event as processed, so clients that do not use the wand service can
+			// still receive events from the wand rigid body
+			//evt->setProcessed();
 			myWandOrientation = evt->getOrientation();
 			myWandPosition = evt->getPosition();
 			if(myDebug)
