@@ -60,6 +60,8 @@ namespace omicron
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Function definitions.
+	OMICRON_API void ologenable();
+	OMICRON_API void ologdisable();
 	OMICRON_API void ologaddlistener(ILogListener* listener);
 	OMICRON_API void ologremlistener(ILogListener* listener);
 	OMICRON_API void ologopen(const char* filename);

@@ -35,6 +35,13 @@ namespace omicron
 	FILE* sLogFile = NULL;
 	List<ILogListener*> sLogListeners;
 	bool sAppendNewline = true;
+	bool sLogEnabled = true;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	void ologenable() { sLogEnabled = true; }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	void ologdisable() { sLogEnabled = false; }
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	void ologaddnewline(bool enabled)
@@ -75,40 +82,49 @@ namespace omicron
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	void omsg(const String& str)
 	{
-		const char* fmt = sAppendNewline? "%s\n" : "%s";
-		printf(fmt, str.c_str());
-		if(sLogFile)
+		if(sLogEnabled)
 		{
-			fprintf(sLogFile, fmt, str.c_str());
-			fflush(sLogFile);
+			const char* fmt = sAppendNewline? "%s\n" : "%s";
+			printf(fmt, str.c_str());
+			if(sLogFile)
+			{
+				fprintf(sLogFile, fmt, str.c_str());
+				fflush(sLogFile);
+			}
+			foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 		}
-		foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	void owarn(const String& str)
 	{
-		const char* fmt = sAppendNewline? "!!! %s\n" : "!!! %s";
-		printf(fmt, str.c_str());
-		if(sLogFile)
+		if(sLogEnabled)
 		{
-			fprintf(sLogFile, fmt, str.c_str());
-			fflush(sLogFile);
+			const char* fmt = sAppendNewline? "!!! %s\n" : "!!! %s";
+			printf(fmt, str.c_str());
+			if(sLogFile)
+			{
+				fprintf(sLogFile, fmt, str.c_str());
+				fflush(sLogFile);
+			}
+			foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 		}
-		foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	void oerror(const String& str)
 	{
-		const char* fmt = sAppendNewline? "*** %s\n" : "*** %s";
-		printf(fmt, str.c_str());
-		if(sLogFile)
+		if(sLogEnabled)
 		{
-			fprintf(sLogFile, fmt, str.c_str());
-			fflush(sLogFile);
+			const char* fmt = sAppendNewline? "*** %s\n" : "*** %s";
+			printf(fmt, str.c_str());
+			if(sLogFile)
+			{
+				fprintf(sLogFile, fmt, str.c_str());
+				fflush(sLogFile);
+			}
+			foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 		}
-		foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
