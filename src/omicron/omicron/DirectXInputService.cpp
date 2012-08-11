@@ -438,13 +438,11 @@ void DirectXInputService::poll()
 
 			// Left Shoulder Button (L1)
 			if(js.rgbButtons[4] & 0x80) curButtonState |= Event::Button5;
-			// Right Shoulder Button (R1)
-			if(js.rgbButtons[5] & 0x80) curButtonState |= Event::Button6;
-
 			// Left Analog Pad Pressed (L3)
-			if(js.rgbButtons[9] & 0x80) curButtonState |= Event::Button7;
+			if(js.rgbButtons[9] & 0x80) curButtonState |= Event::Button6;
 
-			// Right Analog Pad Pressed (R3)
+			// NOTE: We are NOT mapping right shoulder, trigger and analog pad buttons.
+			// This implementation is mostly targeted at PS3 Move controllers.
 			// We could use SpecialButton3 but we leave it out for now.
 
 			// Select Button
