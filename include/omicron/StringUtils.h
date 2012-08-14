@@ -35,18 +35,17 @@
 
 // Boost format class
 #include "boost/format.hpp"
+#include "boost/lexical_cast.hpp"
 
 namespace omicron 
 {
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	//! A string formatting class derived from boost::format, with the addition of a String 
-	//! conversion operator.
-	typedef boost::format Format;
+	//using namespace boost;
+
 	// Define some macros to simplify string formatting and formatted logging
-	#define ostr(format, args) boost::str(omicron::Format(format) args)
-	#define ofmsg(format, args) omsg(ostr(format, args))
-	#define oferror(format, args) oerror(ostr(format, args))
-	#define ofwarn(format, args) owarn(ostr(format, args))
+	#define ostr(fmt, args) boost::str(boost::format(fmt) args)
+	#define ofmsg(fmt, args) omsg(boost::str(boost::format(fmt) args))
+	#define oferror(fmt, args) oerror(boost::str(boost::format(fmt) args))
+	#define ofwarn(fmt, args) owarn(boost::str(boost::format(fmt) args))
 
     /** Utility class for manipulating Strings.  */
     class OMICRON_API StringUtils
