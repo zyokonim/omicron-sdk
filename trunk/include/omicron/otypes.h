@@ -44,9 +44,7 @@
 #include <boost/detail/atomic_count.hpp>
 
 // Hack to rename intrusive_ptr to Ref.
-#define intrusive_ptr Ref
-#include <boost/smart_ptr/intrusive_ptr.hpp>
-#undef intrusive_ptr
+#include "omicron/ref.hpp"
 #define foreach BOOST_FOREACH
 
 #define NOMINMAX
@@ -80,8 +78,6 @@ namespace boost { template<class Ch, class Tr, class Alloc> class basic_format; 
 
 namespace omicron
 {
-	using boost::Ref;
-
 	// Basic typedefs
 	typedef unsigned char byte;
 	#ifndef OMICRON_OS_LINUX 
