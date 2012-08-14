@@ -150,10 +150,11 @@ endif()
 
 # Kinect for Windows support
 if(WIN32)
-	set(OMICRON_USE_KINECT_FOR_WINDOWS false CACHE BOOL "Enable/disable Kinect for Windows support")
+	set(OMICRON_USE_KINECT_FOR_WINDOWS false CACHE BOOL "Enable/disable Kinect for Windows support (Kinect for Windows SDK Redistributable must be installed)")
 	if(OMICRON_USE_KINECT_FOR_WINDOWS)
 		set( srcs	 ${srcs} omicron/MSKinectService.cpp )
 		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/MSKinectService.h )
+		include_directories($ENV{KINECTSDK10_DIR}/inc)
 	endif()
 endif()
 
@@ -304,6 +305,20 @@ IF(OMICRON_USE_OPENNI)
 	ENDIF(WIN32)
 ENDIF(OMICRON_USE_OPENNI)
 
+if(OMICRON_USE_KINECT_FOR_WINDOWS)
+	if(WIN32)
+		target_link_libraries( omicron ${EXT_LIB_DIR}/Kinect10.lib)
+		#if(OMICRON_ARCH_32)
+		#	target_link_libraries( omicron $ENV{KINECTSDK10_DIR}/lib/x86/Kinect10.lib)
+		#if(OMICRON_ARCH_64)
+		#	target_link_libraries( omicron $ENV{KINECTSDK10_DIR}/lib/amd64/Kinect10.lib)
+			
+		# Copy the dll into the destination bin directory
+		configure_file(${EXT_LIB_DIR}/Microsoft.Kinect.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG} COPYONLY)
+		configure_file(${EXT_LIB_DIR}/Microsoft.Kinect.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE} COPYONLY)
+	endif(WIN32)
+endif(OMICRON_USE_KINECT_FOR_WINDOWS)
+
 if(OMICRON_USE_DIRECTINPUT)
 	if(WIN32)
 		target_link_libraries( omicron ${EXT_LIB_DIR}/dinput8.lib)
@@ -322,7 +337,7 @@ endif(OMICRON_USE_VRPN)
 if(OMICRON_USE_THINKGEAR)
 	if(WIN32)
 		target_link_libraries( omicron ${EXT_LIB_DIR}/thinkgear.lib)
-		# Copy the PQLabs dll into the destination bin directory
+		# Copy the dll into the destination bin directory
 		configure_file(${EXT_LIB_DIR}/thinkgear.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG} COPYONLY)
 		configure_file(${EXT_LIB_DIR}/thinkgear.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE} COPYONLY)
 	endif(WIN32)
