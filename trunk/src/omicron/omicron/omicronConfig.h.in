@@ -62,6 +62,7 @@
 // Enabled modules
 #cmakedefine OMICRON_USE_NETSERVICE
 #cmakedefine OMICRON_USE_OPENNI
+#cmakedefine OMICRON_USE_KINECT_FOR_WINDOWS
 #cmakedefine OMICRON_USE_NATURAL_POINT
 #cmakedefine OMICRON_USE_OPTITRACK
 #cmakedefine OMICRON_USE_PQLABS

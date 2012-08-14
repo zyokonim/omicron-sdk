@@ -66,6 +66,9 @@
 #ifdef OMICRON_USE_OPENNI
 	#include "omicron/OpenNIService.h"
 #endif
+#ifdef OMICRON_USE_KINECT_FOR_WINDOWS
+	#include "omicron/MSKinectService.h"
+#endif
 #ifdef OMICRON_USE_VRPN
 	#include "omicron/VRPNService.h"
 #endif
@@ -140,6 +143,9 @@ void ServiceManager::registerDefaultServices()
 #endif
 #ifdef OMICRON_USE_OPENNI
 	registerService("OpenNIService", (ServiceAllocator)OpenNIService::New);
+#endif
+#ifdef OMICRON_USE_KINECT_FOR_WINDOWS
+	registerService("MSKinectService", (ServiceAllocator)MSKinectService::New);
 #endif
 #ifdef OMICRON_USE_OSC
 	//registerService("OSCService", (ServiceAllocator)OSCService::New);
