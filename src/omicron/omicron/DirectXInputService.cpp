@@ -383,7 +383,7 @@ void DirectXInputService::poll()
 			
 			ControllerInfo* controller = controllerInfo[j];
 			controller->connected = false;
-			printf("DirectXInputService: Failed to get input's device state for controller %d. GUIDID %d.\n",j, controller->guidInstanceID);
+			printf("DirectXInputService: Failed to get input's device state for controller %d. Likely disconnected.\n",j);
 			break; // The device should have been acquired during the Poll()
 		}
 
