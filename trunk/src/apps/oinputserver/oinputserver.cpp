@@ -666,7 +666,7 @@ void OInputServer::createClient(const char* clientAddress, int dataPort, bool le
 	std::map<char*, NetClient*>::iterator p;
 	for(p = netClients.begin(); p != netClients.end(); p++) 
 	{
-		printf( "%s \n", p->first );
+		//printf( "%s \n", p->first );
 		if( strcmp(p->first, addr) == 0 )
 		{
 			printf("OInputServer: NetClient already exists: %s \n", addr );
