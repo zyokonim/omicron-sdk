@@ -160,24 +160,27 @@ namespace omicron
 		virtual ~ReferenceType();
 
 
-		friend void intrusive_ptr_add_ref(ReferenceType const* s)
+		inline void ref()
 			{
 				//oassert(s->ref_count >= 0);
 				//oassert(s != 0);
-				++s->myRefCount;
+				++myRefCount;
 			}
 
-		friend void intrusive_ptr_release(ReferenceType const* s)
+		inline void unref()
 			{
 				//oassert(s->ref_count > 0);
 				//oassert(s != 0);
-				if (--s->myRefCount == 0) delete s;
+				if (--myRefCount == 0) delete this;
 			}
 	private:
 		mutable boost::detail::atomic_count myRefCount;
 	protected:
 		static List<ReferenceType*> mysObjList;
 	};
+
+	inline void intrusive_ptr_add_ref(ReferenceType* p) { p->ref(); }
+	inline void intrusive_ptr_release(ReferenceType* p) { p->unref(); }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	//! Utility class to generate a sequentially numbered series of names
