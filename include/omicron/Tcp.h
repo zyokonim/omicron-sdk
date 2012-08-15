@@ -140,7 +140,7 @@ namespace omicron {
 		bool myRunning;
 		tcp::acceptor* myAcceptor;
 		asio::io_service myIOService;
-		List<TcpConnection*> myClients;
+		List< Ref<TcpConnection> > myClients;
 	};
 }; // namespace omicron
 
