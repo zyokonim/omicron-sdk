@@ -236,6 +236,8 @@ void ServiceManager::dispose()
 		it->dispose();
 	}
 
+	myServices.clear();
+
 	delete[] myEventBuffer;
 }
 

@@ -112,7 +112,7 @@ namespace omicron
 
 		// Dictionary of active services
 		int myServiceIdCounter;
-		List<Service*> myServices;
+		List< Ref<Service> > myServices;
 
 		// Event buffer stuff.
 		Lock*  myEventBufferLock;
