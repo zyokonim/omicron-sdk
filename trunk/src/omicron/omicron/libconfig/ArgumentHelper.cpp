@@ -644,7 +644,7 @@
  
    void ArgumentHelper::handle_error() const {
      writeUsage(std::cerr);
-     exit(1);
+     //exit(1);
    }
 
 	void ArgumentHelper::process(const char* argstr)
