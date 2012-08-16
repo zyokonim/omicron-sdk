@@ -33,7 +33,7 @@
 namespace omicron
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class OMICRON_API Config
+class OMICRON_API Config: public ReferenceType
 {
 public:
 	static String getTypeName(Setting::Type type);
@@ -50,7 +50,7 @@ public:
 
 public:
 	Config(const String& filename);
-	~Config();
+	virtual ~Config();
 
 	const String& getFilename() { return myCfgFilename; }
 
