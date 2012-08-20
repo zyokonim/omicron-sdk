@@ -86,6 +86,7 @@ SET( headers
         ${CMAKE_SOURCE_DIR}/include/omicron/Color.h
         ${CMAKE_SOURCE_DIR}/include/omicron/Config.h
         ${CMAKE_SOURCE_DIR}/include/omicron/Event.h
+        ${CMAKE_SOURCE_DIR}/include/omicron/HttpRequest.h
         ${CMAKE_SOURCE_DIR}/include/omicron/IEventListener.h
         ${CMAKE_SOURCE_DIR}/include/omicron/Lock.h
         ${CMAKE_SOURCE_DIR}/include/omicron/ServiceManager.h
