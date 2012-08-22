@@ -294,6 +294,45 @@ namespace omicron
 			ExtraDataVector3Array,
 			ExtraDataString
 		};
+
+		//! Joint enumerations for Kinect (Uses OpenNI's enumerations with additional Kinect for Windows values)
+		//! See MSKinectService.h, XnTypes.h (OpenNI), or NuiSensor.h (Kinect for Windows)
+		enum OmicronSkeletonJoint{
+			OMICRON_SKEL_HIP_CENTER,
+			OMICRON_SKEL_HEAD,
+			OMICRON_SKEL_NECK,
+			OMICRON_SKEL_TORSO,
+			OMICRON_SKEL_WAIST,
+
+			OMICRON_SKEL_LEFT_COLLAR,
+			OMICRON_SKEL_LEFT_SHOULDER,
+			OMICRON_SKEL_LEFT_ELBOW,
+			OMICRON_SKEL_LEFT_WRIST,
+			OMICRON_SKEL_LEFT_HAND,
+			OMICRON_SKEL_LEFT_FINGERTIP,
+
+			OMICRON_SKEL_LEFT_HIP,
+			OMICRON_SKEL_LEFT_KNEE,
+			OMICRON_SKEL_LEFT_ANKLE,
+			OMICRON_SKEL_LEFT_FOOT,
+
+			OMICRON_SKEL_RIGHT_COLLAR,
+			OMICRON_SKEL_RIGHT_SHOULDER,
+			OMICRON_SKEL_RIGHT_ELBOW,
+			OMICRON_SKEL_RIGHT_WRIST,
+			OMICRON_SKEL_RIGHT_HAND,
+			OMICRON_SKEL_RIGHT_FINGERTIP,
+
+			OMICRON_SKEL_RIGHT_HIP,
+			OMICRON_SKEL_RIGHT_KNEE,
+			OMICRON_SKEL_RIGHT_ANKLE,
+			OMICRON_SKEL_RIGHT_FOOT,
+
+			OMICRON_SKEL_SPINE,
+			OMICRON_SKEL_SHOULDER_CENTER,
+
+			OMICRON_SKEL_COUNT
+		};
 	};
 }
 #endif
@@ -472,7 +511,7 @@ namespace omicronConnector
 	inline void OmicronConnectorClient::initHandshake() 
 	{
 		char sendbuf[50];
-		sprintf(sendbuf, "omicron_data_on,%d", dataPort);
+		sprintf(sendbuf, "data_on,%d", dataPort);
 		printf("NetService: Sending handshake: '%s'\n", sendbuf);
 
 		iResult = send(ConnectSocket, sendbuf, (int) strlen(sendbuf), 0);
