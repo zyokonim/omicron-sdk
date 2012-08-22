@@ -34,6 +34,7 @@
 #include "windows.h" // needs to be included before NuiApi.h
 #include "NuiApi.h"
 #include "mskinect/resource.h"
+#include "mskinect/DrawDevice.h"
 
 /*
 typedef enum XnSkeletonJoint (XnTypes.h - OpenNI)
@@ -69,28 +70,34 @@ typedef enum XnSkeletonJoint (XnTypes.h - OpenNI)
 } XnSkeletonJoint;
 
 enum _NUI_SKELETON_POSITION_INDEX (NuiSensor.h - Kinect for Windows)
-    {	NUI_SKELETON_POSITION_HIP_CENTER	= 0,
+{	
+	NUI_SKELETON_POSITION_HIP_CENTER	= 0,
 	NUI_SKELETON_POSITION_SPINE	= 1 ,
 	NUI_SKELETON_POSITION_SHOULDER_CENTER	= 2 ,
+
 	NUI_SKELETON_POSITION_HEAD	= 3 ,
+
 	NUI_SKELETON_POSITION_SHOULDER_LEFT	= 4 ,
 	NUI_SKELETON_POSITION_ELBOW_LEFT	= 5 ,
 	NUI_SKELETON_POSITION_WRIST_LEFT	= 6 ,
 	NUI_SKELETON_POSITION_HAND_LEFT	= 7 ,
+
 	NUI_SKELETON_POSITION_SHOULDER_RIGHT	= 8 ,
 	NUI_SKELETON_POSITION_ELBOW_RIGHT	= 9 ,
 	NUI_SKELETON_POSITION_WRIST_RIGHT	= 10
+
 	NUI_SKELETON_POSITION_HIP_LEFT	= 11 ,
 	NUI_SKELETON_POSITION_KNEE_LEFT	= 12 ,
 	NUI_SKELETON_POSITION_ANKLE_LEFT	= 13 ,
 	NUI_SKELETON_POSITION_FOOT_LEFT	= 14 ,
+
 	NUI_SKELETON_POSITION_HIP_RIGHT	= 15 ,
 	NUI_SKELETON_POSITION_KNEE_RIGHT	= 16 ,
 	NUI_SKELETON_POSITION_ANKLE_RIGHT	= 17 ,
 	NUI_SKELETON_POSITION_FOOT_RIGHT	= 18 ,
-	NUI_SKELETON_POSITION_COUNT	= 19
-    }
 
+	NUI_SKELETON_POSITION_COUNT	= 19
+}
 */
 
 namespace omicron
@@ -108,17 +115,41 @@ public:
 	virtual void initialize();
 	virtual void poll();
 	virtual void dispose();
-
-	
 private:
 	HANDLE m_pSkeletonStreamHandle;
-    HANDLE m_hNextSkeletonEvent;
-	HRESULT CreateFirstConnected();
+    HANDLE m_hNextSkeletonEvent;	
+
+	//Callback to handle Kinect status changes, redirects to the class callback handler
+	static void CALLBACK Nui_StatusProcThunk( HRESULT hrStatus, const OLECHAR* instanceName, const OLECHAR* uniqueDeviceName, void * pUserData );
+	
+	// Callback to handle Kinect status changes	
+	void CALLBACK KinectStatusCallback( HRESULT hrStatus, const OLECHAR* instanceName, const OLECHAR* uniqueDeviceName );
+
+	HRESULT InitializeKinect( const OLECHAR* );
+	HRESULT InitializeKinect();
+	void UnInitializeKinect( const OLECHAR* );
+
 	void ProcessSkeleton();
 	void GenerateMocapEvent( const NUI_SKELETON_DATA&, INuiSensor* );
-	void SkeletonPositionToEvent( const NUI_SKELETON_DATA&, Event*, _NUI_SKELETON_POSITION_INDEX );
+	void SkeletonPositionToEvent( const NUI_SKELETON_DATA&, Event*, Event::OmicronSkeletonJoint, _NUI_SKELETON_POSITION_INDEX );
+
+	void UpdateTrackedSkeletonSelection( int mode );
+	void UpdateTrackingMode( int mode );
+	void UpdateRange( int mode );
+	void UpdateSkeletonTrackingFlag( DWORD flag, bool value );
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline void MSKinectService::setUpdateInterval(float value) 
+	{ myUpdateInterval = value; }
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline float MSKinectService::getUpdateInterval() 
+	{ return myUpdateInterval; }
+
 private:
 	MSKinectService* mysInstance;
+	float myUpdateInterval;
+	float myCheckKinectInterval;
 
 	static const int        cScreenWidth  = 320;
     static const int        cScreenHeight = 240;
@@ -130,6 +161,13 @@ private:
 
 	// Current Kinect
     INuiSensor*             m_pNuiSensor;
+	BSTR                    m_instanceId;
+
+	DWORD         m_SkeletonTrackingFlags;
+	int			  m_TrackedSkeletons;
+
+	std::map<String,INuiSensor*> sensorList;
+	std::map<String,int> sensorIndexList;
 };
 
 }; // namespace omicron

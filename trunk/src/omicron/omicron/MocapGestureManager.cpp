@@ -26,67 +26,7 @@
 #include "omicron/MocapGestureManager.h"
 
 using namespace omicron;
-	class GestureService;
-	typedef enum XnSkeletonJoint
-	{
-		XN_SKEL_HEAD	= 1,
-		XN_SKEL_NECK	= 2,
-		XN_SKEL_TORSO	= 3,
-		XN_SKEL_WAIST	= 4,
-
-		XN_SKEL_LEFT_COLLAR	= 5,
-		XN_SKEL_LEFT_SHOULDER	= 6,
-		XN_SKEL_LEFT_ELBOW	= 7,
-		XN_SKEL_LEFT_WRIST	= 8,
-		XN_SKEL_LEFT_HAND	= 9,
-		XN_SKEL_LEFT_FINGERTIP	=10,
-
-		XN_SKEL_RIGHT_COLLAR	=11,
-		XN_SKEL_RIGHT_SHOULDER	=12,
-		XN_SKEL_RIGHT_ELBOW	=13,
-		XN_SKEL_RIGHT_WRIST	=14,
-		XN_SKEL_RIGHT_HAND	=15,
-		XN_SKEL_RIGHT_FINGERTIP	=16,
-
-		XN_SKEL_LEFT_HIP	=17,
-		XN_SKEL_LEFT_KNEE	=18,
-		XN_SKEL_LEFT_ANKLE	=19,
-		XN_SKEL_LEFT_FOOT	=20,
-
-		XN_SKEL_RIGHT_HIP	=21,
-		XN_SKEL_RIGHT_KNEE	=22,
-		XN_SKEL_RIGHT_ANKLE	=23,
-		XN_SKEL_RIGHT_FOOT	=24	
-	} XnSkeletonJoint;
-
-#define OMICRON_SKEL_HEAD				XN_SKEL_HEAD
-#define OMICRON_SKEL_NECK				XN_SKEL_NECK
-#define	OMICRON_SKEL_TORSO			XN_SKEL_TORSO
-#define OMICRON_SKEL_WAIST			XN_SKEL_WAIST
-
-#define OMICRON_SKEL_LEFT_COLLAR		XN_SKEL_LEFT_COLLAR
-#define OMICRON_SKEL_LEFT_SHOULDER	XN_SKEL_LEFT_SHOULDER
-#define OMICRON_SKEL_LEFT_ELBOW		XN_SKEL_LEFT_ELBOW
-#define OMICRON_SKEL_LEFT_WRIST		XN_SKEL_LEFT_WRIST
-#define OMICRON_SKEL_LEFT_HAND		XN_SKEL_LEFT_HAND
-#define OMICRON_SKEL_LEFT_FINGERTIP	XN_SKEL_LEFT_FINGERTIP
-
-#define OMICRON_SKEL_LEFT_HIP			XN_SKEL_LEFT_HIP
-#define OMICRON_SKEL_LEFT_KNEE		XN_SKEL_LEFT_KNEE
-#define OMICRON_SKEL_LEFT_ANKLE		XN_SKEL_LEFT_ANKLE
-#define OMICRON_SKEL_LEFT_FOOT		XN_SKEL_LEFT_FOOT
-
-#define OMICRON_SKEL_RIGHT_COLLAR		XN_SKEL_RIGHT_COLLAR
-#define OMICRON_SKEL_RIGHT_SHOULDER	XN_SKEL_RIGHT_SHOULDER
-#define OMICRON_SKEL_RIGHT_ELBOW		XN_SKEL_RIGHT_ELBOW
-#define OMICRON_SKEL_RIGHT_WRIST		XN_SKEL_RIGHT_WRIST
-#define OMICRON_SKEL_RIGHT_HAND		XN_SKEL_RIGHT_HAND
-#define OMICRON_SKEL_RIGHT_FINGERTIP	XN_SKEL_RIGHT_FINGERTIP
-
-#define OMICRON_SKEL_RIGHT_HIP		XN_SKEL_RIGHT_HIP
-#define OMICRON_SKEL_RIGHT_KNEE		XN_SKEL_RIGHT_KNEE
-#define OMICRON_SKEL_RIGHT_ANKLE		XN_SKEL_RIGHT_ANKLE
-#define OMICRON_SKEL_RIGHT_FOOT		XN_SKEL_RIGHT_FOOT
+class GestureService;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Mocap Gesture Manager
@@ -128,12 +68,12 @@ void MocapGestureManager::processEvent( const Event& e )
 			MocapUser newUser;
 			newUser.userID = userID;
 			
-			if( !e.isExtraDataNull(OMICRON_SKEL_HEAD) )
-				newUser.head.position = e.getExtraDataVector3(OMICRON_SKEL_HEAD);
-			if( !e.isExtraDataNull(OMICRON_SKEL_LEFT_HAND) )
-				newUser.leftHand.position = e.getExtraDataVector3(OMICRON_SKEL_LEFT_HAND);
-			if( !e.isExtraDataNull(OMICRON_SKEL_RIGHT_HAND) )
-				newUser.rightHand.position = e.getExtraDataVector3(OMICRON_SKEL_RIGHT_HAND);
+			if( !e.isExtraDataNull(Event::OMICRON_SKEL_HEAD) )
+				newUser.head.position = e.getExtraDataVector3(Event::OMICRON_SKEL_HEAD);
+			if( !e.isExtraDataNull(Event::OMICRON_SKEL_LEFT_HAND) )
+				newUser.leftHand.position = e.getExtraDataVector3(Event::OMICRON_SKEL_LEFT_HAND);
+			if( !e.isExtraDataNull(Event::OMICRON_SKEL_RIGHT_HAND) )
+				newUser.rightHand.position = e.getExtraDataVector3(Event::OMICRON_SKEL_RIGHT_HAND);
 
 			userList[userID] = newUser;
 		}
@@ -145,12 +85,12 @@ void MocapGestureManager::processEvent( const Event& e )
 			user.leftHand.lastPosition = user.leftHand.position;
 			user.rightHand.lastPosition = user.rightHand.position;
 
-			if( !e.isExtraDataNull(OMICRON_SKEL_HEAD) )
-				user.head.position = e.getExtraDataVector3(OMICRON_SKEL_HEAD);
-			if( !e.isExtraDataNull(OMICRON_SKEL_LEFT_HAND) )
-				user.leftHand.position = e.getExtraDataVector3(OMICRON_SKEL_LEFT_HAND);
-			if( !e.isExtraDataNull(OMICRON_SKEL_RIGHT_HAND) )
-				user.rightHand.position = e.getExtraDataVector3(OMICRON_SKEL_RIGHT_HAND);
+			if( !e.isExtraDataNull(Event::OMICRON_SKEL_HEAD) )
+				user.head.position = e.getExtraDataVector3(Event::OMICRON_SKEL_HEAD);
+			if( !e.isExtraDataNull(Event::OMICRON_SKEL_LEFT_HAND) )
+				user.leftHand.position = e.getExtraDataVector3(Event::OMICRON_SKEL_LEFT_HAND);
+			if( !e.isExtraDataNull(Event::OMICRON_SKEL_RIGHT_HAND) )
+				user.rightHand.position = e.getExtraDataVector3(Event::OMICRON_SKEL_RIGHT_HAND);
 			
 			float xDiff = user.rightHand.position[0] - user.rightHand.lastPosition[0];
 			float yDiff = user.rightHand.position[1] - user.rightHand.lastPosition[1];
@@ -177,12 +117,12 @@ void MocapGestureManager::processEvent( const Event& e )
 				lastClickTime = curt;
 				ofmsg("%1% Right Click", %curt);
 
-				generateGesture( Event::Click, OMICRON_SKEL_RIGHT_HAND, userID, user.rightHand.position );
+				generateGesture( Event::Click, Event::OMICRON_SKEL_RIGHT_HAND, userID, user.rightHand.position );
 			}
 			//else if( -zDiff2 > clickThreshold )
 			//	omsg("Left Click");
 
-			//ofmsg("Head pos(%1%) diff (%2%) ", %user.head.position %diff );
+			//ofmsg("RightHand pos(%1%) xDiff (%2%) ", %user.rightHand.position %xDiff );
 
 			userList[userID] = user;
 		}

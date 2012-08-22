@@ -153,8 +153,14 @@ endif()
 if(WIN32)
 	set(OMICRON_USE_KINECT_FOR_WINDOWS false CACHE BOOL "Enable/disable Kinect for Windows support (Kinect for Windows SDK Redistributable must be installed)")
 	if(OMICRON_USE_KINECT_FOR_WINDOWS)
-		set( srcs	 ${srcs} omicron/MSKinectService.cpp )
-		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/MSKinectService.h )
+		set( srcs	 ${srcs} omicron/MSKinectService.cpp
+			#				 omicron/mskinect/DrawDevice.cpp
+			#				 omicron/mskinect/stdafx.cpp
+			)
+		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/MSKinectService.h
+			#					${CMAKE_SOURCE_DIR}/include/omicron/mskinect/DrawDevice.h
+			#					${CMAKE_SOURCE_DIR}/include/omicron/mskinect/stdafx.h
+			)
 		include_directories($ENV{KINECTSDK10_DIR}/inc)
 	endif()
 endif()

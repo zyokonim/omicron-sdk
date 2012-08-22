@@ -407,6 +407,8 @@ private:
 
 #ifdef OMICRON_USE_VRPN
 	// VRPN Server (for CalVR)
+	const char	*TRACKER_NAME;
+	int TRACKER_PORT;
 	vrpn_XInputGamepad	*vrpnDevice;
 	vrpn_Tracker_Remote	*tkr;
 	vrpn_Connection		*connection;
@@ -428,11 +430,11 @@ void OInputServer::startConnection(Config* cfg)
 
 #ifdef OMICRON_USE_VRPN
 	// VRPN Server Test ///////////////////////////////////////////////
-	const char	*TRACKER_NAME = "Device0";
-	int	CONNECTION_PORT = 3891;//vrpn_DEFAULT_LISTEN_PORT_NO;	// Port for connection to listen on
+	TRACKER_NAME = strdup(Config::getStringValue("vrpnTrackerName", sCfg, "Device0").c_str());
+	TRACKER_PORT = Config::getFloatValue("vrpnTrackerPort", sCfg, 3891);
 
 	// explicitly open the connection
-	connection = vrpn_create_server_connection(CONNECTION_PORT);
+	connection = vrpn_create_server_connection(TRACKER_PORT);
 	vrpnDevice = new vrpn_XInputGamepad(TRACKER_NAME, connection, 1);
 	///////////////////////////////////////////////////////////////////
 #endif
