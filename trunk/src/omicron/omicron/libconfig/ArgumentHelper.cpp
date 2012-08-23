@@ -558,7 +558,7 @@
    }
  
  
-   void ArgumentHelper::process(int argc,  const char **argv){
+   bool ArgumentHelper::process(int argc,  const char **argv){
      name_= argv[0];
      ++argv;
      --argc;
@@ -588,25 +588,30 @@
              if ( f != long_names_.end()){
                if (!f->second->process(argc, argv)) {
                  handle_error();
+				 return false;
                }
              } else {
                std::cerr<< "Invalid long argument "<< cur_arg << ".\n";
                handle_error();
+				 return false;
              }
            }
          } else {
            if (cur_arg[1]=='\0') {
              std::cerr << "Invalid argument " << cur_arg << ".\n";
              handle_error();
+				 return false;
            }
            SMap::iterator f= short_names_.find(cur_arg[1]);
            if ( f != short_names_.end()){
              if (!f->second->process(argc, argv)) {
                handle_error();
+				 return false;
              }
            } else {
              std::cerr<< "Invalid short argument "<< cur_arg << ".\n";
              handle_error();
+				 return false;
            }
          }
        } else {
@@ -625,6 +630,7 @@
          } else {
            std::cerr << "Invalid extra argument " << argv[0] << std::endl;
            handle_error();
+		 return false;
          }
        }
      }
@@ -637,9 +643,11 @@
        }
        std::cerr << std::endl;
        handle_error();
+	   return false;
      }
  
      if (VERBOSE) verbose=true;
+	 return true;
    }
  
    void ArgumentHelper::handle_error() const {
@@ -647,7 +655,7 @@
      //exit(1);
    }
 
-	void ArgumentHelper::process(const char* argstr)
+	bool ArgumentHelper::process(const char* argstr)
 	{
 		char* argv[64];
 		char args[65535];
@@ -658,7 +666,7 @@
 		argv[0] = "";
 		argv[1] = args;
 		while(*c != '\0') { if(*c == ' ') { *c = '\0'; argv[argc++] = (c + 1); } c++; }
-		process(argc, argv);
+		return process(argc, argv);
 	}
  }
  
