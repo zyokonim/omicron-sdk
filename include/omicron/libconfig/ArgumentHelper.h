@@ -109,10 +109,10 @@
      void setBuildDate(const char *date);
  
  
-     void process(const char* args);
-     void process(int argc, const char **argv);
-     void process(int argc, char **argv){
-       process(argc, const_cast<const char **>(argv));
+     bool process(const char* args);
+     bool process(int argc, const char **argv);
+     bool process(int argc, char **argv){
+       return process(argc, const_cast<const char **>(argv));
      }
      void writeUsage(std::ostream &out) const;
      void writeValues(std::ostream &out) const;
