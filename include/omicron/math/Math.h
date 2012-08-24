@@ -39,6 +39,9 @@ namespace omicron {
 	class Sphere;
 	class AlignedBox3;
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	//! Stores a rectangular region in integer units. Useful for storing viewports and other 
+	//! pixel-space regions.
     struct Rect
     {
 		Vector2i min;
@@ -59,6 +62,7 @@ namespace omicron {
 		int y() const { return min(1); }
     };
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
     /** Class to provide access to common mathematical functions.
         @remarks
             Most of the maths functions are aliased versions of the C runtime
@@ -69,7 +73,6 @@ namespace omicron {
             <br>This is based on MgcMath.h from
             <a href="http://www.geometrictools.com/">Wild Magic</a>.
     */
-	
     class OMICRON_API Math 
     {
     protected:

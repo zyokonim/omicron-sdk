@@ -42,19 +42,33 @@ namespace omicron {
 	// Typedef for real numbers. swithing this we can change precision of most math types and functions.
 	typedef float real;
 
-	typedef Eigen::Matrix<real, 3, 3>  Matrix3f; //!< A 3x3 float matrix
-	typedef Eigen::Matrix<real, 4, 4>  Matrix4f; //!< A 3x3 float matrix
-	typedef Eigen::Matrix<real, 3, Eigen::Dynamic>  Vectors3f; //!< A 3x3 float matrix
-	typedef Eigen::Matrix<real, 2, 1> Vector2f; //!< A two-component float vector
-	typedef Eigen::Matrix<real, 3, 1> Vector3f; //!< A three-component float vector
-	typedef Eigen::Matrix<real, 4, 1> Vector4f; //!< A four-component float vector
-	typedef Eigen::Matrix<int, 2, 1> Vector2i; //!< A four-component int vector
-	typedef Eigen::Matrix<int, 3, 1> Vector3i; //!< A four-component int vector
-	typedef Eigen::Matrix<int, 4, 1> Vector4i; //!< A four-component int vector
-	typedef Eigen::Quaternion<real> Quaternion; //! A floating point quaternion
+	//! A 3x3 float matrix using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/TutorialMatrixClass.html
+	typedef Eigen::Matrix<real, 3, 3>  Matrix3f; 
+	//! A 4x4 float matrix using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/TutorialMatrixClass.html
+	typedef Eigen::Matrix<real, 4, 4>  Matrix4f;
+	//! A three-component set of float vectors using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/TutorialMatrixClass.html
+	typedef Eigen::Matrix<real, 3, Eigen::Dynamic>  Vectors3f; 
+	//! A two-component float vector using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/TutorialMatrixClass.html
+	typedef Eigen::Matrix<real, 2, 1> Vector2f;
+	//! A three-component float vector using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/TutorialMatrixClass.html
+	typedef Eigen::Matrix<real, 3, 1> Vector3f;
+	//! A four-component float vector using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/TutorialMatrixClass.html
+	typedef Eigen::Matrix<real, 4, 1> Vector4f; 
+	//! A two-component int vector using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/TutorialMatrixClass.html
+	typedef Eigen::Matrix<int, 2, 1> Vector2i;
+	//! A three-component float vector using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/TutorialMatrixClass.html
+	typedef Eigen::Matrix<int, 3, 1> Vector3i;
+	//! A four-component float vector using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/TutorialMatrixClass.html
+	typedef Eigen::Matrix<int, 4, 1> Vector4i; 
+	//! A floating point quaternion using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/classEigen_1_1Quaternion.html
+	typedef Eigen::Quaternion<real> Quaternion; 
+	//! Stores three integer indices to define a triangular face.
 	typedef Eigen::Matrix<unsigned int, 3, 1>     Triangle;
+	//! An angle-axis rotation representation using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/classEigen_1_1AngleAxis.html
 	typedef Eigen::AngleAxis<real> AngleAxis;
+	//! A general transform using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/classEigen_1_1Transform.html
 	typedef Eigen::Transform<real, 3, Eigen::Projective, 0> Transform3;
+	//! An affine transform using the Eigen math library. More information here: http://eigen.tuxfamily.org/dox/classEigen_1_1Transform.html
 	typedef Eigen::Transform<real, 3, Eigen::Affine, 0> AffineTransform3;
 
 }; //namespace omicron

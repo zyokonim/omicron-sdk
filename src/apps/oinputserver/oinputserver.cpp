@@ -180,9 +180,9 @@ public:
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getServiceType()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getType()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getFlags()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(0)); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(1)); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(2)); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().x()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().y()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().z()); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().w()); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().x()); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().y()); 
@@ -235,12 +235,12 @@ public:
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts x to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(0));
+			sprintf(floatChar,"%f",evt.getPosition().x());
 			strcat( eventPacket, floatChar );
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts y to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(1));
+			sprintf(floatChar,"%f",evt.getPosition().y());
 			strcat( eventPacket, floatChar );
 
 			if( evt.getExtraDataItems() == 2){ // TouchPoint down/up/move
@@ -304,17 +304,17 @@ public:
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts xPos to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(0));
+			sprintf(floatChar,"%f",evt.getPosition()[0]);
 			strcat( eventPacket, floatChar );
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts yPos to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(1));
+			sprintf(floatChar,"%f",evt.getPosition()[1]);
 			strcat( eventPacket, floatChar );
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts zPos to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(2));
+			sprintf(floatChar,"%f",evt.getPosition()[2]);
 			strcat( eventPacket, floatChar );
 			strcat( eventPacket, "," ); // Spacer
 
