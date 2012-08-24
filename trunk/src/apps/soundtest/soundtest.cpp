@@ -5,7 +5,7 @@
  * Authors:										
  *  Arthur Nishimoto		anishimoto42@gmail.com
  *-------------------------------------------------------------------------------------------------
- * Copyright (c) 2010-2011, Electronic Visualization Laboratory, University of Illinois at Chicago
+ * Copyright (c) 2010-2012, Electronic Visualization Laboratory, University of Illinois at Chicago
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification, are permitted 
  * provided that the following conditions are met:
@@ -154,9 +154,9 @@ public:
 
 			case Service::Mocap:
 				if( evt.getSourceId() == 0 )
-					soundManager->setListenerPosition( Vector3f( evt.getPosition(0), evt.getPosition(1), evt.getPosition(2)) );
+					soundManager->setListenerPosition( evt.getPosition() );
 				else if( instanceCreated && evt.getSourceId() == 1 )
-					soundInstance->setPosition( Vector3f( evt.getPosition(0), evt.getPosition(1), evt.getPosition(2)) );
+					soundInstance->setPosition( evt.getPosition() );
 				//printf("ID: %d Pos: %f %f %f\n", evt.getSourceId(), evt.getPosition(0), evt.getPosition(1), evt.getPosition(2) );
 				break;
 		}

@@ -5,7 +5,7 @@
  * Authors:										
  *  Alessandro Febretti		febret@gmail.com
  *-------------------------------------------------------------------------------------------------
- * Copyright (c) 2010-2011, Electronic Visualization Laboratory, University of Illinois at Chicago
+ * Copyright (c) 2010-2012, Electronic Visualization Laboratory, University of Illinois at Chicago
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification, are permitted 
  * provided that the following conditions are met:
@@ -88,6 +88,7 @@ namespace omicron
 	typedef std::string String;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	//! A key-value pair, usually stored in objects of the Dictionary class.
 	template<typename K, typename T>
 	class KeyValue: public std::pair<K, T>
 	{
@@ -100,7 +101,10 @@ namespace omicron
 		T operator->() { return this->second; }
 	};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Container typedefs
+	//! A Dictionary storing key-value pairs using a hashtable implementation.
+	//! @remarks Dictionary is usually a lightweight wrapper around a standard library implementation
 	#ifdef __GNUC__
 		template<typename K, typename T> class Dictionary: public std::tr1::unordered_map<K, T> {
 	#else
@@ -112,6 +116,8 @@ namespace omicron
 			typedef std::pair<  typename Dictionary<K, T>::const_iterator,  typename Dictionary<K, T>::const_iterator> ConstRange;
 		};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	//! Dictionary is usually a lightweight wrapper around a standard library vector implementation
 	template<typename T> class Vector: public std::vector<T>
 	{
 	public:
@@ -119,6 +125,8 @@ namespace omicron
 		typedef std::pair<  typename Vector<T>::const_iterator,  typename Vector<T>::const_iterator> ConstRange;
 	};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	//! List is usually a lightweight wrapper around a standard library list implementation
 	template<typename T> class List: public std::list<T> 
 	{
 	public:
@@ -126,14 +134,19 @@ namespace omicron
 		typedef std::pair<  typename List<T>::const_iterator,  typename List<T>::const_iterator> ConstRange;
 	};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	//! Queue is usually a lightweight wrapper around a standard library queue implementation
 	template<typename T> class Queue: public std::queue<T>
 	{
 	};
 
-	// Misc typedefs
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	//! Stores configuration settings from a section of a config file.
+	//! @remarks for full reference see http://www.hyperrealm.com/libconfig/libconfig_manual.html#The-C_002b_002b-API
 	typedef libconfig::Setting Setting;
 
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	//! enumeration for the axes
 	enum Axis
 	{
@@ -142,6 +155,7 @@ namespace omicron
 		AxisZ
 	};
 
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	//! Enumeration for orientation.
 	enum Orientation 
 	{
@@ -151,6 +165,8 @@ namespace omicron
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
+	//! Implements a base class for reference-counted types. o be used in conjunction with the 
+	//! Ref<> type.
 	class OMICRON_API ReferenceType
 	{
 	public:

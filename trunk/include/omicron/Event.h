@@ -88,7 +88,7 @@ namespace omicron
 		unsigned int getTimestamp() const;
 
 		//! Set to true if this event has been processed already.
-		float getPosition(int component) const;
+		//float getPosition(int component) const;
 		void setPosition(const Vector3f& value);
 		void setPosition(float x, float y, float z);
 		void setPosition(float x, float y);
@@ -244,8 +244,8 @@ namespace omicron
 	{ return myPosition; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	inline float Event::getPosition(int component) const
-	{ return myPosition[component]; }
+	//inline float Event::getPosition(int component) const
+	//{ return myPosition[component]; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline void Event::setPosition(const Vector3f& v)

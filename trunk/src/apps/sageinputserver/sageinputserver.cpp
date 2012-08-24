@@ -93,9 +93,9 @@ public:
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getServiceType()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getType()); 
 		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getFlags()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(0)); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(1)); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition(2)); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().x()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().y()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().z()); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().w()); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().x()); 
 		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().y()); 
@@ -464,8 +464,8 @@ void SAGETouchServer::handleEvent(const Event& evt){
 	if( evt.getServiceType() == Service::Pointer ){
 		char msgData[256];
 		int id = evt.getSourceId();
-		float xPos = evt.getPosition(0);
-		float yPos = 1.0 - evt.getPosition(1); // Flip y position for SAGE
+		float xPos = evt.getPosition().x();
+		float yPos = 1.0 - evt.getPosition().y(); // Flip y position for SAGE
 		int eventType = evt.getType();
 		bool validEvent = false;
 

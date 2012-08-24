@@ -107,12 +107,12 @@ public:
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts x to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(0));
+			sprintf(floatChar,"%f",evt.getPosition()[0]);
 			strcat( eventPacket, floatChar );
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts y to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(1));
+			sprintf(floatChar,"%f",evt.getPosition()[1]);
 			strcat( eventPacket, floatChar );
 
 			if( evt.getExtraDataItems() == 2){ // TouchPoint down/up/move
@@ -189,17 +189,17 @@ public:
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts xPos to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(0));
+			sprintf(floatChar,"%f",evt.getPosition().x());
 			strcat( eventPacket, floatChar );
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts yPos to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(1));
+			sprintf(floatChar,"%f",evt.getPosition().y());
 			strcat( eventPacket, floatChar );
 			strcat( eventPacket, "," ); // Spacer
 
 			// Converts zPos to char, appends to eventPacket
-			sprintf(floatChar,"%f",evt.getPosition(2));
+			sprintf(floatChar,"%f",evt.getPosition().z());
 			strcat( eventPacket, floatChar );
 			strcat( eventPacket, "," ); // Spacer
 
