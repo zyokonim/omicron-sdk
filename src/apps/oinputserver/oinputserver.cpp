@@ -710,13 +710,6 @@ int  main(int argc, char** argv)
 
 	app.startConnection(cfg);
 
-	float delay = -0.01f; // Seconds to delay sending events (<= 0 disables delay)
-#ifdef _DEBUG
-	bool printOutput = true;
-#else
-	bool printOutput = false;
-#endif
-
 	omsg("OInputServer: Starting to listen for clients...");
 	int i = 0;
 	while(true)
@@ -739,8 +732,6 @@ int  main(int argc, char** argv)
 			{
 				app.handleEvent(evts[evtNum]);
 			}
-			//if( printOutput )
-			//	printf("------------------------------------------------------------------------------\n");
 		}
 #ifdef WIN32
 		Sleep(1);

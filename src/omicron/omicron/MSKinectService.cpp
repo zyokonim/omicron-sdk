@@ -53,6 +53,8 @@ MSKinectService::MSKinectService(){
 	m_pNuiSensor = NULL;
 	m_instanceId = NULL;
 	m_TrackedSkeletons = 0;
+	m_hNextSkeletonEvent = NULL;
+	skeletonEngineKinectID = -1;
 	m_SkeletonTrackingFlags = NUI_SKELETON_TRACKING_FLAG_ENABLE_IN_NEAR_RANGE;
 }
 
@@ -71,28 +73,60 @@ void MSKinectService::initialize()
 	mysInstance = this;
 	
 	NuiSetDeviceStatusCallback( &MSKinectService::Nui_StatusProcThunk, mysInstance );
-	InitializeKinect();
+	
+	int iSensorCount = 0;
+    HRESULT hr = NuiGetSensorCount(&iSensorCount);
+    if (FAILED(hr))
+        return;
+
+	INuiSensor* sensor;
+
+	ofmsg("MSKinectService: %1% Kinect(s) detected. Initializing.", %iSensorCount );
+
+	// Look at each Kinect sensor
+    for (int i = 0; i < iSensorCount; ++i)
+    {
+        // Create the sensor so we can check status, if we can't create it, move on to the next
+        hr = NuiCreateSensorByIndex(i, &sensor);
+        if (FAILED(hr))
+        {
+            continue;
+        }
+
+        // Get the status of the sensor, and if connected, then we can initialize it
+        hr = sensor->NuiStatus();
+        if (S_OK == hr)
+        {
+            InitializeKinect( sensor->NuiDeviceConnectionId() );
+        }
+		else
+		{
+			// This sensor wasn't OK, so release it since we're not using it
+			sensor->Release();
+		}
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MSKinectService::poll()
 {
-	if (NULL == m_pNuiSensor)
-    {
-        return;
-    }
+	std::map<String,INuiSensor*>::iterator it;
+	for ( it = sensorList.begin(); it != sensorList.end(); it++ )
+	{
+		INuiSensor* sensor = it->second;
 
-    // Wait for 0ms, just quickly test if it is time to process a skeleton
-    if ( WAIT_OBJECT_0 == WaitForSingleObject(m_hNextSkeletonEvent, 0) )
-    {
-        ProcessSkeleton();
-    }
+		// Wait for 0ms, just quickly test if it is time to process a skeleton
+		if ( WAIT_OBJECT_0 == WaitForSingleObject(m_hNextSkeletonEvent, 0) )
+		{
+			ProcessSkeleton(sensor);
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MSKinectService::dispose() 
 {
-    printf("MSKinectService: Shutting down.");
+    omsg("MSKinectService: Shutting down.");
 
 	if (m_pNuiSensor)
     {
@@ -125,11 +159,7 @@ void CALLBACK MSKinectService::KinectStatusCallback( HRESULT hrStatus, const OLE
     }
     else
     {
-        if ( m_instanceId && 0 == wcscmp(instanceName, m_instanceId) )
-        {
-            UnInitializeKinect(instanceName);
-            //Nui_Zero();
-        }
+        UnInitializeKinect(instanceName);
     }
 }
 
@@ -151,21 +181,13 @@ HRESULT MSKinectService::InitializeKinect( const OLECHAR *instanceName )
         //MessageBoxResource( IDS_ERROR_NUICREATE, MB_OK | MB_ICONHAND );
         return hr;
     }
-
-    SysFreeString(m_instanceId);
-
-    m_instanceId = m_pNuiSensor->NuiDeviceConnectionId();
-	std::wstring deviceWStr = m_pNuiSensor->NuiDeviceConnectionId();
-	std::string deviceName( deviceWStr.begin(), deviceWStr.end() );
-	printf("MSKinectService: Kinect %d (%s) connected \n", m_pNuiSensor->NuiInstanceIndex(), deviceName.c_str() );
-	sensorList[deviceName] = m_pNuiSensor;
-
     return InitializeKinect();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 HRESULT MSKinectService::InitializeKinect()
 {
+	int sensorID = -1;
     HRESULT  hr;
     if ( !m_pNuiSensor )
     {
@@ -175,20 +197,22 @@ HRESULT MSKinectService::InitializeKinect()
         {
             return hr;
         }
-
-        SysFreeString(m_instanceId);
-
-        m_instanceId = m_pNuiSensor->NuiDeviceConnectionId();
-
-		std::wstring deviceWStr = m_pNuiSensor->NuiDeviceConnectionId();
-		std::string deviceName( deviceWStr.begin(), deviceWStr.end() );
-		printf("MSKinectService: Kinect %d (%s) connected \n", m_pNuiSensor->NuiInstanceIndex(), deviceName.c_str() );
-		sensorList[deviceName] = m_pNuiSensor;
     }
-
+	
+	SysFreeString(m_instanceId);
+	m_instanceId = m_pNuiSensor->NuiDeviceConnectionId();
+	std::wstring deviceWStr = m_pNuiSensor->NuiDeviceConnectionId();
+	std::string deviceName( deviceWStr.begin(), deviceWStr.end() );
+	
+	sensorID = getKinectID(deviceName);
+	printf("MSKinectService: Kinect %d (%s) connected. \n", sensorID, deviceName.c_str() );
+	sensorList[deviceName] = m_pNuiSensor;
+	sensorIndexList[deviceName] = sensorID;
+	
     //m_hNextDepthFrameEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
     //m_hNextColorFrameEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-    m_hNextSkeletonEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
+	if( m_hNextSkeletonEvent == NULL )
+		m_hNextSkeletonEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
 
     // reset the tracked skeletons, range, and tracking mode
     //SendDlgItemMessage(m_hWnd, IDC_TRACKEDSKELETONS, CB_SETCURSEL, 0, 0);
@@ -217,7 +241,7 @@ HRESULT MSKinectService::InitializeKinect()
     hr = m_pNuiSensor->NuiInitialize(nuiFlags);
     if ( E_NUI_SKELETAL_ENGINE_BUSY == hr )
     {
-		printf("MSKinectService: Kinect %d skeleton engine busy \n", m_pNuiSensor->NuiInstanceIndex() );
+		printf("MSKinectService: Kinect %d cannot start skeleton engine - already in use by Kinect %d. \n", sensorID, skeletonEngineKinectID );
         nuiFlags = NUI_INITIALIZE_FLAG_USES_DEPTH |  NUI_INITIALIZE_FLAG_USES_COLOR;
         hr = m_pNuiSensor->NuiInitialize(nuiFlags) ;
     }
@@ -242,15 +266,16 @@ HRESULT MSKinectService::InitializeKinect()
         if( FAILED( hr ) )
         {
             //MessageBoxResource( IDS_ERROR_SKELETONTRACKING, MB_OK | MB_ICONHAND );
-			printf("MSKinectService: Kinect %d error while enabling skeleton tracking \n", m_pNuiSensor->NuiInstanceIndex() );
+			printf("MSKinectService: Kinect %d error while enabling skeleton tracking. \n", sensorID );
             return hr;
         }
 		else
 		{
+			skeletonEngineKinectID = sensorID;
 			if( m_bSeatedMode )
-				printf("MSKinectService: Kinect %d seated skeleton tracking enabled \n", m_pNuiSensor->NuiInstanceIndex() );
+				printf("MSKinectService: Kinect %d seated skeleton tracking enabled. \n", sensorID );
 			else
-				printf("MSKinectService: Kinect %d default skeleton tracking enabled \n", m_pNuiSensor->NuiInstanceIndex() );
+				printf("MSKinectService: Kinect %d default skeleton tracking enabled. \n", sensorID );
 		}
     }
 	/*
@@ -311,24 +336,29 @@ void MSKinectService::UnInitializeKinect( const OLECHAR *instanceName )
         CloseHandle( m_hEvNuiProcessStop );
     }
 	*/
+	
 	if ( sensorList.count(deviceName) == 1 )
     {
 		INuiSensor* sensor = sensorList[deviceName];
-		printf("MSKinectService: Kinect %d disconnected \n", sensor->NuiInstanceIndex() );
+		
+		if ( HasSkeletalEngine(sensor) && m_hNextSkeletonEvent && ( m_hNextSkeletonEvent != INVALID_HANDLE_VALUE ) )
+		{
+			printf("MSKinectService: Kinect %d skeleton engine shutting down. \n", getKinectID(deviceName) );
+			CloseHandle( m_hNextSkeletonEvent );
+			m_hNextSkeletonEvent = NULL;
+		}
+
 		sensorList.erase(deviceName);
+		sensorIndexList.erase(deviceName);
         sensor->NuiShutdown( );
 		sensor->Release();
-		m_pNuiSensor = NULL;
+		printf("MSKinectService: Kinect %d disconnected. \n", getKinectID(deviceName) );
     }
 	else
 	{
-		printf("MSKinectService: Attempted to disconnect non-connected sensor: %s \n", deviceName.c_str() );
+		printf("MSKinectService: Attempted to disconnect non-connected sensor: %s. \n", deviceName.c_str() );
 	}
-    if ( m_hNextSkeletonEvent && ( m_hNextSkeletonEvent != INVALID_HANDLE_VALUE ) )
-    {
-        CloseHandle( m_hNextSkeletonEvent );
-        m_hNextSkeletonEvent = NULL;
-    }/*
+    /*
     if ( m_hNextDepthFrameEvent && ( m_hNextDepthFrameEvent != INVALID_HANDLE_VALUE ) )
     {
         CloseHandle( m_hNextDepthFrameEvent );
@@ -350,22 +380,21 @@ void MSKinectService::UnInitializeKinect( const OLECHAR *instanceName )
     m_pDrawColor = NULL;
 
     DiscardDirect2DResources();*/
-	omsg("UnInitializeKinect success");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MSKinectService::ProcessSkeleton()
+void MSKinectService::ProcessSkeleton( INuiSensor* sensor )
 {
     NUI_SKELETON_FRAME skeletonFrame = {0};
 
-    HRESULT hr = m_pNuiSensor->NuiSkeletonGetNextFrame(0, &skeletonFrame);
+    HRESULT hr = sensor->NuiSkeletonGetNextFrame(0, &skeletonFrame);
     if ( FAILED(hr) )
     {
         return;
     }
 
     // smooth out the skeleton data
-    m_pNuiSensor->NuiTransformSmooth(&skeletonFrame, NULL);
+    sensor->NuiTransformSmooth(&skeletonFrame, NULL);
 
     // Endure Direct2D is ready to draw
     /*hr = EnsureDirect2DResources( );
@@ -389,7 +418,7 @@ void MSKinectService::ProcessSkeleton()
         if (NUI_SKELETON_TRACKED == trackingState)
         {
             // We're tracking the skeleton, draw it
-            GenerateMocapEvent(skeletonFrame.SkeletonData[i], m_pNuiSensor );
+            GenerateMocapEvent(skeletonFrame.SkeletonData[i], sensor );
         }
         else if (NUI_SKELETON_POSITION_ONLY == trackingState)
         {
@@ -426,6 +455,13 @@ void MSKinectService::GenerateMocapEvent(const NUI_SKELETON_DATA & skel, INuiSen
 
 	Event* evt = mysInstance->writeHead();
 	evt->reset(Event::Update, Service::Mocap, skeletonID, kinectID);
+
+	Vector4 jointPos = skel.SkeletonPositions[NUI_SKELETON_POSITION_HEAD];
+	Vector3f pos;
+	pos[0] = jointPos.x;
+	pos[1] = jointPos.y;
+	pos[2] = jointPos.z;
+	evt->setPosition( pos );
 
 	evt->setExtraDataType(Event::ExtraDataVector3Array);
 
