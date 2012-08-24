@@ -151,7 +151,8 @@ endif()
 
 # Kinect for Windows support
 if(WIN32)
-	set(OMICRON_USE_KINECT_FOR_WINDOWS false CACHE BOOL "Enable/disable Kinect for Windows support (Kinect for Windows SDK Redistributable must be installed)")
+if(OMICRON_TOOL_VS10)
+	set(OMICRON_USE_KINECT_FOR_WINDOWS false CACHE BOOL "Enable/disable Kinect for Windows support (Kinect for Windows SDK Redistributable must be installed - The full SDK must be installed if using an Xbox 360 Kinect)")
 	if(OMICRON_USE_KINECT_FOR_WINDOWS)
 		set( srcs	 ${srcs} omicron/MSKinectService.cpp
 			#				 omicron/mskinect/DrawDevice.cpp
@@ -163,6 +164,7 @@ if(WIN32)
 			)
 		include_directories($ENV{KINECTSDK10_DIR}/inc)
 	endif()
+endif()
 endif()
 
 # OSC support    

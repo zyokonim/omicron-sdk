@@ -116,7 +116,6 @@ public:
 	virtual void poll();
 	virtual void dispose();
 private:
-	HANDLE m_pSkeletonStreamHandle;
     HANDLE m_hNextSkeletonEvent;	
 
 	//Callback to handle Kinect status changes, redirects to the class callback handler
@@ -129,7 +128,7 @@ private:
 	HRESULT InitializeKinect();
 	void UnInitializeKinect( const OLECHAR* );
 
-	void ProcessSkeleton();
+	void ProcessSkeleton( INuiSensor* sensor );
 	void GenerateMocapEvent( const NUI_SKELETON_DATA&, INuiSensor* );
 	void SkeletonPositionToEvent( const NUI_SKELETON_DATA&, Event*, Event::OmicronSkeletonJoint, _NUI_SKELETON_POSITION_INDEX );
 
@@ -145,6 +144,26 @@ private:
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	inline float MSKinectService::getUpdateInterval() 
 	{ return myUpdateInterval; }
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline int MSKinectService::getKinectID( String deviceName ) 
+	{
+		if( sensorIndexList.count(deviceName) == 1 )
+			return sensorIndexList[deviceName];
+		else
+		{
+			std::map<String,int>::iterator it;
+			int newID = 0;
+			for ( it = sensorIndexList.begin(); it != sensorIndexList.end(); it++ )
+			{
+				if( it->second == newID ){
+					newID++;
+					continue;
+				}
+			}
+			return newID;
+		}
+	}
 
 private:
 	MSKinectService* mysInstance;
@@ -163,8 +182,9 @@ private:
     INuiSensor*             m_pNuiSensor;
 	BSTR                    m_instanceId;
 
-	DWORD         m_SkeletonTrackingFlags;
-	int			  m_TrackedSkeletons;
+	DWORD					m_SkeletonTrackingFlags;
+	int						m_TrackedSkeletons;
+	int						skeletonEngineKinectID;
 
 	std::map<String,INuiSensor*> sensorList;
 	std::map<String,int> sensorIndexList;
