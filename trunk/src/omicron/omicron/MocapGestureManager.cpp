@@ -31,12 +31,20 @@ class GestureService;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Mocap Gesture Manager
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool MocapGestureManager::handRotateGestureTriggered = false;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 MocapGestureManager::MocapGestureManager( Service* service )
 {
 	gestureService = service;
 	//omsg("MocapGestureManager: MocapGestureManager()");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void MocapGestureManager::setup(Setting& settings)
+{
+	handRotateGestureSeparationTrigger = Config::getFloatValue("twoHandedRotateGestureMaxDistance", settings, 0.4f);
+	useRadians = Config::getBoolValue("useRadians", settings, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,13 +82,15 @@ void MocapGestureManager::processEvent( const Event& e )
 				newUser.leftHand.position = e.getExtraDataVector3(Event::OMICRON_SKEL_LEFT_HAND);
 			if( !e.isExtraDataNull(Event::OMICRON_SKEL_RIGHT_HAND) )
 				newUser.rightHand.position = e.getExtraDataVector3(Event::OMICRON_SKEL_RIGHT_HAND);
-
+			if( !e.isExtraDataNull(Event::OMICRON_SKEL_SPINE) )
+				newUser.spine.position = e.getExtraDataVector3(Event::OMICRON_SKEL_SPINE);
 			userList[userID] = newUser;
 		}
 		else // Existing user
 		{
 			MocapUser user = userList[userID];
-			
+
+			// --- Get Joint Data -----------------------------------------------------------------------------------------------------
 			user.head.lastPosition = user.head.position;
 			user.leftHand.lastPosition = user.leftHand.position;
 			user.rightHand.lastPosition = user.rightHand.position;
@@ -91,7 +101,11 @@ void MocapGestureManager::processEvent( const Event& e )
 				user.leftHand.position = e.getExtraDataVector3(Event::OMICRON_SKEL_LEFT_HAND);
 			if( !e.isExtraDataNull(Event::OMICRON_SKEL_RIGHT_HAND) )
 				user.rightHand.position = e.getExtraDataVector3(Event::OMICRON_SKEL_RIGHT_HAND);
-			
+			if( !e.isExtraDataNull(Event::OMICRON_SKEL_SPINE) )
+				user.spine.position = e.getExtraDataVector3(Event::OMICRON_SKEL_SPINE);
+			// ------------------------------------------------------------------------------------------------------------------------
+
+			// --- Calculations for single-handed swipe/click gestures ----------------------------------------------------------------
 			float xDiff = user.rightHand.position[0] - user.rightHand.lastPosition[0];
 			float yDiff = user.rightHand.position[1] - user.rightHand.lastPosition[1];
 			float zDiff = user.rightHand.position[2] - user.rightHand.lastPosition[2];
@@ -102,6 +116,7 @@ void MocapGestureManager::processEvent( const Event& e )
 
 			float swipeThreshold = 0.08f;
 			float clickThreshold = 0.08f;
+			/*
 			if( -xDiff > swipeThreshold )
 				ofmsg("%1% Swipe left", %curt);
 			else if( xDiff > swipeThreshold )
@@ -110,14 +125,115 @@ void MocapGestureManager::processEvent( const Event& e )
 				ofmsg("%1% Swipe down", %curt);
 			else if( yDiff > swipeThreshold )
 				ofmsg("%1% Swipe up", %curt);
+			*/
+			// ------------------------------------------------------------------------------------------------------------------------
+
+			// Super crude text formatting
+			//omsg("\n\n\n");
+			//ofmsg("Spine pos (%1% %2% %3%)", %user.spine.position[0] %user.spine.position[1] %user.spine.position[2] );
+			//ofmsg("Left hand pos (%1% %2% %3%)", %user.leftHand.position[0] %user.leftHand.position[1] %user.leftHand.position[2] );
+			//ofmsg("Right hand pos (%1% %2% %3%)", %user.rightHand.position[0] %user.rightHand.position[1] %user.rightHand.position[2] );
 			
+
+			// --- Calculations for two-handed rotation gesture -----------------------------------------------------------------------
+			
+			float handToHandDist = sqrt( pow(user.leftHand.position[0] - user.rightHand.position[0], 2) +
+									pow(user.leftHand.position[1] - user.rightHand.position[1], 2) +
+									pow(user.leftHand.position[2] - user.rightHand.position[2], 2) );
+			Vector3f gestureRotation;
+
+			//ofmsg("Hand-to-hand distance %1% m", %handToHandDist);
+
+			if( handToHandDist <= handRotateGestureSeparationTrigger && user.leftHand.position[1] > user.spine.position[1] && user.rightHand.position[1] > user.spine.position[1] )
+			{
+				if( !handRotateGestureTriggered )
+				{
+					initialRotation[0] = 0;
+					initialRotation[1] = 0;
+					initialRotation[2] = 0;
+				}
+
+				Vector3f handMidpoint;
+				handMidpoint[0] = (user.leftHand.position[0] + user.rightHand.position[0]) / 2;
+				handMidpoint[1] = (user.leftHand.position[1] + user.rightHand.position[1]) / 2;
+				handMidpoint[2] = (user.leftHand.position[2] + user.rightHand.position[2]) / 2;
+
+				float pitch = 0;
+				float yaw = atan2( user.rightHand.position[2] - handMidpoint[2], user.rightHand.position[0] - handMidpoint[0] );
+				float roll = atan2( user.rightHand.position[1] - handMidpoint[1], user.rightHand.position[0] - handMidpoint[0] );
+
+				if( !useRadians )
+				{
+					pitch = pitch * 180 / 3.141597f;
+					yaw = yaw * 180 / 3.141597f;
+					roll = roll * 180 / 3.141597f;
+				}
+
+				gestureRotation[0] = pitch;
+				gestureRotation[1] = yaw;
+				gestureRotation[2] = roll;
+
+				if( !handRotateGestureTriggered )
+					initialRotation = gestureRotation; // NOTE: Current implementation works for only one user at a time! Fix later.
+				handRotateGestureTriggered = true;
+			}
+			else if( user.leftHand.position[1] < user.spine.position[1] && user.rightHand.position[1] < user.spine.position[1] )
+			{
+				handRotateGestureTriggered = false;
+			}
+			// ------------------------------------------------------------------------------------------------------------------------
+
+			// --- Event generation ---------------------------------------------------------------------------------------------------
+			if( handRotateGestureTriggered )
+			{
+				Vector3f handMidpoint;
+				handMidpoint[0] = (user.leftHand.position[0] + user.rightHand.position[0]) / 2;
+				handMidpoint[1] = (user.leftHand.position[1] + user.rightHand.position[1]) / 2;
+				handMidpoint[2] = (user.leftHand.position[2] + user.rightHand.position[2]) / 2;
+
+				//ofmsg("Hand center pos (%1% %2% %3%)", %handMidpoint[0] %handMidpoint[1] %handMidpoint[2] );
+
+				float pitch = 0;
+				float yaw = atan2( user.rightHand.position[2] - handMidpoint[2], user.rightHand.position[0] - handMidpoint[0] );
+				float roll = atan2( user.rightHand.position[1] - handMidpoint[1], user.rightHand.position[0] - handMidpoint[0] );
+
+				if( !useRadians )
+				{
+					pitch = pitch * 180 / 3.141597f;
+					yaw = yaw * 180 / 3.141597f;
+					roll = roll * 180 / 3.141597f;
+				}
+
+				gestureRotation[0] = pitch;
+				gestureRotation[1] = yaw;
+				gestureRotation[2] = roll;
+
+				float yawDiff = yaw - initialRotation[1];
+				float rollDiff = roll - initialRotation[2];
+
+				//ofmsg("Yaw: %1% diff: %2%", %yaw %yawDiff);
+				//ofmsg("Roll: %1% diff: %2%", %roll %rollDiff);
+
+				//omsg("Hand rotation gesture triggered");
+				generateRotateGesture( Event::Rotate, userID, Event::OMICRON_SKEL_LEFT_HAND, user.leftHand.position,
+														Event::OMICRON_SKEL_RIGHT_HAND, user.rightHand.position,
+														gestureRotation, initialRotation
+														);
+			}
+			else
+			{
+				//omsg("");
+			}
+			// ------------------------------------------------------------------------------------------------------------------------
+			//omsg("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
 			//float clickTimeout = 
 			if( -zDiff > clickThreshold && curt - lastClickTime > 0.5f )
 			{
 				lastClickTime = curt;
-				ofmsg("%1% Right Click", %curt);
+				//ofmsg("%1% Right Click", %curt);
 
-				generateGesture( Event::Click, Event::OMICRON_SKEL_RIGHT_HAND, userID, user.rightHand.position );
+				generateGesture( Event::Click, userID, Event::OMICRON_SKEL_RIGHT_HAND, user.rightHand.position );
 			}
 			//else if( -zDiff2 > clickThreshold )
 			//	omsg("Left Click");
@@ -183,7 +299,7 @@ void MocapGestureManager::processEvent( const Event& e )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MocapGestureManager::generateGesture( Event::Type gesture, int jointID, int userID, Vector3f position )
+void MocapGestureManager::generateGesture( Event::Type gesture, int userID, int jointID, Vector3f position )
 {
 	Event* evt;
 
@@ -193,5 +309,27 @@ void MocapGestureManager::generateGesture( Event::Type gesture, int jointID, int
 	
 	evt->setExtraDataType(Event::ExtraDataIntArray);
 	evt->setExtraDataInt(0, jointID);
+	gestureService->unlockEvents();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MocapGestureManager::generateRotateGesture( Event::Type gesture, int userID, int jointID_0, Vector3f position_0, int jointID_1, Vector3f position_1, Vector3f rotation, Vector3f initRotation )
+{
+	Vector3f handMidpoint;
+	handMidpoint[0] = (position_0[0] + position_1[0]) / 2;
+	handMidpoint[1] = (position_0[1] + position_1[1]) / 2;
+	handMidpoint[2] = (position_0[2] + position_1[2]) / 2;
+
+	Event* evt;
+
+	evt = gestureService->writeHead();
+	evt->reset(gesture, Service::Mocap, userID);
+	evt->setPosition(handMidpoint);
+	
+	evt->setExtraDataType(Event::ExtraDataVector3Array);
+	evt->setExtraDataVector3(0, position_0);
+	evt->setExtraDataVector3(1, position_1);
+	evt->setExtraDataVector3(2, rotation);
+	evt->setExtraDataVector3(3, initRotation);
 	gestureService->unlockEvents();
 }

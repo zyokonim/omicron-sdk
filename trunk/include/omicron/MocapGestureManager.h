@@ -58,6 +58,7 @@ namespace omicron {
 		Joint head;
 		Joint leftHand;
 		Joint rightHand;
+		Joint spine;
 	};
 
 	class MocapGestureManager : public Service
@@ -66,15 +67,25 @@ namespace omicron {
 	public:
 		MocapGestureManager( Service* );
 
+		void setup(Setting& settings);
 		void poll();
-
 		void processEvent(const Event& e);
-		void generateGesture( Event::Type, int jointID, int userID, Vector3f position );
+		void generateGesture( Event::Type, int userID, int jointID, Vector3f position );
+		void generateRotateGesture( Event::Type, int userID, int jointID0, Vector3f position0, int jointID1, Vector3f position1, Vector3f rotation, Vector3f intialRotation );
 	private:
 		Service* gestureService;
 		map<int,MocapUser> userList;
 
 		float lastClickTime;
+
+		// Gesture flags
+		static bool handRotateGestureTriggered;
+
+		// Gesture data
+		// Two-handed rotation
+		float handRotateGestureSeparationTrigger; // Maximum distance (in meters) between hands to trigger gesture
+		bool useRadians; // Send data in radians or degrees
+		Vector3f initialRotation;
 	};
 }
 
