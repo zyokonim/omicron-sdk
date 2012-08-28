@@ -187,7 +187,7 @@ endif()
 
 # Optitrack tracking system support
 if(WIN32)
-	set(OMICRON_USE_OPTITRACK true CACHE BOOL "Enable/disable OptiTrack camera support")
+	set(OMICRON_USE_OPTITRACK false CACHE BOOL "Enable/disable OptiTrack camera support")
 	if(OMICRON_USE_OPTITRACK)
 		set( srcs	 ${srcs} omicron/OptiTrackService.cpp )
 		set( headers ${headers} ${CMAKE_SOURCE_DIR}/include/omicron/OptiTrackService.h )
