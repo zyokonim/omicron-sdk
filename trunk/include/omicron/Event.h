@@ -106,9 +106,9 @@ namespace omicron
 		uint getFlags() const;
 
 		//! Utility method to check is the event is a key down event.
-		bool isKeyDown(char key) const;
+		bool isKeyDown(int key) const;
 		//! Utility method to check is the event is a key up event.
-		bool isKeyUp(char key) const;
+		bool isKeyUp(int key) const;
 		//! Utility method to check if the event is a button down event.
 		bool isButtonDown(Flags button) const;
 
@@ -300,13 +300,13 @@ namespace omicron
 	{ return myFlags; }
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	inline bool Event::isKeyDown(char key) const
+	inline bool Event::isKeyDown(int key) const
 	{
-		return ((char)mySourceId == key && myType == Event::Down);
+		return (mySourceId == key && myType == Event::Down);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	inline bool Event::isKeyUp(char key) const
+	inline bool Event::isKeyUp(int key) const
 	{
 		return ((char)mySourceId == key && myType == Event::Up);
 	}
