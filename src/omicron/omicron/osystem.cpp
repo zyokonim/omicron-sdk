@@ -91,8 +91,9 @@ namespace omicron
 				fprintf(sLogFile, fmt, str.c_str());
 				fflush(sLogFile);
 			}
-			foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 		}
+		// Log listeners receive log info even when logging is disabled
+		foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,8 +108,9 @@ namespace omicron
 				fprintf(sLogFile, fmt, str.c_str());
 				fflush(sLogFile);
 			}
-			foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 		}
+		// Log listeners receive log info even when logging is disabled
+		foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,8 +125,9 @@ namespace omicron
 				fprintf(sLogFile, fmt, str.c_str());
 				fflush(sLogFile);
 			}
-			foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 		}
+		// Log listeners receive log info even when logging is disabled
+		foreach(ILogListener* ll, sLogListeners) ll->addLine(str);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
