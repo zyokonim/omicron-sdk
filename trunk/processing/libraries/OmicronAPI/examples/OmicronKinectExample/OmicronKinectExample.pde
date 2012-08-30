@@ -39,10 +39,15 @@ public void init() {
 // Program initializations
 void setup() {
   startTime = millis() / 1000.0;
-  size( screenWidth, screenHeight, P3D ); // P3D renderer recommended if using the wall
+  
+  // Depending on which version of Processing you're using:
+  //size( screen.width, screen.height, OPENGL ); // 1.5.1
+  //size( screenWidth, screenHeight, P3D ); // 2.0a1 - 2.0a5
+  //size( displayWidth, displayHeight, P3D ); // 2.0a6+ - this is broken in 2.0a8 - recommend manually entering in resolution
+  size( 8160, 2304, P3D ); // Cyber-Commons wall
 
   // Make the connection to the tracker machine
-  omicronManager.ConnectToTracker(7000, 7340, "localhost");
+  omicronManager.ConnectToTracker(7000, 7340, "131.193.77.104");
   
   // Create a listener to get events
   eventListener = new EventListener();
