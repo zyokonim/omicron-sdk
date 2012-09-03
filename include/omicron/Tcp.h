@@ -48,7 +48,7 @@ namespace omicron {
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	struct ConnectionInfo
 	{
-		ConnectionInfo(asio::io_service& io, int id):
+		ConnectionInfo(asio::io_service& io, int id = 0):
 			ioService(io), id(id) {}
 
 		asio::io_service& ioService;
@@ -65,7 +65,7 @@ namespace omicron {
 		enum ConnectionState { ConnectionListening, ConnectionOpen, ConnectionClosed };
 
 	public:
-		TcpConnection(ConnectionInfo ci);
+		TcpConnection(const ConnectionInfo& ci);
 
 		//! Connection properties
 		//@{
@@ -99,14 +99,29 @@ namespace omicron {
 		virtual void handleData();
 		//@}
 
-	private:
-		void doHandleConnected();
-
-	private:
+	protected:
 		ConnectionInfo myConnectionInfo;
 		ConnectionState myState;
 		tcp::socket mySocket;
 		asio::streambuf myInputBuffer;
+
+	protected:
+		void doHandleConnected();
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	class OMICRON_API TcpClientConnection: public TcpConnection
+	{
+	public:
+		TcpClientConnection(const ConnectionInfo& ci): TcpConnection(ci) {}
+		void open(const String& host, int port);
+
+	private:
+		String myHost;
+		int myPort;
+
+	public:
+		void handle_connect(const asio::error_code& error);
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
