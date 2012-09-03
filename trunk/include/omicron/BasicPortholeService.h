@@ -24,8 +24,8 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
-#ifndef __TABLET_SERVICE_H__
-#define __TABLET_SERVICE_H__
+#ifndef __BASIC_PORTHOLE_SERVICE_H__
+#define __BASIC_PORTHOLE_SERVICE_H__
 
 #include "omicron/osystem.h"
 #include "omicron/ServiceManager.h"
