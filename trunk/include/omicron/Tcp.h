@@ -99,6 +99,9 @@ namespace omicron {
 		virtual void handleData();
 		//@}
 
+	private:
+		TcpConnection(const TcpConnection&);
+		
 	protected:
 		ConnectionInfo myConnectionInfo;
 		ConnectionState myState;
@@ -116,6 +119,8 @@ namespace omicron {
 		TcpClientConnection(const ConnectionInfo& ci): TcpConnection(ci) {}
 		void open(const String& host, int port);
 
+	private:
+		TcpClientConnection(const TcpClientConnection&);
 	private:
 		String myHost;
 		int myPort;
