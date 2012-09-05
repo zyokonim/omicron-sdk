@@ -111,6 +111,7 @@ namespace omicron
 		bool isKeyUp(int key) const;
 		//! Utility method to check if the event is a button down event.
 		bool isButtonDown(Flags button) const;
+		bool isButtonUp(Flags button) const;
 
 		//! Utility method to check if an event is from a specific source service and source id.
 		bool isFrom(Service* svc, int sourceId) const;
@@ -315,6 +316,12 @@ namespace omicron
 	inline bool Event::isButtonDown(Flags button) const
 	{
 		return (myType == Down && ((myFlags & button) == button));
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	inline bool Event::isButtonUp(Flags button) const
+	{
+		return (myType == Up && ((myFlags & button) == button));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
