@@ -290,10 +290,9 @@ public class OmicronAPI {
 			}
 		}
 
-		if (applet.keyPressed
-				&& applet.keyEvent.getKeyText(applet.keyCode) == "Ctrl") {
+		if (applet.keyPressed && applet.keyEvent.getKeyText(applet.keyCode) == "Ctrl") {
 			if (!secondMouseDown) {
-				touchListener.touchDown(-2, applet.mouseX, applet.mouseY, 10 10);
+				touchListener.touchDown(-2, applet.mouseX, applet.mouseY, 10, 10);
 				secondMouseDown = true;
 				secondMouseX = applet.mouseX;
 				secondMouseY = applet.mouseY;
@@ -564,7 +563,7 @@ public class OmicronAPI {
 	 * @return
 	 */
 	private Event parseDGram(String dGram) {
-		String delims = "[:,]+";
+		String delims = "[:, ]+";
 		String[] params = dGram.split(delims);
 
 		//System.out.println( dGram );
