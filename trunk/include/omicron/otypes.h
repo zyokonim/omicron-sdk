@@ -176,14 +176,14 @@ namespace omicron
 		virtual ~ReferenceType();
 
 
-		inline void ref()
+		void ref()
 			{
 				//oassert(s->ref_count >= 0);
 				//oassert(s != 0);
 				++myRefCount;
 			}
 
-		inline void unref()
+		void unref()
 			{
 				//oassert(s->ref_count > 0);
 				//oassert(s != 0);
