@@ -135,7 +135,7 @@ void vrpn_XInputGamepad::update(const Event& evt) {
 	// Right mouse = Circle
 	// Middle mouse = Analog button
 	// Mouse wheel = Analog up/down
-	if( evt.getServiceType() == Event::ServiceTypeController ){
+	if( evt.getServiceType() == Event::ServiceTypeController || evt.getServiceType() == Event::ServiceTypeWand ){
 		buttons[0] = (evt.getFlags() == Event::Button3) != 0;
 		buttons[1] = (evt.getFlags() == Event::Button2) != 0;
 		buttons[2] = (evt.getFlags() == Event::Button6) != 0;
@@ -143,7 +143,7 @@ void vrpn_XInputGamepad::update(const Event& evt) {
 		buttons[4] = (evt.getFlags() == Event::ButtonDown) != 0;
 		buttons[5] = (evt.getFlags() == Event::ButtonLeft) != 0;
 		buttons[6] = (evt.getFlags() == Event::ButtonRight) != 0;
-	
+
 		if( !evt.isExtraDataNull(0) )
 			channel[0] = evt.getExtraDataFloat(0);
 		if( !evt.isExtraDataNull(1) )

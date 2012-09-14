@@ -434,6 +434,8 @@ void OInputServer::startConnection(Config* cfg)
 	TRACKER_PORT = Config::getFloatValue("vrpnTrackerPort", sCfg, 3891);
 
 	// explicitly open the connection
+	ofmsg("OInputServer: Created VRPNDevice %1%", %TRACKER_NAME);
+	ofmsg("              Port: %1%", %TRACKER_PORT);
 	connection = vrpn_create_server_connection(TRACKER_PORT);
 	vrpnDevice = new vrpn_XInputGamepad(TRACKER_NAME, connection, 1);
 	///////////////////////////////////////////////////////////////////
