@@ -48,7 +48,7 @@ public:
 	float getVolumeScale();
 	
 	int getBufferID();
-	char* getFilePath();
+	const char* getFilePath();
 
 	// Temp?
 	void setSoundManager(SoundManager*);
@@ -60,7 +60,7 @@ private:
 public:
 private:
 	char* soundName;
-	char* filePath;
+	const char* filePath;
 	int bufferID;
 	float duration;
 	float volumeScale;
