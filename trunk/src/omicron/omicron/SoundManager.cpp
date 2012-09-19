@@ -40,7 +40,15 @@ SoundManager::SoundManager()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundManager::SoundManager(char* serverIP, int serverPort)
+SoundManager::SoundManager(String serverIP, int serverPort)
+{
+	listenerPosition = Vector3f(0,0,0);
+	environment = new SoundEnvironment(this);
+	connectToServer(serverIP.c_str(), serverPort);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SoundManager::SoundManager(const char* serverIP, int serverPort)
 {
 	listenerPosition = Vector3f(0,0,0);
 	environment = new SoundEnvironment(this);
@@ -48,7 +56,7 @@ SoundManager::SoundManager(char* serverIP, int serverPort)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SoundManager::connectToServer(char* serverIP, int serverPort)
+void SoundManager::connectToServer(const char* serverIP, int serverPort)
 {
 	// Create socket and connect to OSC server
 	serverSocket.connectTo(serverIP, serverPort);

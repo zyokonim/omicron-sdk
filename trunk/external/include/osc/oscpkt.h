@@ -56,6 +56,7 @@
 #ifndef OSCPKT_HH
 #define OSCPKT_HH
 
+/*
 #ifndef _MSC_VER
 #include <stdint.h>
 #else
@@ -66,6 +67,7 @@ namespace oscpkt {
   typedef unsigned __int64 uint64_t;
 }
 #endif
+*/
 #include <cstring>
 #include <cassert>
 #include <string>
