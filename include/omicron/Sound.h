@@ -41,7 +41,7 @@ class OMICRON_API Sound
 {
 public:
 	Sound(char*);
-	bool loadFromFile(char*);
+	bool loadFromFile(const char*);
 	bool loadFromMemory(const void*,size_t);
 	float getDuration();
 	void setVolumeScale(float);

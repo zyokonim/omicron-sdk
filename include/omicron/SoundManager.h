@@ -45,6 +45,7 @@ class OMICRON_API SoundEnvironment
 {
 public:
 	SoundEnvironment(SoundManager*);
+	void dispose();
 	void setVolume(float);
 	float getVolume();
 
@@ -63,8 +64,9 @@ class OMICRON_API SoundManager
 {
 public:
 	SoundManager();
-	SoundManager(char*, int);
-	void connectToServer(char*, int);
+	SoundManager(String, int);
+	SoundManager(const char*, int);
+	void connectToServer(const char*, int);
 	bool isSoundServerRunning();
 	SoundEnvironment* getSoundEnvironment();
 	void setEnvironment(SoundEnvironment*);

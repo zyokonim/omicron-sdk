@@ -40,7 +40,7 @@ Sound::Sound(char* soundName)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool Sound::loadFromFile(char* filePath)
+bool Sound::loadFromFile(const char* filePath)
 {
 	printf( "%s: Not fully implemented\n", __FUNCTION__);
 	this->filePath = filePath;
