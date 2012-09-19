@@ -56,18 +56,18 @@
 #ifndef OSCPKT_HH
 #define OSCPKT_HH
 
-/*
-#ifndef _MSC_VER
-#include <stdint.h>
-#else
+
+#ifdef OMICRON_OS_WIN
 namespace oscpkt {
   typedef __int32 int32_t;
   typedef unsigned __int32 uint32_t;
   typedef __int64 int64_t;
   typedef unsigned __int64 uint64_t;
 }
+#else
+#include <stdint.h>
 #endif
-*/
+
 #include <cstring>
 #include <cassert>
 #include <string>
