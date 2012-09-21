@@ -2,16 +2,19 @@
  * ---------------------------------------------
  * OmicronTouchExample.pde
  * Description: Omicron Processing example for running a fullscreen touch application on the Cyber-Commons wall.
+ *       You should not use mousePressed() or any other mouse functions (mouseX, mouseY) for developing your application.
+ *       Mouse events are sent to touchDown (mousePressed), touchMove (moudeDragged), and touchUp (mouseReleased)
  *
  * Class: 
- * System: Processing 2.0a5, SUSE 12.1, Windows 7
+ * System: Processing 2.0b3, SUSE 12.1, Windows 7
  * Author: Arthur Nishimoto
- * Version: 1.0
+ * Version: 1.1
  *
  * Version Notes:
  * 6/14/12      - Initial version
  * 6/19/12      - Added example for fullscreen, scaling, and touch
  * 6/20/12      - Cleaned up example
+ * 9/20/12      - Updated for 2.0b3
  * ---------------------------------------------
  */
 
@@ -23,6 +26,8 @@ TouchListener touchListener;
 
 // Link to this Processing applet - used for touchDown() callback example
 PApplet applet;
+
+boolean usingWall = false;
 
 // Override of PApplet init() which is called before setup()
 public void init() {
@@ -37,19 +42,19 @@ public void init() {
 
 // Program initializations
 void setup() {
-  // Depending on which version of Processing you're using:
-  //size( screen.width, screen.height, OPENGL ); // 1.5.1
-  //size( screenWidth, screenHeight, P3D ); // 2.0a1 - 2.0a5 (P3D renderer recommended if using the wall)
-  //size( displayWidth, displayHeight, P3D ); // 2.0a6+ - this is broken in 2.0a8 - recommend manually entering in resolution
-  size( 8160, 2304, P3D ); // Cyber-Commons wall
+  // For almost any Processing application size() should be called before anything else in setup()
+  if( usingWall ) 
+    size( 8160, 2304, P3D ); // Cyber-Commons wall (P3D renderer is recommended for running on the wall)
+  else
+    size( displayWidth, displayHeight, P3D );
   
-  // Make the connection to the tracker machine
-  omicronManager.ConnectToTracker(7001, 7340, "131.193.77.104");
+  // Make the connection to the tracker machine (Comment this out if testing with only mouse)
+  //omicronManager.ConnectToTracker(7001, 7340, "131.193.77.159");
   
   // Create a listener to get events
   touchListener = new TouchListener();
   
-  // Register listener with OmicronAPI
+  // Register listener with OmicronAPI (This will still get mouse input without connecting to the tracker)
   omicronManager.setTouchListener(touchListener);
 
   // Sets applet to this sketch
@@ -61,6 +66,7 @@ void draw() {
   background(24);
 
   // For event and fullscreen processing, this must be called in draw()
+  // For touch display to appear, this should be called at the end of draw()
   omicronManager.process();
 }// draw
 
