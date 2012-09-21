@@ -22,12 +22,11 @@ public class OmicronTester extends PApplet{
 		// Depending on which version of Processing you're using:
 		//size( screen.width, screen.height, OPENGL ); // 1.5.1
 		//size( screenWidth, screenHeight, P3D ); // 2.0a1 - 2.0a5 (P3D renderer recommended if using the wall)
-		//size( displayWidth, displayHeight, P3D ); // 2.0a6+ - this is broken in 2.0a8 - recommend manually entering in resolution
+		size( displayWidth, displayHeight, P3D ); // 2.0a6+ - this is broken in 2.0a8 - recommend manually entering in resolution
 		//size( 8160, 2304, P3D ); // Cyber-Commons wall
-		size( 2560, 1600, P3D );
 		
 		// Make the connection to the tracker machine (uncomment this if testing without touch)
-		omicronManager.ConnectToTracker(7001, 28000, "131.193.77.211");
+		//omicronManager.ConnectToTracker(7001, 7340, "131.193.77.104");
 		  
 		// Create a listener to get events
 		touchListener = new TouchListener();

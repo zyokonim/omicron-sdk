@@ -290,7 +290,7 @@ public class OmicronAPI {
 			}
 		}
 
-		if (applet.keyPressed && applet.keyEvent.getKeyText(applet.keyCode) == "Ctrl") {
+		if ( applet.keyPressed && applet.keyCode == applet.CONTROL ) {
 			if (!secondMouseDown) {
 				touchListener.touchDown(-2, applet.mouseX, applet.mouseY, 10, 10);
 				secondMouseDown = true;
