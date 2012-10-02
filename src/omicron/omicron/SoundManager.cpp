@@ -87,7 +87,7 @@ void SoundManager::stopSoundServer()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool SoundManager::isSoundServerRunning()
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	printf( "%s: Not implemented yet\n", __FUNCTION__);
 
 	// Message the server and inquire if the sound server is running
 	serverSocket.receiveNextPacket(1000); // Paramater is timeout in milliseconds. -1 (default) will wait indefinatly 

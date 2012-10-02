@@ -42,7 +42,6 @@ Sound::Sound(char* soundName)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool Sound::loadFromFile(const char* filePath)
 {
-	printf( "%s: Not fully implemented\n", __FUNCTION__);
 	this->filePath = filePath;
 
 	Message msg("/loadBuffer");
@@ -56,27 +55,27 @@ bool Sound::loadFromFile(const char* filePath)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool Sound::loadFromMemory(const void* buf, size_t length)
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	printf( "%s: Not implemented yet \n", __FUNCTION__);
 	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 float Sound::getDuration()
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	printf( "%s: Not implemented yet \n", __FUNCTION__);
 	return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Sound::setVolumeScale(float volume)
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	printf( "%s: Not implemented yet \n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 float Sound::getVolumeScale()
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	printf( "%s: Not implemented yet \n", __FUNCTION__);
 	return 0;
 }
 
@@ -120,12 +119,18 @@ SoundInstance::SoundInstance(Sound* sound)
 	this->sound = sound;
 	instanceID = nextInstanceID; // This should be globally incremented on each new instance. Must be 1001 or greater.
 	nextInstanceID++;
+	
+	volume = 1.0f;
+	width = 2.0f;
+	mix = 1.0f;
+	reverb = 1.0f;
+	loop = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::setLoop(bool value)
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
 	loop = value;
 }
 
@@ -138,7 +143,7 @@ bool SoundInstance::getLoop()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::play()
 {
-	printf( "%s: Playing buffer %d with instanceID: %d\n", __FUNCTION__, sound->getBufferID(), instanceID);
+	//printf( "%s: Playing buffer %d with instanceID: %d\n", __FUNCTION__, sound->getBufferID(), instanceID);
 	Message msg("/play");
 	msg.pushInt32(instanceID);
 	msg.pushInt32(sound->getBufferID());
@@ -154,19 +159,55 @@ void SoundInstance::play()
 	msg.pushFloat( audioListener[1] );
 	msg.pushFloat( audioListener[2] );
 
+	// Width - nSpeakers 1-20	msg.pushFloat( width );	
+	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
+	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
+	// Loop - 0.0 no loop, 1.0 looping	if( loop )		msg.pushFloat( 1.0 );
+	else
+		msg.pushFloat( 0.0 );
+
+	soundManager->sendOSCMessage(msg);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundInstance::play( Vector3f position, float volume, float width, float mix, float reverb, bool loop )
+{
+	//printf( "%s: Playing buffer %d with instanceID: %d\n", __FUNCTION__, sound->getBufferID(), instanceID);
+	Message msg("/play");
+	msg.pushInt32(instanceID);
+	msg.pushInt32(sound->getBufferID());
+
+	msg.pushFloat(volume);
+
+	msg.pushFloat( position[0] );
+	msg.pushFloat( position[1] );
+	msg.pushFloat( position[2] );
+	
+	Vector3f audioListener = soundManager->getListenerPosition();
+	msg.pushFloat( audioListener[0] );
+	msg.pushFloat( audioListener[1] );
+	msg.pushFloat( audioListener[2] );
+
+	// Width - nSpeakers 1-20	msg.pushFloat( width );	
+	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
+	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
+	// Loop - 0.0 no loop, 1.0 looping	if( loop )		msg.pushFloat( 1.0 );
+	else
+		msg.pushFloat( 0.0 );
+
 	soundManager->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::pause()
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	printf( "%s: Not implemented yet \n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::stop()
 {
-	printf( "%s: Freeing instanceID: %d\n", __FUNCTION__, instanceID);
+	//printf( "%s: Freeing instanceID: %d\n", __FUNCTION__, instanceID);
 	Message msg("/freeNode");
 	msg.pushInt32(instanceID);
 	soundManager->sendOSCMessage(msg);
@@ -175,7 +216,7 @@ void SoundInstance::stop()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool SoundInstance::isPlaying()
 {
-	printf( "%s: Not yet implemented\n", __FUNCTION__);
+	printf( "%s: Not implemented yet \n", __FUNCTION__);
 	return false;
 }
 
@@ -228,6 +269,45 @@ void SoundInstance::setVolume(float value)
 float SoundInstance::getVolume()
 {
 	return volume;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundInstance::setWidth(float value)
+{
+	this->width = value;
+	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float SoundInstance::getWidth()
+{
+	return width;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundInstance::setMix(float value)
+{
+	this->volume = value;
+	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float SoundInstance::getMix()
+{
+	return mix;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundInstance::setReverb(float value)
+{
+	this->reverb = value;
+	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float SoundInstance::getReverb()
+{
+	return reverb;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

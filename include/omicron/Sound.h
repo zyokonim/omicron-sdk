@@ -77,6 +77,7 @@ public:
 	void setLoop(bool);
 	bool getLoop();
 	void play();
+	void play( Vector3f, float, float, float, float, bool );
 	void pause();
 	void stop();
 	bool isPlaying();
@@ -85,9 +86,16 @@ public:
 	Vector3f getPosition();
 	bool isEnvironmentSound();
 	void setEnvironmentSound(bool);
+
 	void setVolume(float);
 	float getVolume();
-	
+	void setWidth(float);
+	float getWidth();
+	void setMix(float);
+	float getMix();
+	void setReverb(float);
+	float getReverb();
+
 	int getID();
 
 	// Temp?
@@ -104,7 +112,10 @@ private:
 
 	bool loop;
 	bool environmentSound;
-	float volume;
+	float volume;	// Amplitude (0.0 - 1.0)
+	float width;	// Speaker width / nSpeakers (1-20)
+	float mix;		// Mix - wetness of sound (0.0 - 1.0)
+	float reverb;	// Room size / reverb amount (0.0 - 1.0)
 	float pitch;
 	Vector3f position;
 
