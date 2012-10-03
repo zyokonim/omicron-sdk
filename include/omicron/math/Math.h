@@ -390,6 +390,9 @@ namespace omicron {
 		/** Compute a quaternion rotation transforming vector a to vector b **/
 		static Quaternion buildRotation(const Vector3f& a, const Vector3f& b, const Vector3f& fallbackAxis );//= Vector3f::Zero());
 
+		//! Converts a quaternion to euler angles (pitch, yaw, roll)
+		static Vector3f quaternionToEuler(const Quaternion& quat);
+
 		static 
 		Ray unproject(const Vector2f& point, const AffineTransform3& modelview, const Transform3& projection, const Rect& viewport);
 		static 
