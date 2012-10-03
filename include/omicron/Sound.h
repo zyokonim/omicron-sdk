@@ -41,6 +41,10 @@ class OMICRON_API Sound
 {
 public:
 	Sound(char*);
+	Sound(char*, float, float, float, float, bool);
+	
+	void setDefaultParameters(float, float, float, float, bool);
+	
 	bool loadFromFile(const char*);
 	bool loadFromMemory(const void*,size_t);
 	float getDuration();
@@ -64,7 +68,14 @@ private:
 	int bufferID;
 	float duration;
 	float volumeScale;
-
+	
+	// Default sound instance parameters
+	float volume;	// Amplitude (0.0 - 1.0)
+	float width;	// Speaker width / nSpeakers (1-20)
+	float mix;		// Mix - wetness of sound (0.0 - 1.0)
+	float reverb;	// Room size / reverb amount (0.0 - 1.0)
+	bool loop;
+	
 	// Temp?
 	static SoundManager* manager;
 };// Sound

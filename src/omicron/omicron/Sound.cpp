@@ -37,6 +37,38 @@ Sound::Sound(char* soundName)
 	this->soundName = soundName;
 	bufferID = nextBufferID;
 	nextBufferID++;
+	
+	volumeScale = 1.0f;
+	volume = 1.0f;
+	width = 1.0f;
+	mix = 1.0f;
+	reverb = 1.0f;
+	loop = false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Sound::Sound(char* soundName, float volume, float width, float mix, float reverb, bool loop)
+{
+	this->soundName = soundName;
+	bufferID = nextBufferID;
+	nextBufferID++;
+	
+	volumeScale = 1.0f;
+	this->volume = volume;
+	this->width = width;
+	this->mix = mix;
+	this->reverb = reverb;
+	this->loop = loop;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void Sound::setDefaultParameters(float volume, float width, float mix, float reverb, bool loop)
+{
+	this->volume = volume;
+	this->width = width;
+	this->mix = mix;
+	this->reverb = reverb;
+	this->loop = loop;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,14 +101,13 @@ float Sound::getDuration()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Sound::setVolumeScale(float volume)
 {
-	printf( "%s: Not implemented yet \n", __FUNCTION__);
+	volumeScale = volume;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 float Sound::getVolumeScale()
 {
-	printf( "%s: Not implemented yet \n", __FUNCTION__);
-	return 0;
+	return volumeScale;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +131,11 @@ int Sound::getBufferID()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundInstance* Sound::play(){
 	SoundInstance* newInstance = new SoundInstance(this);
+	newInstance->setVolume(volume * volumeScale);
+	newInstance->setWidth(width);
+	newInstance->setMix(mix);
+	newInstance->setReverb(reverb);
+	newInstance->setLoop(loop);
 	newInstance->play();
 	return newInstance;
 }
@@ -130,7 +166,6 @@ SoundInstance::SoundInstance(Sound* sound)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::setLoop(bool value)
 {
-	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
 	loop = value;
 }
 
@@ -142,7 +177,7 @@ void SoundInstance::play()
 	msg.pushInt32(instanceID);
 	msg.pushInt32(sound->getBufferID());
 
-	msg.pushFloat(volume);
+	msg.pushFloat( volume * sound->getVolumeScale() );
 
 	msg.pushFloat( position[0] );
 	msg.pushFloat( position[1] );
@@ -156,12 +191,9 @@ void SoundInstance::play()
 	// Width - nSpeakers 1-20	msg.pushFloat( width );	
 	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
 	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
-	if(loop)	{		msg.pushFloat( 1.0 );
-	}
-	else
-	{
+	if(loop)		msg.pushFloat( 1.0 );
+	if( !loop ) // Workaround due to VS2010 compile error on else?
 		msg.pushFloat( 0.0 );
-	}
 
 	//soundManager->sendOSCMessage(msg);
 }
@@ -179,7 +211,7 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 	msg.pushInt32(instanceID);
 	msg.pushInt32(sound->getBufferID());
 
-	msg.pushFloat(volume);
+	msg.pushFloat( volume * sound->getVolumeScale() );
 
 	msg.pushFloat( position[0] );
 	msg.pushFloat( position[1] );
@@ -194,7 +226,7 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
 	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
 	if( loop )		msg.pushFloat( 1.0 );
-	else
+	if( !loop ) // Workaround due to VS2010 compile error on else?
 		msg.pushFloat( 0.0 );
 
 	soundManager->sendOSCMessage(msg);

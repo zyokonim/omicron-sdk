@@ -57,6 +57,7 @@
 #define OSCPKT_HH
 
 
+#ifndef OMEGA_API
 #ifdef OMICRON_OS_WIN
 namespace oscpkt {
   typedef __int32 int32_t;
@@ -66,6 +67,7 @@ namespace oscpkt {
 }
 #else
 #include <stdint.h>
+#endif
 #endif
 
 #include <cstring>

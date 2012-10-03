@@ -153,7 +153,18 @@ Sound* SoundEnvironment::createSound(char* soundName)
 	newSound->setSoundManager(soundManager);
 
 	soundList[newSound->getBufferID()] = newSound;
+	soundBufferIDList[soundName] = newSound->getBufferID();
+	
+	return newSound;
+}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Sound* SoundEnvironment::getSound(char* soundName)
+{
+	printf( "%s: Not fully implemented\n", __FUNCTION__);
+	Sound* newSound = soundList[soundBufferIDList[soundName]];
+	if( newSound == NULL )
+		ofmsg("SoundEnvironment:getSound() - '%1%' does not exist", %soundName);
 	return newSound;
 }
 
