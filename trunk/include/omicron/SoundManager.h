@@ -50,12 +50,14 @@ public:
 	float getVolume();
 
 	Sound* createSound(char*);
+	Sound* getSound(char*);
 	SoundInstance* createInstance(Sound*);
 	SoundInstance* getSoundInstance(int);
 private:
 	static SoundManager* soundManager;
 	static float globalVolume;
 	map<int,Sound*> soundList;
+	map<char*,int> soundBufferIDList;
 	map<int,SoundInstance*> soundInstanceList;
 };// SoundEnvironment
 

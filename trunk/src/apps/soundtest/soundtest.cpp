@@ -41,11 +41,13 @@ private:
 	SoundManager* soundManager;
 	SoundEnvironment* env;
 
-	Sound* testSound;
-	Sound* backgroundMusic;
-	Sound* instantSound;
-
-	SoundInstance* soundInstance;
+	Sound* showMenuSound;
+	Sound* hideMenuSound;
+	Sound* selectMenuSound;
+	Sound* scrollMenuSound;
+	Sound* soundLoop;
+	SoundInstance* soundLoopInstance;
+	
 	bool instanceCreated;
 public:
 
@@ -58,7 +60,7 @@ public:
 		
 		// More concise method of above two lines
 		//soundManager = new SoundManager("131.193.77.51",57120);
-		soundManager = new SoundManager("131.193.77.141",57120);
+		soundManager = new SoundManager("xenakis.evl.uic.edu",57120);
 		//soundManager = new SoundManager("localhost",57120);
 		soundManager->startSoundServer();
 
@@ -67,11 +69,22 @@ public:
 
 		// Load sound assets
 		if( soundManager->isSoundServerRunning() ){
-			backgroundMusic = env->createSound("wind");
-			backgroundMusic->loadFromFile("/wind.wav");
+			showMenuSound = env->createSound("showMenuSound");
+			showMenuSound->loadFromFile("/Users/evldemo/sounds/menu_sounds/menu_load.wav");
 
-			instantSound = env->createSound("gunshot");
-			instantSound->loadFromFile("/gun.wav");
+			hideMenuSound = env->createSound("hideMenuSound");
+			hideMenuSound->loadFromFile("/Users/evldemo/sounds/menu_sounds/menu_closed.wav");
+
+			selectMenuSound = env->createSound("selectMenuSound");
+			selectMenuSound->loadFromFile("/Users/evldemo/sounds/menu_sounds/menu_select.wav");
+
+			scrollMenuSound = env->createSound("scrollMenuSound");
+			scrollMenuSound->loadFromFile("/Users/evldemo/sounds/menu_sounds/menu_scroll.wav");
+			
+			soundLoop = env->createSound("soundLoop");
+			soundLoop->loadFromFile("/Users/evldemo/sounds/arthur/Enterprise_Bridge.wav");
+			
+			
 		}
 
 		
@@ -91,7 +104,7 @@ public:
 
 		switch(evt.getServiceType())
 		{
-			case Service::Controller:
+			case Service::Wand:
 				leftRightAnalog = evt.getExtraDataFloat(0) / 1000.0f;
 				upDownAnalog = evt.getExtraDataFloat(1) / 1000.0f;
 
@@ -100,47 +113,39 @@ public:
 				if( evt.getType() == Event::Down ){
 
 					if( evt.getFlags() == Event::Button3){ // Cross
-						backgroundMusic = env->createSound("wind");
-						backgroundMusic->loadFromFile("/wind.wav");
-
-						instantSound = env->createSound("gunshot");
-						instantSound->loadFromFile("/gun.wav");
+						soundLoopInstance = new SoundInstance(soundLoop);
+						soundLoopInstance->play( Vector3f(0,0,0), 1.0, 20, 1.0, 1.0, true );
 					}
 					if( evt.getFlags() == Event::Button2){ // Circle
-						
+						soundLoopInstance->stop();
 					}
 					
 					if( evt.getFlags() == Event::Button5){ // L1
-						SoundInstance* gun = new SoundInstance(instantSound);
-						gun->play();		
+		
 					}
 
 					if( evt.getFlags() == Event::ButtonRight){
-						//soundInstance = new SoundInstance(backgroundMusic);
-						//soundInstance->play();
-						
-						// Short version of above
-						soundInstance = backgroundMusic->play();
-
-						instanceCreated = true;
+						SoundInstance* soundInstance = new SoundInstance(showMenuSound);
+						soundInstance->setPosition( evt.getPosition() );
+						soundInstance->play();
 					}
 					if( evt.getFlags() == Event::ButtonLeft){
-						soundInstance->pause();
+						SoundInstance* soundInstance = new SoundInstance(hideMenuSound);
+						soundInstance->setPosition( evt.getPosition() );
+						soundInstance->play();
 					}
 					if( evt.getFlags() == Event::ButtonUp){
-						soundInstance->stop();
+						SoundInstance* soundInstance = new SoundInstance(selectMenuSound);
+						soundInstance->setPosition( evt.getPosition() );
+						soundInstance->play();
 					}
 					if( evt.getFlags() == Event::ButtonDown){
-						soundInstance->setLoop(true);
+						SoundInstance* soundInstance = new SoundInstance(scrollMenuSound);
+						soundInstance->setPosition( evt.getPosition() );
+						soundInstance->play();
 					}
 					//printf("%d \n", evt.getFlags() );
 				}
-				
-				if( instanceCreated && volume > 0 ){
-					printf("Volume: %f \n", volume);
-					soundInstance->setVolume(volume);
-				}
-
 				
 				if( (leftRightAnalog > zeroTolerence || leftRightAnalog < -zeroTolerence) &&
 					(upDownAnalog > zeroTolerence || upDownAnalog < -zeroTolerence)
@@ -155,8 +160,8 @@ public:
 			case Service::Mocap:
 				if( evt.getSourceId() == 0 )
 					soundManager->setListenerPosition( evt.getPosition() );
-				else if( instanceCreated && evt.getSourceId() == 1 )
-					soundInstance->setPosition( evt.getPosition() );
+				//else if( instanceCreated && evt.getSourceId() == 1 )
+				//	soundInstance->setPosition( evt.getPosition() );
 				//printf("ID: %d Pos: %f %f %f\n", evt.getSourceId(), evt.getPosition(0), evt.getPosition(1), evt.getPosition(2) );
 				break;
 		}
