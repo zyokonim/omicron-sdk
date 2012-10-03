@@ -135,12 +135,6 @@ void SoundInstance::setLoop(bool value)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool SoundInstance::getLoop()
-{
-	return loop;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::play()
 {
 	//printf( "%s: Playing buffer %d with instanceID: %d\n", __FUNCTION__, sound->getBufferID(), instanceID);
@@ -162,11 +156,19 @@ void SoundInstance::play()
 	// Width - nSpeakers 1-20	msg.pushFloat( width );	
 	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
 	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
-	// Loop - 0.0 no loop, 1.0 looping	if( loop )		msg.pushFloat( 1.0 );
+	if(loop)	{		msg.pushFloat( 1.0 );
+	}
 	else
+	{
 		msg.pushFloat( 0.0 );
+	}
 
-	soundManager->sendOSCMessage(msg);
+	//soundManager->sendOSCMessage(msg);
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool SoundInstance::getLoop()
+{
+	return loop;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +193,7 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 	// Width - nSpeakers 1-20	msg.pushFloat( width );	
 	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
 	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
-	// Loop - 0.0 no loop, 1.0 looping	if( loop )		msg.pushFloat( 1.0 );
+	if( loop )		msg.pushFloat( 1.0 );
 	else
 		msg.pushFloat( 0.0 );
 
