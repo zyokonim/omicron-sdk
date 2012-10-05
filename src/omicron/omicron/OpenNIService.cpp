@@ -63,6 +63,9 @@ OpenNIService::OpenNIService()
 
 	omg_DepthGenerator_v = new Vector<DepthGenerator>();
 	omg_UserGenerator_v = new Vector<UserGenerator>();
+
+	trackClosestEnabled = false;
+	trackClosestUser = 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +106,7 @@ void OpenNIService::initialize()
 	static xn::NodeInfoList user_nodes;
 
 	if (omg_Context.EnumerateProductionTrees(XN_NODE_TYPE_DEVICE, NULL, node_info_list) != XN_STATUS_OK && node_info_list.Begin () !=  node_info_list.End ()) 
-		omsg("enumerating devices failed. Reason: "); 
+		omsg("OpenNIService: enumerating devices failed. Reason: "); 
 
 	omg_Context.EnumerateProductionTrees (XN_NODE_TYPE_DEPTH, NULL, depth_nodes, NULL);
 	omg_Context.EnumerateProductionTrees (XN_NODE_TYPE_USER, NULL, user_nodes, NULL);
@@ -119,7 +122,7 @@ void OpenNIService::initialize()
 		xn::NodeInfo info = *nodeIt;  
         omg_Context.CreateProductionTree (info); 
 		const XnProductionNodeDescription& description = info.GetDescription(); 
-		omsg("image: vendor" + String(description.strVendor) + " name " + String(description.strName) + " instance " + info.GetInstanceName());
+		omsg("OpenNIService: image: vendor" + String(description.strVendor) + " name " + String(description.strName) + " instance " + info.GetInstanceName());
 
 		DepthGenerator omg_DepthGenerator;
 
@@ -157,7 +160,7 @@ void OpenNIService::initialize()
 
 				if (!omg_UserGenerator.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
 				{
-					printf("Supplied user generator doesn't support skeleton\n");
+					printf("OpenNIService: Supplied user generator doesn't support skeleton\n");
 					
 				}
 				omg_UserGenerator.RegisterUserCallbacks(User_NewUser, User_LostUser, NULL, hUserCallbacks);
@@ -169,7 +172,7 @@ void OpenNIService::initialize()
 
 					if (!omg_UserGenerator.IsCapabilitySupported(XN_CAPABILITY_POSE_DETECTION))
 					{
-						printf("Pose required, but not supported\n");
+						printf("OpenNIService: Pose required, but not supported\n");
 						//return 1;
 					}
 
@@ -185,7 +188,7 @@ void OpenNIService::initialize()
 
 				if (!omg_UserGenerator.IsCapabilitySupported(XN_CAPABILITY_SKELETON))
 				{
-					printf("Supplied user generator doesn't support skeleton\n");
+					printf("OpenNIService: Supplied user generator doesn't support skeleton\n");
 					
 				}
 				omg_UserGenerator.RegisterUserCallbacks(User_NewUser, User_LostUser, NULL, hUserCallbacks);
@@ -197,7 +200,7 @@ void OpenNIService::initialize()
 
 					if (!omg_UserGenerator.IsCapabilitySupported(XN_CAPABILITY_POSE_DETECTION))
 					{
-						printf("Pose required, but not supported\n");
+						printf("OpenNIService: Pose required, but not supported\n");
 						//return 1;
 					}
 					omg_UserGenerator.GetPoseDetectionCap().RegisterToPoseCallbacks(UserPose_PoseDetected, NULL, serviceId + 1, hPoseCallbacks);
@@ -321,6 +324,17 @@ void OpenNIService::setup(Setting& settings)
 			calibrationFile = (const char*) settings["loadCalibrationFromFile"];
 		}
 	}
+
+	if(settings.exists("trackClosest"))
+	{
+		Setting& st = settings["trackClosest"];
+		for(int i = 0; i < 3; i++)
+		{
+			trackClosest[i] = st[i];
+		}
+		trackClosestEnabled = true;
+		omsg("OpenNIService: Tracking closest user");
+	}
 }
 
 void OpenNIService::start()
@@ -373,8 +387,36 @@ void OpenNIService::poll(void)
 		getTexture(depthMD, sceneMD);
 
 		myOpenNI->lockEvents();
+
+		float currentMinimum = 1000000;
+		// Find the minimum
 		for (int i = 0; i < nUsers; ++i)
 		{
+			XnPoint3D com;
+			omg_UserGenerator.GetCoM(aUsers[i], com);
+			omg_DepthGenerator.ConvertRealWorldToProjective(1, &com, &com);
+
+			if( trackClosestEnabled ) 
+			{
+				Vector3f headPosition;
+				if( getJointPosition(aUsers[i], OMICRON_SKEL_HEAD, headPosition, 0) ) {
+					headPosition = myTransform[0] * headPosition;
+				}
+
+				float dist = headPosition[2] - trackClosest[2];
+				if( dist < currentMinimum ) 
+				{
+					trackClosestUser = i;
+					currentMinimum = dist;
+				}
+
+			}
+		}
+
+		for (int i = 0; i < nUsers; ++i)
+		{
+			if( trackClosestEnabled && i != trackClosestUser) continue;
+
 			XnPoint3D com;
 			omg_UserGenerator.GetCoM(aUsers[i], com);
 			omg_DepthGenerator.ConvertRealWorldToProjective(1, &com, &com);
@@ -420,7 +462,7 @@ void OpenNIService::poll(void)
 					for(int j = 0; j < myTrackables.size(); j++)
 					{
 						Trackable& t = myTrackables[j];
-						if(t.userId == aUsers[i])
+						if(t.userId == -1 || t.userId == aUsers[i])
 						{
 							// Write a trackable event for the specified joint.
 							Vector3f pos;
@@ -460,7 +502,6 @@ void OpenNIService::poll(void)
 					joint2eventPointSet(aUsers[i], OMICRON_SKEL_RIGHT_HIP, theEvent);
 					joint2eventPointSet(aUsers[i], OMICRON_SKEL_RIGHT_KNEE, theEvent);
 					joint2eventPointSet(aUsers[i], OMICRON_SKEL_RIGHT_FOOT, theEvent);
-
 				}
 			//}
 		}
@@ -564,12 +605,12 @@ bool OpenNIService::getJointPosition(XnUserID player, XnSkeletonJoint joint, Vec
 // Callback: New user was detected
 void XN_CALLBACK_TYPE OpenNIService::User_NewUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie)
 {
-	ofmsg("New User %1%", %(int)nId);
+	ofmsg("OpenNIService: New User %1%", %(int)nId);
 
 	if(loadCalibrationFromFile)
 	{
 		XnStatus status = generator.GetSkeletonCap().LoadCalibrationDataFromFile(nId, calibrationFile);
-		ofmsg("User %1% tracked on %2%", %(int)nId %(bool)generator.GetSkeletonCap().IsCalibrated(nId) );
+		ofmsg("OpenNIService: User %1% tracked on %2%", %(int)nId %(bool)generator.GetSkeletonCap().IsCalibrated(nId) );
         generator.GetSkeletonCap().StartTracking(nId);
 	}
     else 
@@ -606,7 +647,7 @@ void XN_CALLBACK_TYPE OpenNIService::UserPose_PoseDetected(xn::PoseDetectionCapa
 	xn::DepthGenerator omg_DepthGenerator = omg_DepthGenerator_v->at(device);
 	xn::UserGenerator omg_UserGenerator = omg_UserGenerator_v->at(device);
 
-	ofmsg("Pose %1% detected for user %2% on Device%3%", %strPose %(int)nId %device);
+	ofmsg("OpenNIService: Pose %1% detected for user %2% on Device%3%", %strPose %(int)nId %device);
 	omg_UserGenerator.GetPoseDetectionCap().StopPoseDetection(nId);
 	omg_UserGenerator.GetSkeletonCap().RequestCalibration(nId, TRUE);
 }
@@ -615,7 +656,7 @@ void XN_CALLBACK_TYPE OpenNIService::UserPose_PoseDetected(xn::PoseDetectionCapa
 void XN_CALLBACK_TYPE OpenNIService::UserCalibration_CalibrationStart(xn::SkeletonCapability& capability, XnUserID nId, void* pCookie)
 {
 	int device = ((int*)(pCookie))[0];
-	ofmsg("Calibration started for user %1% on Device%2%", %(int)nId %device);
+	ofmsg("OpenNIService: Calibration started for user %1% on Device%2%", %(int)nId %device);
 }
 
 // Callback: Finished calibration
@@ -627,7 +668,7 @@ void XN_CALLBACK_TYPE OpenNIService::UserCalibration_CalibrationEnd(xn::Skeleton
 	if (bSuccess)
 	{
 		// Calibration succeeded
-		ofmsg("Calibration complete, start tracking user %1% on Device%2%", %(int)nId %device);
+		ofmsg("OpenNIService: Calibration complete, start tracking user %1% on Device%2%", %(int)nId %device);
 		omg_UserGenerator.GetSkeletonCap().StartTracking(nId);
 
         omg_UserGenerator.GetSkeletonCap().SaveCalibrationData(nId, 0);
@@ -641,7 +682,7 @@ void XN_CALLBACK_TYPE OpenNIService::UserCalibration_CalibrationEnd(xn::Skeleton
 	else
 	{
 		// Calibration failed
-		ofmsg("Calibration failed for user %1% on Device%2%", %(int)nId %device);
+		ofmsg("OpenNIService: Calibration failed for user %1% on Device%2%", %(int)nId %device);
 		if ( OpenNIService::omg_bNeedPose )
 		{
 			omg_UserGenerator.GetPoseDetectionCap().StartPoseDetection(omg_strPose, nId);
