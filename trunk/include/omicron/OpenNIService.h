@@ -145,6 +145,10 @@ namespace omicron
 
 		Vector<Trackable> myTrackables;
 
+		Vector3f trackClosest;
+		int trackClosestUser;
+		bool trackClosestEnabled;
+
 	private:
 
 		static void XN_CALLBACK_TYPE User_NewUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie);
