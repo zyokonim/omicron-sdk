@@ -37,22 +37,22 @@ namespace omicron
 class SoundManager;
 class SoundInstance;
 
-class OMICRON_API Sound
+class OMICRON_API Sound: public ReferenceType
 {
 public:
-	Sound(char*);
-	Sound(char*, float, float, float, float, bool);
+	Sound(const String& name);
+	Sound(const String& name, float, float, float, float, bool);
 	
 	void setDefaultParameters(float, float, float, float, bool);
 	
-	bool loadFromFile(const char*);
+	bool loadFromFile(const String& name);
 	bool loadFromMemory(const void*,size_t);
 	float getDuration();
 	void setVolumeScale(float);
 	float getVolumeScale();
 	
 	int getBufferID();
-	const char* getFilePath();
+	const String& getFilePath();
 
 	// Temp?
 	void setSoundManager(SoundManager*);
@@ -63,8 +63,8 @@ private:
 
 public:
 private:
-	char* soundName;
-	const char* filePath;
+	String soundName;
+	String filePath;
 	int bufferID;
 	float duration;
 	float volumeScale;
@@ -80,7 +80,7 @@ private:
 	static SoundManager* manager;
 };// Sound
 
-class OMICRON_API SoundInstance
+class OMICRON_API SoundInstance: public ReferenceType
 {
 public:
 	SoundInstance(Sound*);
@@ -94,7 +94,7 @@ public:
 	bool isPlaying();
 	
 	void setPosition(Vector3f);
-	Vector3f getPosition();
+	const Vector3f& getPosition();
 	bool isEnvironmentSound();
 	void setEnvironmentSound(bool);
 
@@ -115,7 +115,7 @@ private:
 	
 public:
 private:
-	Sound* sound;
+	Ref<Sound> sound;
 	int instanceID;
 
 	enum State {playing, paused, stopped};

@@ -41,7 +41,7 @@ class SoundManager;
 class Sound;
 class SoundInstance;
 
-class OMICRON_API SoundEnvironment
+class OMICRON_API SoundEnvironment: public ReferenceType
 {
 public:
 	SoundEnvironment(SoundManager*);
@@ -49,26 +49,27 @@ public:
 	void setVolume(float);
 	float getVolume();
 
-	Sound* createSound(char*);
-	Sound* getSound(char*);
+	Sound* createSound(const String& name);
+	Sound* loadSoundFromFile(const String& soundName, const String& fileName);
+	Sound* getSound(const String& name);
 	SoundInstance* createInstance(Sound*);
 	SoundInstance* getSoundInstance(int);
 private:
 	static SoundManager* soundManager;
 	static float globalVolume;
-	map<int,Sound*> soundList;
-	map<char*,int> soundBufferIDList;
-	map<int,SoundInstance*> soundInstanceList;
+
+	map<int, Ref<Sound> > soundList;
+	map<String, int> soundBufferIDList;
+	map<int, Ref<SoundInstance> > soundInstanceList;
 };// SoundEnvironment
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class OMICRON_API SoundManager
+class OMICRON_API SoundManager: public ReferenceType
 {
 public:
 	SoundManager();
-	SoundManager(String, int);
-	SoundManager(const char*, int);
-	void connectToServer(const char*, int);
+	SoundManager(const String& host, int port);
+	void connectToServer(const String& host, int port);
 	bool isSoundServerRunning();
 	SoundEnvironment* getSoundEnvironment();
 	void setEnvironment(SoundEnvironment*);

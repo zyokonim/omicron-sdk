@@ -40,7 +40,7 @@ SoundManager::SoundManager()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundManager::SoundManager(String serverIP, int serverPort)
+SoundManager::SoundManager(const String& serverIP, int serverPort)
 {
 	listenerPosition = Vector3f(0,0,0);
 	environment = new SoundEnvironment(this);
@@ -48,15 +48,7 @@ SoundManager::SoundManager(String serverIP, int serverPort)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundManager::SoundManager(const char* serverIP, int serverPort)
-{
-	listenerPosition = Vector3f(0,0,0);
-	environment = new SoundEnvironment(this);
-	connectToServer(serverIP, serverPort);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SoundManager::connectToServer(const char* serverIP, int serverPort)
+void SoundManager::connectToServer(const String& serverIP, int serverPort)
 {
 	// Create socket and connect to OSC server
 	serverSocket.connectTo(serverIP, serverPort);
@@ -146,7 +138,7 @@ SoundEnvironment::SoundEnvironment(SoundManager* soundManager)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Sound* SoundEnvironment::createSound(char* soundName)
+Sound* SoundEnvironment::createSound(const String& soundName)
 {
 	printf( "%s: Not fully implemented\n", __FUNCTION__);
 	Sound* newSound = new Sound(soundName);
@@ -159,13 +151,24 @@ Sound* SoundEnvironment::createSound(char* soundName)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Sound* SoundEnvironment::getSound(char* soundName)
+Sound* SoundEnvironment::getSound(const String& soundName)
 {
 	printf( "%s: Not fully implemented\n", __FUNCTION__);
 	Sound* newSound = soundList[soundBufferIDList[soundName]];
 	if( newSound == NULL )
 		ofmsg("SoundEnvironment:getSound() - '%1%' does not exist", %soundName);
 	return newSound;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Sound* SoundEnvironment::loadSoundFromFile(const String& soundName, const String& fileName)
+{
+	Sound* sound = createSound(soundName);
+	if(sound != NULL)
+	{
+		sound->loadFromFile(fileName);
+	}
+	return sound;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
