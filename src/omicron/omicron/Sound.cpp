@@ -32,7 +32,7 @@ SoundManager* Sound::manager;
 int nextBufferID = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Sound::Sound(char* soundName)
+Sound::Sound(const String& soundName)
 {
 	this->soundName = soundName;
 	bufferID = nextBufferID;
@@ -47,7 +47,7 @@ Sound::Sound(char* soundName)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Sound::Sound(char* soundName, float volume, float width, float mix, float reverb, bool loop)
+Sound::Sound(const String& soundName, float volume, float width, float mix, float reverb, bool loop)
 {
 	this->soundName = soundName;
 	bufferID = nextBufferID;
@@ -72,7 +72,7 @@ void Sound::setDefaultParameters(float volume, float width, float mix, float rev
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool Sound::loadFromFile(const char* filePath)
+bool Sound::loadFromFile(const String& filePath)
 {
 	this->filePath = filePath;
 
@@ -80,7 +80,7 @@ bool Sound::loadFromFile(const char* filePath)
 	msg.pushInt32(this->getBufferID());
 	msg.pushStr(this->getFilePath());
 	manager->sendOSCMessage(msg);
-	printf("Loaded buffer ID %d with path %s \n", this->getBufferID(), this->getFilePath());
+	ofmsg("Loaded buffer ID %1% with path %2%", %this->getBufferID() %this->getFilePath());
 	return false;
 }
 
@@ -129,7 +129,8 @@ int Sound::getBufferID()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundInstance* Sound::play(){
+SoundInstance* Sound::play()
+{
 	SoundInstance* newInstance = new SoundInstance(this);
 	newInstance->setVolume(volume * volumeScale);
 	newInstance->setWidth(width);
@@ -141,7 +142,8 @@ SoundInstance* Sound::play(){
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const char* Sound::getFilePath(){
+const String& Sound::getFilePath()
+{
 	return filePath;
 }
 
@@ -270,7 +272,7 @@ void SoundInstance::setPosition(Vector3f pos)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Vector3f SoundInstance::getPosition()
+const Vector3f& SoundInstance::getPosition()
 {
 	return position;
 }
