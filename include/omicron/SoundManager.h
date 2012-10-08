@@ -68,6 +68,7 @@ class OMICRON_API SoundManager: public ReferenceType
 {
 public:
 	SoundManager();
+	~SoundManager();
 	SoundManager(const String& host, int port);
 	void connectToServer(const String& host, int port);
 	bool isSoundServerRunning();
