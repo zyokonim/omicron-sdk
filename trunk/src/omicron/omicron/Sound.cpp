@@ -166,6 +166,12 @@ SoundInstance::SoundInstance(Sound* sound)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SoundInstance::~SoundInstance()
+{
+	//stop();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::setLoop(bool value)
 {
 	loop = value;
@@ -191,13 +197,14 @@ void SoundInstance::play()
 	msg.pushFloat( audioListener[2] );
 
 	// Width - nSpeakers 1-20	msg.pushFloat( width );	
-	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
-	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
+	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
+	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
 	if(loop)		msg.pushFloat( 1.0 );
 	if( !loop ) // Workaround due to VS2010 compile error on else?
 		msg.pushFloat( 0.0 );
 
-	//soundManager->sendOSCMessage(msg);
+		
+	soundManager->sendOSCMessage(msg);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool SoundInstance::getLoop()
@@ -225,8 +232,8 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 	msg.pushFloat( audioListener[2] );
 
 	// Width - nSpeakers 1-20	msg.pushFloat( width );	
-	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
-	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
+	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
+	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
 	if( loop )		msg.pushFloat( 1.0 );
 	if( !loop ) // Workaround due to VS2010 compile error on else?
 		msg.pushFloat( 0.0 );

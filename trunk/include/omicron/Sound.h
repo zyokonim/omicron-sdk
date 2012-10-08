@@ -84,6 +84,7 @@ class OMICRON_API SoundInstance: public ReferenceType
 {
 public:
 	SoundInstance(Sound*);
+	~SoundInstance();
 
 	void setLoop(bool);
 	bool getLoop();
