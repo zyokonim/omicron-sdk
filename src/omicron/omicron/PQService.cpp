@@ -709,8 +709,8 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 		else
 			touch.ID = touchID[tp.id];
 
-		touch.xPos = tp.x * (float)screenX / (float)serverX;
-		touch.yPos = tp.y * (float)screenY / (float)serverY;
+		touch.xPos = tp.x * (float)screenX / (float)serverX + screenOffsetX;
+		touch.yPos = tp.y * (float)screenY / (float)serverY + screenOffsetY;
 		touch.xWidth = xWidth * (float)screenX / (float)serverX;
 		touch.yWidth = yWidth * (float)screenY / (float)serverY;
 
@@ -756,13 +756,11 @@ void PQService:: OnTouchPoint(const TouchPoint & tp)
 					break;
 			}		
 			if( serverX != 0 && serverY != 0 ){
-				evt->setPosition(
-				tp.x * (float)screenX / (float)serverX,
-				tp.y * (float)screenY / (float)serverY);
+				evt->setPosition(touch.xPos,touch.yPos);
 
 				evt->setExtraDataType(Event::ExtraDataFloatArray);
-				evt->setExtraDataFloat(0, xWidth * (float)screenX / (float)serverX);
-				evt->setExtraDataFloat(1, yWidth * (float)screenY / (float)serverY);
+				evt->setExtraDataFloat(0, touch.xWidth);
+				evt->setExtraDataFloat(1,touch.yWidth);
 			} else {
 				evt->setPosition(tp.x, tp.y);
 
