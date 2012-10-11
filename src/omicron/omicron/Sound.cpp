@@ -28,7 +28,6 @@
 using namespace omicron;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundManager* Sound::manager;
 int nextBufferID = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,13 +40,13 @@ Sound::Sound(const String& soundName)
 	volumeScale = 1.0f;
 	volume = 1.0f;
 	width = 1.0f;
-	mix = 1.0f;
-	reverb = 1.0f;
+	mix = 0.0f;
+	reverb = 0.0f;
 	loop = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Sound::Sound(const String& soundName, float volume, float width, float mix, float reverb, bool loop)
+Sound::Sound(const String& soundName, float volume, float width, float mix, float reverb, bool loop, bool env)
 {
 	this->soundName = soundName;
 	bufferID = nextBufferID;
@@ -59,16 +58,18 @@ Sound::Sound(const String& soundName, float volume, float width, float mix, floa
 	this->mix = mix;
 	this->reverb = reverb;
 	this->loop = loop;
+	this->environmentSound = env;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Sound::setDefaultParameters(float volume, float width, float mix, float reverb, bool loop)
+void Sound::setDefaultParameters(float volume, float width, float mix, float reverb, bool loop, bool env)
 {
 	this->volume = volume;
 	this->width = width;
 	this->mix = mix;
 	this->reverb = reverb;
 	this->loop = loop;
+	this->environmentSound = env;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,6 +112,42 @@ float Sound::getVolumeScale()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float Sound::getDefaultVolume()
+{
+	return volume;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float Sound::getDefaultMix()
+{
+	return mix;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float Sound::getDefaultReverb()
+{
+	return mix;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float Sound::getDefaultWidth()
+{
+	return width;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool Sound::isDefaultLooping()
+{
+	return loop;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool Sound::isEnvironmentSound()
+{
+	return environmentSound;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Sound::setSoundManager(SoundManager* manager)
 {
 	this->manager = manager;
@@ -129,26 +166,12 @@ int Sound::getBufferID()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundInstance* Sound::play()
-{
-	SoundInstance* newInstance = new SoundInstance(this);
-	newInstance->setVolume(volume * volumeScale);
-	newInstance->setWidth(width);
-	newInstance->setMix(mix);
-	newInstance->setReverb(reverb);
-	newInstance->setLoop(loop);
-	newInstance->play();
-	return newInstance;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const String& Sound::getFilePath()
+String& Sound::getFilePath()
 {
 	return filePath;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundManager* SoundInstance::soundManager;
 int nextInstanceID = 4001;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,11 +181,14 @@ SoundInstance::SoundInstance(Sound* sound)
 	instanceID = nextInstanceID; // This should be globally incremented on each new instance. Must be 1001 or greater.
 	nextInstanceID++;
 	
-	volume = 1.0f;
-	width = 2.0f;
-	mix = 1.0f;
-	reverb = 1.0f;
-	loop = false;
+	volume = sound->getDefaultVolume();
+	width = sound->getDefaultWidth();
+	mix = sound->getDefaultMix();
+	reverb = sound->getDefaultReverb();
+	loop = sound->isDefaultLooping();
+	environmentSound = sound->isEnvironmentSound();
+
+	soundManager = sound->getSoundManager();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,7 +211,10 @@ void SoundInstance::play()
 	msg.pushInt32(instanceID);
 	msg.pushInt32(sound->getBufferID());
 
-	msg.pushFloat( volume * sound->getVolumeScale() );
+	if( volume * sound->getVolumeScale() > 1 )
+		msg.pushFloat( 1.0 );
+	else
+		msg.pushFloat( volume * sound->getVolumeScale() );
 
 	msg.pushFloat( position[0] );
 	msg.pushFloat( position[1] );
@@ -196,16 +225,49 @@ void SoundInstance::play()
 	msg.pushFloat( audioListener[1] );
 	msg.pushFloat( audioListener[2] );
 
-	// Width - nSpeakers 1-20	msg.pushFloat( width );	
-	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
-	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
-	if(loop)		msg.pushFloat( 1.0 );
-	if( !loop ) // Workaround due to VS2010 compile error on else?
+	// Width - nSpeakers 1-20
+	if( environmentSound )
+		msg.pushFloat( 20 );
+	else
+		msg.pushFloat( width );
+
+	// Mix - wetness of sound 0.0 - 1.0
+	msg.pushFloat( mix );
+
+	// Room size - reverb amount 0.0 - 1.0
+	msg.pushFloat( reverb );
+
+	// Loop sound - 0.0 not looping - 1.0 looping
+	if( loop )
+		msg.pushFloat( 1.0 );
+	else
 		msg.pushFloat( 0.0 );
 
-		
 	soundManager->sendOSCMessage(msg);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundInstance::playStereo()
+{
+	//printf( "%s: Playing buffer %d with instanceID: %d\n", __FUNCTION__, sound->getBufferID(), instanceID);
+	Message msg("/playStereo");
+	msg.pushInt32(instanceID);
+	msg.pushInt32(sound->getBufferID());
+
+	if( volume * sound->getVolumeScale() > 1 )
+		msg.pushFloat( 1.0 );
+	else
+		msg.pushFloat( volume * sound->getVolumeScale() );
+
+	// Loop sound - 0.0 not looping - 1.0 looping
+	if( loop )
+		msg.pushFloat( 1.0 );
+	else
+		msg.pushFloat( 0.0 );
+
+	soundManager->sendOSCMessage(msg);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool SoundInstance::getLoop()
 {
@@ -220,7 +282,10 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 	msg.pushInt32(instanceID);
 	msg.pushInt32(sound->getBufferID());
 
-	msg.pushFloat( volume * sound->getVolumeScale() );
+	if( volume * sound->getVolumeScale() > 1 )
+		msg.pushFloat( 1.0 );
+	else
+		msg.pushFloat( volume * sound->getVolumeScale() );
 
 	msg.pushFloat( position[0] );
 	msg.pushFloat( position[1] );
@@ -231,11 +296,39 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 	msg.pushFloat( audioListener[1] );
 	msg.pushFloat( audioListener[2] );
 
-	// Width - nSpeakers 1-20	msg.pushFloat( width );	
-	// Mix - wetness of sound 0.0 - 1.0	msg.pushFloat( mix );
-	// Room size - reverb amount 0.0 - 1.0	msg.pushFloat( reverb );
-	if( loop )		msg.pushFloat( 1.0 );
-	if( !loop ) // Workaround due to VS2010 compile error on else?
+	// Width - nSpeakers 1-20
+	msg.pushFloat( width );
+
+	// Mix - wetness of sound 0.0 - 1.0
+	msg.pushFloat( mix );
+	// Room size - reverb amount 0.0 - 1.0
+	msg.pushFloat( reverb );
+	// Loop sound - 0.0 not looping - 1.0 looping
+	if( loop )
+		msg.pushFloat( 1.0 );
+	else
+		msg.pushFloat( 0.0 );
+
+	soundManager->sendOSCMessage(msg);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundInstance::playStereo( float volume, bool loop )
+{
+	//printf( "%s: Playing buffer %d with instanceID: %d\n", __FUNCTION__, sound->getBufferID(), instanceID);
+	Message msg("/play");
+	msg.pushInt32(instanceID);
+	msg.pushInt32(sound->getBufferID());
+
+	if( volume * sound->getVolumeScale() > 1 )
+		msg.pushFloat( 1.0 );
+	else
+		msg.pushFloat( volume * sound->getVolumeScale() );
+	
+	// Loop sound - 0.0 not looping - 1.0 looping
+	if( loop )
+		msg.pushFloat( 1.0 );
+	else
 		msg.pushFloat( 0.0 );
 
 	soundManager->sendOSCMessage(msg);
@@ -351,6 +444,40 @@ void SoundInstance::setReverb(float value)
 float SoundInstance::getReverb()
 {
 	return reverb;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundInstance::setMaxDistance(float value)
+{
+	this->maxDistance = value;
+	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float SoundInstance::getMaxDistance()
+{
+	return maxDistance;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundInstance::setMinDistance(float value)
+{
+	this->minDistance = value;
+	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float SoundInstance::getMinDistance()
+{
+	return minDistance;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundInstance::setDistanceRange(float min, float max)
+{
+	this->minDistance = min;
+	this->maxDistance = max;
+	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

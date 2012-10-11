@@ -41,9 +41,9 @@ class OMICRON_API Sound: public ReferenceType
 {
 public:
 	Sound(const String& name);
-	Sound(const String& name, float, float, float, float, bool);
+	Sound(const String& name, float, float, float, float, bool, bool);
 	
-	void setDefaultParameters(float, float, float, float, bool);
+	void setDefaultParameters(float, float, float, float, bool, bool);
 	
 	bool loadFromFile(const String& name);
 	bool loadFromMemory(const void*,size_t);
@@ -52,13 +52,18 @@ public:
 	float getVolumeScale();
 	
 	int getBufferID();
-	const String& getFilePath();
+	String& getFilePath();
+
+	float getDefaultVolume();
+	float getDefaultMix();
+	float getDefaultWidth();
+	float getDefaultReverb();
+	bool isDefaultLooping();
+	bool isEnvironmentSound();
 
 	// Temp?
 	void setSoundManager(SoundManager*);
 	SoundManager* getSoundManager();
-
-	SoundInstance* play();
 private:
 
 public:
@@ -75,9 +80,10 @@ private:
 	float mix;		// Mix - wetness of sound (0.0 - 1.0)
 	float reverb;	// Room size / reverb amount (0.0 - 1.0)
 	bool loop;
+	bool environmentSound;
 	
 	// Temp?
-	static SoundManager* manager;
+	SoundManager* manager;
 };// Sound
 
 class OMICRON_API SoundInstance: public ReferenceType
@@ -89,7 +95,9 @@ public:
 	void setLoop(bool);
 	bool getLoop();
 	void play();
+	void playStereo();
 	void play( Vector3f, float, float, float, float, bool );
+	void playStereo( float, bool );
 	void pause();
 	void stop();
 	bool isPlaying();
@@ -107,6 +115,12 @@ public:
 	float getMix();
 	void setReverb(float);
 	float getReverb();
+
+	void setMaxDistance(float);
+	float getMaxDistance();
+	void setMinDistance(float);
+	float getMinDistance();
+	void setDistanceRange(float, float);
 
 	int getID();
 
@@ -131,8 +145,10 @@ private:
 	float pitch;
 	Vector3f position;
 
-	// Temp?
-	static SoundManager* soundManager;
+	float maxDistance; // Max distance sound amplitude > 0
+	float minDistance; // Min distance sound amplitude at max volume
+
+	SoundManager* soundManager;
 };// Sound
 
 }; // namespace omicron

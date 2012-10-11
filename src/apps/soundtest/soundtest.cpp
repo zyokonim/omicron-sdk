@@ -59,7 +59,6 @@ public:
 		//soundManager->connectToServer("131.193.77.211",57120);
 		
 		// More concise method of above two lines
-		//soundManager = new SoundManager("131.193.77.51",57120);
 		soundManager = new SoundManager("xenakis.evl.uic.edu",57120);
 		//soundManager = new SoundManager("localhost",57120);
 		soundManager->startSoundServer();
@@ -114,7 +113,8 @@ public:
 
 					if( evt.getFlags() == Event::Button3){ // Cross
 						soundLoopInstance = new SoundInstance(soundLoop);
-						soundLoopInstance->play( Vector3f(0,0,0), 1.0, 20, 1.0, 1.0, true );
+						soundLoopInstance->setEnvironmentSound( true );
+						soundLoopInstance->setLoop( true );
 					}
 					if( evt.getFlags() == Event::Button2){ // Circle
 						soundLoopInstance->stop();
@@ -158,8 +158,9 @@ public:
 				break;
 
 			case Service::Mocap:
-				if( evt.getSourceId() == 0 )
-					soundManager->setListenerPosition( evt.getPosition() );
+				//if( evt.getSourceId() == 0 )
+				//	soundManager->setListenerPosition( evt.getPosition() );
+				soundManager->setListenerPosition( Vector3f(0,0,0) );
 				//else if( instanceCreated && evt.getSourceId() == 1 )
 				//	soundInstance->setPosition( evt.getPosition() );
 				//printf("ID: %d Pos: %f %f %f\n", evt.getSourceId(), evt.getPosition(0), evt.getPosition(1), evt.getPosition(2) );
