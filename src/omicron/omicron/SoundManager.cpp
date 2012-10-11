@@ -173,9 +173,9 @@ Sound* SoundEnvironment::getSound(String& soundName)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Sound* SoundEnvironment::loadSoundFromFile(const String& soundName, const String& fileName)
 {
-	String soundFullPath = assetDirectory + "/" + soundName;
+	String soundFullPath = assetDirectory + "/" + fileName;
 	if( !assetDirectorySet )
-		soundFullPath = soundName;
+		soundFullPath = fileName;
 
 	Sound* sound = createSound(soundFullPath);
 	if(sound != NULL)

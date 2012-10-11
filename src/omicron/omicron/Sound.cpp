@@ -38,7 +38,7 @@ Sound::Sound(const String& soundName)
 	nextBufferID++;
 	
 	volumeScale = 1.0f;
-	volume = 1.0f;
+	volume = 0.5f;
 	width = 1.0f;
 	mix = 0.0f;
 	reverb = 0.0f;
@@ -316,7 +316,7 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 void SoundInstance::playStereo( float volume, bool loop )
 {
 	//printf( "%s: Playing buffer %d with instanceID: %d\n", __FUNCTION__, sound->getBufferID(), instanceID);
-	Message msg("/play");
+	Message msg("/playStereo");
 	msg.pushInt32(instanceID);
 	msg.pushInt32(sound->getBufferID());
 
