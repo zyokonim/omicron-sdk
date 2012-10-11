@@ -29,14 +29,15 @@ using namespace omicron;
 using namespace oscpkt;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Vector3f SoundManager::listenerPosition;
 UdpSocket SoundManager::serverSocket;
-SoundEnvironment* SoundManager::environment;
-Vector3f SoundManager::listenerPosition;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundManager::SoundManager()
 {
 	environment = new SoundEnvironment(this);
+	
+	listenerPosition = Vector3f(0,0,0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +51,9 @@ SoundManager::SoundManager(const String& serverIP, int serverPort)
 {
 	listenerPosition = Vector3f(0,0,0);
 	environment = new SoundEnvironment(this);
-	connectToServer(serverIP.c_str(), serverPort);
+	connectToServer(serverIP, serverPort);
+
+	listenerPosition = Vector3f(0,0,0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +76,9 @@ void SoundManager::startSoundServer()
 
 	Message msg2("/loadSynth");
 	sendOSCMessage(msg2);
+
+	Message msg3("/loadStereoSynth");
+	sendOSCMessage(msg3);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,19 +140,17 @@ bool SoundManager::sendOSCMessage(Message msg)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundManager* SoundEnvironment::soundManager;
-float SoundEnvironment::globalVolume = 0.5;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundEnvironment::SoundEnvironment(SoundManager* soundManager)
 {
 	this->soundManager = soundManager;
+	assetDirectory = "";
+	assetDirectorySet = false;
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Sound* SoundEnvironment::createSound(const String& soundName)
 {
-	printf( "%s: Not fully implemented\n", __FUNCTION__);
 	Sound* newSound = new Sound(soundName);
 	newSound->setSoundManager(soundManager);
 
@@ -157,7 +161,7 @@ Sound* SoundEnvironment::createSound(const String& soundName)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Sound* SoundEnvironment::getSound(const String& soundName)
+Sound* SoundEnvironment::getSound(String& soundName)
 {
 	printf( "%s: Not fully implemented\n", __FUNCTION__);
 	Sound* newSound = soundList[soundBufferIDList[soundName]];
@@ -169,10 +173,14 @@ Sound* SoundEnvironment::getSound(const String& soundName)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Sound* SoundEnvironment::loadSoundFromFile(const String& soundName, const String& fileName)
 {
-	Sound* sound = createSound(soundName);
+	String soundFullPath = assetDirectory + "/" + soundName;
+	if( !assetDirectorySet )
+		soundFullPath = soundName;
+
+	Sound* sound = createSound(soundFullPath);
 	if(sound != NULL)
 	{
-		sound->loadFromFile(fileName);
+		sound->loadFromFile(soundFullPath);
 	}
 	return sound;
 }
@@ -187,4 +195,17 @@ SoundInstance* SoundEnvironment::createInstance(Sound* sound)
 	soundInstanceList[newInstance->getID()] = newInstance;
 
 	return newInstance;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::setAssetDirectory(const String& directory)
+{
+	assetDirectory = directory;
+	assetDirectorySet = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+String& SoundEnvironment::getAssetDirectory()
+{
+	return assetDirectory;
 }

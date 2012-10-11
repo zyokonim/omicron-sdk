@@ -51,12 +51,17 @@ public:
 
 	Sound* createSound(const String& name);
 	Sound* loadSoundFromFile(const String& soundName, const String& fileName);
-	Sound* getSound(const String& name);
+	Sound* getSound(String& name);
 	SoundInstance* createInstance(Sound*);
 	SoundInstance* getSoundInstance(int);
+
+	void setAssetDirectory(const String&);
+	String& getAssetDirectory();
 private:
-	static SoundManager* soundManager;
-	static float globalVolume;
+	SoundManager* soundManager;
+	float globalVolume;
+	String assetDirectory;
+	bool assetDirectorySet;
 
 	map<int, Ref<Sound> > soundList;
 	map<String, int> soundBufferIDList;
@@ -82,10 +87,10 @@ public:
 
 	bool sendOSCMessage(Message);
 private:
-	static SoundEnvironment* environment;
+	SoundEnvironment* environment;
 	static UdpSocket serverSocket;
 	
-	static Vector3f listenerPosition;
+	Vector3f listenerPosition;
 };// SoundManager
 
 }; // namespace omicron
