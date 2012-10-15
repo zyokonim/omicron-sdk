@@ -160,7 +160,7 @@ public:
 			case Service::Mocap:
 				//if( evt.getSourceId() == 0 )
 				//	soundManager->setListenerPosition( evt.getPosition() );
-				soundManager->setListenerPosition( Vector3f(0,0,0) );
+				env->setListenerPosition( Vector3f(0,0,0) );
 				//else if( instanceCreated && evt.getSourceId() == 1 )
 				//	soundInstance->setPosition( evt.getPosition() );
 				//printf("ID: %d Pos: %f %f %f\n", evt.getSourceId(), evt.getPosition(0), evt.getPosition(1), evt.getPosition(2) );

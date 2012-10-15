@@ -252,6 +252,8 @@ void SoundInstance::play()
 		msg.pushFloat( 0.0 );
 
 	environment->getSoundManager()->sendOSCMessage(msg);
+
+	playState = playing;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,6 +276,8 @@ void SoundInstance::playStereo()
 		msg.pushFloat( 0.0 );
 
 	environment->getSoundManager()->sendOSCMessage(msg);
+
+	playState = playing;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -320,6 +324,8 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 		msg.pushFloat( 0.0 );
 
 	environment->getSoundManager()->sendOSCMessage(msg);
+
+	playState = playing;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -342,12 +348,15 @@ void SoundInstance::playStereo( float volume, bool loop )
 		msg.pushFloat( 0.0 );
 
 	environment->getSoundManager()->sendOSCMessage(msg);
+
+	playState = playing;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::pause()
 {
 	printf( "%s: Not implemented yet \n", __FUNCTION__);
+	playState = paused;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,13 +366,17 @@ void SoundInstance::stop()
 	Message msg("/freeNode");
 	msg.pushInt32(instanceID);
 	environment->getSoundManager()->sendOSCMessage(msg);
+
+	playState = stopped;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool SoundInstance::isPlaying()
 {
-	printf( "%s: Not implemented yet \n", __FUNCTION__);
-	return false;
+	if( playState == playing )
+		return true;
+	else
+		return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -433,7 +446,7 @@ float SoundInstance::getWidth()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::setMix(float value)
 {
-	this->volume = value;
+	this->mix = value;
 	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
 }
 
