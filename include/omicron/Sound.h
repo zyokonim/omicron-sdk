@@ -34,7 +34,7 @@
 namespace omicron
 {
 
-class SoundManager;
+class SoundEnvironment;
 class SoundInstance;
 
 class OMICRON_API Sound: public ReferenceType
@@ -61,9 +61,8 @@ public:
 	bool isDefaultLooping();
 	bool isEnvironmentSound();
 
-	// Temp?
-	void setSoundManager(SoundManager*);
-	SoundManager* getSoundManager();
+	void setSoundEnvironment(SoundEnvironment*);
+	SoundEnvironment* getSoundEnvironment();
 private:
 
 public:
@@ -80,10 +79,12 @@ private:
 	float mix;		// Mix - wetness of sound (0.0 - 1.0)
 	float reverb;	// Room size / reverb amount (0.0 - 1.0)
 	bool loop;
-	bool environmentSound;
-	
-	// Temp?
-	SoundManager* manager;
+	bool environmentSound; // Plays on all 20 speakers
+	float maxDistance;
+	float minRolloffDistance;
+
+	// Sound environment this sound belongs to
+	SoundEnvironment* environment;
 };// Sound
 
 class OMICRON_API SoundInstance: public ReferenceType
@@ -118,14 +119,12 @@ public:
 
 	void setMaxDistance(float);
 	float getMaxDistance();
-	void setMinDistance(float);
-	float getMinDistance();
+	void setMinRolloffDistance(float);
+	float getMinRolloffDistance();
 	void setDistanceRange(float, float);
 
 	int getID();
-
-	// Temp?
-	void setSoundManager(SoundManager*);
+	void setSoundEnvironment(SoundEnvironment*);
 private:
 	
 public:
@@ -146,9 +145,9 @@ private:
 	Vector3f position;
 
 	float maxDistance; // Max distance sound amplitude > 0
-	float minDistance; // Min distance sound amplitude at max volume
+	float minRolloffDistance; // Min distance sound amplitude at full before rolling off
 
-	SoundManager* soundManager;
+	SoundEnvironment* environment;
 };// Sound
 
 }; // namespace omicron

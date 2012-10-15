@@ -43,6 +43,9 @@ Sound::Sound(const String& soundName)
 	mix = 0.0f;
 	reverb = 0.0f;
 	loop = false;
+
+	minRolloffDistance = 1.0f;
+	maxDistance = 500.0f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +62,9 @@ Sound::Sound(const String& soundName, float volume, float width, float mix, floa
 	this->reverb = reverb;
 	this->loop = loop;
 	this->environmentSound = env;
+
+	minRolloffDistance = 1.0f;
+	maxDistance = 500.0f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +86,7 @@ bool Sound::loadFromFile(const String& filePath)
 	Message msg("/loadBuffer");
 	msg.pushInt32(this->getBufferID());
 	msg.pushStr(this->getFilePath());
-	manager->sendOSCMessage(msg);
+	environment->getSoundManager()->sendOSCMessage(msg);
 	ofmsg("Loaded buffer ID %1% with path %2%", %this->getBufferID() %this->getFilePath());
 	return false;
 }
@@ -148,15 +154,16 @@ bool Sound::isEnvironmentSound()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Sound::setSoundManager(SoundManager* manager)
+void Sound::setSoundEnvironment(SoundEnvironment* env)
 {
-	this->manager = manager;
+	this->environment = env;
+	environment->addBufferID( bufferID );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-SoundManager* Sound::getSoundManager()
+SoundEnvironment* Sound::getSoundEnvironment()
 {
-	return manager;
+	return environment;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,7 +195,8 @@ SoundInstance::SoundInstance(Sound* sound)
 	loop = sound->isDefaultLooping();
 	environmentSound = sound->isEnvironmentSound();
 
-	soundManager = sound->getSoundManager();
+	environment = sound->getSoundEnvironment();
+	environment->addInstanceID(instanceID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -220,7 +228,7 @@ void SoundInstance::play()
 	msg.pushFloat( position[1] );
 	msg.pushFloat( position[2] );
 	
-	Vector3f audioListener = soundManager->getListenerPosition();
+	Vector3f audioListener = environment->getListenerPosition();
 	msg.pushFloat( audioListener[0] );
 	msg.pushFloat( audioListener[1] );
 	msg.pushFloat( audioListener[2] );
@@ -243,7 +251,7 @@ void SoundInstance::play()
 	else
 		msg.pushFloat( 0.0 );
 
-	soundManager->sendOSCMessage(msg);
+	environment->getSoundManager()->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -265,7 +273,7 @@ void SoundInstance::playStereo()
 	else
 		msg.pushFloat( 0.0 );
 
-	soundManager->sendOSCMessage(msg);
+	environment->getSoundManager()->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -291,7 +299,7 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 	msg.pushFloat( position[1] );
 	msg.pushFloat( position[2] );
 	
-	Vector3f audioListener = soundManager->getListenerPosition();
+	Vector3f audioListener = environment->getListenerPosition();
 	msg.pushFloat( audioListener[0] );
 	msg.pushFloat( audioListener[1] );
 	msg.pushFloat( audioListener[2] );
@@ -301,15 +309,17 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 
 	// Mix - wetness of sound 0.0 - 1.0
 	msg.pushFloat( mix );
+
 	// Room size - reverb amount 0.0 - 1.0
 	msg.pushFloat( reverb );
+
 	// Loop sound - 0.0 not looping - 1.0 looping
 	if( loop )
 		msg.pushFloat( 1.0 );
 	else
 		msg.pushFloat( 0.0 );
 
-	soundManager->sendOSCMessage(msg);
+	environment->getSoundManager()->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,7 +341,7 @@ void SoundInstance::playStereo( float volume, bool loop )
 	else
 		msg.pushFloat( 0.0 );
 
-	soundManager->sendOSCMessage(msg);
+	environment->getSoundManager()->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -346,7 +356,7 @@ void SoundInstance::stop()
 	//printf( "%s: Freeing instanceID: %d\n", __FUNCTION__, instanceID);
 	Message msg("/freeNode");
 	msg.pushInt32(instanceID);
-	soundManager->sendOSCMessage(msg);
+	environment->getSoundManager()->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -368,7 +378,7 @@ void SoundInstance::setPosition(Vector3f pos)
 	msg.pushFloat( position[1] );
 	msg.pushFloat( position[2] );
 
-	soundManager->sendOSCMessage(msg);
+	environment->getSoundManager()->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,7 +408,7 @@ void SoundInstance::setVolume(float value)
 	Message msg("/setVol");
 	msg.pushInt32(instanceID);
 	msg.pushFloat(this->volume);
-	soundManager->sendOSCMessage(msg);
+	environment->getSoundManager()->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -460,30 +470,30 @@ float SoundInstance::getMaxDistance()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SoundInstance::setMinDistance(float value)
+void SoundInstance::setMinRolloffDistance(float value)
 {
-	this->minDistance = value;
+	this->minRolloffDistance = value;
 	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-float SoundInstance::getMinDistance()
+float SoundInstance::getMinRolloffDistance()
 {
-	return minDistance;
+	return minRolloffDistance;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundInstance::setDistanceRange(float min, float max)
 {
-	this->minDistance = min;
+	this->minRolloffDistance = min;
 	this->maxDistance = max;
 	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SoundInstance::setSoundManager(SoundManager* manager)
+void SoundInstance::setSoundEnvironment(SoundEnvironment* environment)
 {
-	this->soundManager = manager;
+	this->environment = environment;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
