@@ -45,9 +45,12 @@ class OMICRON_API SoundEnvironment: public ReferenceType
 {
 public:
 	SoundEnvironment(SoundManager*);
-	void dispose();
-	void setVolume(float);
-	float getVolume();
+	~SoundEnvironment();
+
+	void stopAllSounds();
+	void cleanupAllSounds();
+
+	SoundManager* getSoundManager();
 
 	Sound* createSound(const String& name);
 	Sound* loadSoundFromFile(const String& soundName, const String& fileName);
@@ -55,17 +58,28 @@ public:
 	SoundInstance* createInstance(Sound*);
 	SoundInstance* getSoundInstance(int);
 
+	Vector3f getListenerPosition();
+	void setListenerPosition(Vector3f);
+
 	void setAssetDirectory(const String&);
 	String& getAssetDirectory();
+
+	void addInstanceID(int);
+	void addBufferID(int);
 private:
 	SoundManager* soundManager;
 	float globalVolume;
+
+	Vector3f listenerPosition;
+
 	String assetDirectory;
 	bool assetDirectorySet;
 
 	map<int, Ref<Sound> > soundList;
 	map<String, int> soundBufferIDList;
-	map<int, Ref<SoundInstance> > soundInstanceList;
+
+	Vector<int> instanceNodeIDList;
+	Vector<int> bufferIDList;
 };// SoundEnvironment
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,13 +88,12 @@ class OMICRON_API SoundManager: public ReferenceType
 public:
 	SoundManager();
 	~SoundManager();
+
 	SoundManager(const String& host, int port);
 	void connectToServer(const String& host, int port);
 	bool isSoundServerRunning();
 	SoundEnvironment* getSoundEnvironment();
 	void setEnvironment(SoundEnvironment*);
-	Vector3f getListenerPosition();
-	void setListenerPosition(Vector3f);
 
 	void startSoundServer();
 	void stopSoundServer();
@@ -89,11 +102,8 @@ public:
 private:
 	SoundEnvironment* environment;
 	static UdpSocket serverSocket;
-	
-	Vector3f listenerPosition;
 };// SoundManager
 
 }; // namespace omicron
 
 #endif
-

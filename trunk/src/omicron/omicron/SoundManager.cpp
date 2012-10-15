@@ -29,31 +29,28 @@ using namespace omicron;
 using namespace oscpkt;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Vector3f SoundManager::listenerPosition;
 UdpSocket SoundManager::serverSocket;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundManager::SoundManager()
 {
 	environment = new SoundEnvironment(this);
-	
-	listenerPosition = Vector3f(0,0,0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundManager::~SoundManager()
 {
-	stopSoundServer();
+	//stopSoundServer(); // Do not use - penalty by catapult
+	//stopAllSounds(); // SoundEnvironment handles cleanup
+	//cleanupAllSounds();
+	delete environment;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundManager::SoundManager(const String& serverIP, int serverPort)
 {
-	listenerPosition = Vector3f(0,0,0);
 	environment = new SoundEnvironment(this);
 	connectToServer(serverIP, serverPort);
-
-	listenerPosition = Vector3f(0,0,0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,26 +109,6 @@ void SoundManager::setEnvironment(SoundEnvironment* newEnv)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Vector3f SoundManager::getListenerPosition()
-{
-	return listenerPosition;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SoundManager::setListenerPosition(Vector3f newPos)
-{
-	listenerPosition = newPos;
-
-	Message msg("/setListLoc");
-
-	msg.pushFloat( listenerPosition[0] );
-	msg.pushFloat( listenerPosition[1] );
-	msg.pushFloat( listenerPosition[2] );
-
-	sendOSCMessage(msg);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool SoundManager::sendOSCMessage(Message msg)
 {
 	PacketWriter pw;
@@ -143,16 +120,51 @@ bool SoundManager::sendOSCMessage(Message msg)
 SoundEnvironment::SoundEnvironment(SoundManager* soundManager)
 {
 	this->soundManager = soundManager;
+	listenerPosition = Vector3f(0,0,0);
 	assetDirectory = "";
 	assetDirectorySet = false;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SoundEnvironment::~SoundEnvironment()
+{
+	stopAllSounds();
+	cleanupAllSounds();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::stopAllSounds()
+{
+	for( int i = 0; i < instanceNodeIDList.size(); i++ )
+	{
+		Message msg("/freeNode");
+		msg.pushInt32(instanceNodeIDList[i]);
+		soundManager->sendOSCMessage(msg);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::cleanupAllSounds()
+{
+	for( int i = 0; i < bufferIDList.size(); i++ )
+	{
+		Message msg("/freeBuf");
+		msg.pushInt32(bufferIDList[i]);
+		soundManager->sendOSCMessage(msg);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SoundManager* SoundEnvironment::getSoundManager()
+{
+	return soundManager;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Sound* SoundEnvironment::createSound(const String& soundName)
 {
 	Sound* newSound = new Sound(soundName);
-	newSound->setSoundManager(soundManager);
+	newSound->setSoundEnvironment(this);
 
 	soundList[newSound->getBufferID()] = newSound;
 	soundBufferIDList[soundName] = newSound->getBufferID();
@@ -188,13 +200,29 @@ Sound* SoundEnvironment::loadSoundFromFile(const String& soundName, const String
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SoundInstance* SoundEnvironment::createInstance(Sound* sound)
 {
-	printf( "%s: Not fully implemented\n", __FUNCTION__);
-
 	SoundInstance* newInstance = new SoundInstance(sound);
-
-	soundInstanceList[newInstance->getID()] = newInstance;
-
 	return newInstance;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Vector3f SoundEnvironment::getListenerPosition()
+{
+	return listenerPosition;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::setListenerPosition(Vector3f newPos)
+{
+	listenerPosition = newPos;
+
+	Message msg("/setListLoc");
+
+	msg.pushFloat( listenerPosition[0] );
+	msg.pushFloat( listenerPosition[1] );
+	msg.pushFloat( listenerPosition[2] );
+
+	soundManager->sendOSCMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,4 +236,16 @@ void SoundEnvironment::setAssetDirectory(const String& directory)
 String& SoundEnvironment::getAssetDirectory()
 {
 	return assetDirectory;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::addInstanceID(int newID)
+{
+	instanceNodeIDList.push_back(newID);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::addBufferID(int newID)
+{
+	bufferIDList.push_back(newID);
 }
