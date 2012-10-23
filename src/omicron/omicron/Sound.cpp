@@ -434,7 +434,6 @@ float SoundInstance::getVolume()
 void SoundInstance::setWidth(float value)
 {
 	this->width = value;
-	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -447,7 +446,6 @@ float SoundInstance::getWidth()
 void SoundInstance::setMix(float value)
 {
 	this->mix = value;
-	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -460,7 +458,6 @@ float SoundInstance::getMix()
 void SoundInstance::setReverb(float value)
 {
 	this->reverb = value;
-	printf( "%s: Not fully implemented yet \n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

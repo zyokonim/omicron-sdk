@@ -173,9 +173,8 @@ Sound* SoundEnvironment::createSound(const String& soundName)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Sound* SoundEnvironment::getSound(String& soundName)
+Sound* SoundEnvironment::getSound(const String& soundName)
 {
-	printf( "%s: Not fully implemented\n", __FUNCTION__);
 	Sound* newSound = soundList[soundBufferIDList[soundName]];
 	if( newSound == NULL )
 		ofmsg("SoundEnvironment:getSound() - '%1%' does not exist", %soundName);
