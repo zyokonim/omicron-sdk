@@ -238,6 +238,19 @@ String Config::getStringValue(const String& name, const Setting& s, const String
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+Vector4f Config::getVector4fValue(const String& name, const Setting& s, const Vector4f& defaultValue)
+{
+	if(!s.exists(name)) return defaultValue;
+	Setting& sv = s[name];
+	Vector4f value;
+	value[0] = getFloatValue(0, sv, defaultValue[0]);
+	value[1] = getFloatValue(1, sv, defaultValue[1]);
+	value[2] = getFloatValue(2, sv, defaultValue[2]);
+	value[3] = getFloatValue(3, sv, defaultValue[3]);
+	return value;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 Vector3f Config::getVector3fValue(const String& name, const Setting& s, const Vector3f& defaultValue)
 {
 	if(!s.exists(name)) return defaultValue;

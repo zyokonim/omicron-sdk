@@ -42,6 +42,7 @@ public:
 	static float getFloatValue(int index, const Setting& s, float defaultValue = 0.0f);
 	static int getIntValue(const String& name, const Setting& s, int defaultValue = 0);
 	static int getIntValue(int index, const Setting& s, int defaultValue = 0);
+	static Vector4f getVector4fValue(const String& name, const Setting& s, const Vector4f& defaultValue = Vector4f::Zero());
 	static Vector3f getVector3fValue(const String& name, const Setting& s, const Vector3f& defaultValue = Vector3f::Zero());
 	static Vector2f getVector2fValue(const String& name, const Setting& s, const Vector2f& defaultValue = Vector2f::Zero());
 	static Vector2i getVector2iValue(const String& name, const Setting& s, const Vector2i& defaultValue = Vector2i::Zero());
