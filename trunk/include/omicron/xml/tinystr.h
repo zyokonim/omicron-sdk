@@ -29,13 +29,12 @@ distribution.
 
 #include "omicron/osystem.h"
 
+#include <assert.h>
+#include <string.h>
+
 namespace omega {
 namespace xml {
 
-
-
-#include <assert.h>
-#include <string.h>
 
 /*	The support for explicit isn't that universal, and it isn't really
 	required - it is used to check that the TiXmlString class isn't incorrectly
