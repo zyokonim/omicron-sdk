@@ -27,6 +27,9 @@ distribution.
 
 #include "omicron/xml/tinyxml.h"
 
+namespace omega {
+namespace xml {
+
 //#define DEBUG_PARSER
 #if defined( DEBUG_PARSER )
 #	if defined( DEBUG ) && defined( _MSC_VER )
@@ -1636,3 +1639,4 @@ bool TiXmlText::Blank() const
 	return true;
 }
 
+};}; // namespace omega::xml

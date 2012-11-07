@@ -23,8 +23,8 @@ distribution.
 */
 
 
-#ifndef TINYXML_INCLUDED
-#define TINYXML_INCLUDED
+#ifndef OMEGA_TINYXML_INCLUDED
+#define OMEGA_TINYXML_INCLUDED
 
 #include "omicron/osystem.h"
 
@@ -81,6 +81,9 @@ distribution.
 		#define TIXML_SSCANF   sscanf
 	#endif
 #endif	
+
+namespace omega {
+namespace xml {
 
 class TiXmlDocument;
 class TiXmlElement;
@@ -1799,9 +1802,11 @@ private:
 	TIXML_STRING lineBreak;
 };
 
+}; };
 
 #ifdef _MSC_VER
 #pragma warning( pop )
 #endif
+
 
 #endif
