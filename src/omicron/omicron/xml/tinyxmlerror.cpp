@@ -24,6 +24,9 @@ distribution.
 
 #include "omicron/xml/tinyxml.h"
 
+namespace omega {
+namespace xml {
+
 // The goal of the seperate error file is to make the first
 // step towards localization. tinyxml (currently) only supports
 // english error messages, but the could now be translated.
@@ -50,3 +53,5 @@ const char* TiXmlBase::errorString[ TiXmlBase::TIXML_ERROR_STRING_COUNT ] =
 	"Error parsing CDATA.",
 	"Error when TiXmlDocument added to document, because TiXmlDocument can only be at the root.",
 };
+
+}; };

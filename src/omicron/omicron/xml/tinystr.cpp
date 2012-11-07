@@ -26,6 +26,9 @@ distribution.
 
 #include "omicron/xml/tinystr.h"
 
+namespace omega {
+	namespace xml {
+
 // Error value for find primitive
 const TiXmlString::size_type TiXmlString::npos = static_cast< TiXmlString::size_type >(-1);
 
@@ -107,5 +110,6 @@ TiXmlString operator + (const char* a, const TiXmlString & b)
 	return tmp;
 }
 
+	}; };
 
 #endif	// TIXML_USE_STL

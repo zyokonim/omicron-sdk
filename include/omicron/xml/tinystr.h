@@ -24,10 +24,14 @@ distribution.
 
 #ifndef TIXML_USE_STL
 
-#ifndef TIXML_STRING_INCLUDED
-#define TIXML_STRING_INCLUDED
+#ifndef OMEGA_TIXML_STRING_INCLUDED
+#define OMEGA_TIXML_STRING_INCLUDED
 
 #include "omicron/osystem.h"
+
+namespace omega {
+namespace xml {
+
 
 
 #include <assert.h>
@@ -303,6 +307,8 @@ public :
 	}
 
 } ;
+
+}; };
 
 #endif	// TIXML_STRING_INCLUDED
 #endif	// TIXML_USE_STL
