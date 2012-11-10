@@ -172,40 +172,46 @@ public:
 #ifdef OMICRON_USE_VRPN
 		vrpnDevice->update(evt);
 #endif
-		int offset = 0;
-		
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 
-		OI_WRITEBUF(int, eventPacket, offset, evt.getServiceId()); 
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getServiceType()); 
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getType()); 
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getFlags()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().x()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().y()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().z()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().w()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().x()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().y()); 
-		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().z()); 
-		
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataType()); 
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataItems()); 
-		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataMask());
-		
-		if(evt.getExtraDataType() != Event::ExtraDataNull)
-		{
-			memcpy(&eventPacket[offset], evt.getExtraDataBuffer(), evt.getExtraDataSize());
-		}
-		offset += evt.getExtraDataSize();
 		std::map<char*,NetClient*>::iterator itr = netClients.begin();
 		while( itr != netClients.end() )
 		{
 			NetClient* client = itr->second;
-
+			
+			int offset = 0;
+			
 			if( client->isLegacy() )
+			{
 				handleLegacyEvent(evt);
-
-			client->sendEvent(eventPacket, offset);
+				offset = 512;
+				client->sendEvent(legacyPacket, offset);
+			}
+			else
+			{
+				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
+				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 
+				OI_WRITEBUF(int, eventPacket, offset, evt.getServiceId()); 
+				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getServiceType()); 
+				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getType()); 
+				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getFlags()); 
+				OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().x()); 
+				OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().y()); 
+				OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().z()); 
+				OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().w()); 
+				OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().x()); 
+				OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().y()); 
+				OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().z()); 
+				
+				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataType()); 
+				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataItems()); 
+				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataMask());
+				
+				if(evt.getExtraDataType() != Event::ExtraDataNull)
+				{
+					memcpy(&eventPacket[offset], evt.getExtraDataBuffer(), evt.getExtraDataSize());
+				}
+				offset += evt.getExtraDataSize();
+				client->sendEvent(eventPacket, offset);
+			}
 			itr++;
 		}
 	}
@@ -213,9 +219,9 @@ public:
 	virtual bool handleLegacyEvent(const Event& evt)
 	{
 		//itoa(evt.getServiceType(), eventPacket, 10); // Append input type
-		sprintf(eventPacket, "%d", evt.getServiceType());
+		sprintf(legacyPacket, "%d", evt.getServiceType());
 
-		strcat( eventPacket, ":" );
+		strcat( legacyPacket, ":" );
 		char floatChar[32];
 		
 		switch(evt.getServiceType())
@@ -226,72 +232,72 @@ public:
 
 			// Converts gesture type to char, appends to eventPacket
 			sprintf(floatChar,"%d",evt.getType());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// Converts id to char, appends to eventPacket
 			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// Converts x to char, appends to eventPacket
 			sprintf(floatChar,"%f",evt.getPosition().x());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// Converts y to char, appends to eventPacket
 			sprintf(floatChar,"%f",evt.getPosition().y());
-			strcat( eventPacket, floatChar );
+			strcat( legacyPacket, floatChar );
 
 			if( evt.getExtraDataItems() == 2){ // TouchPoint down/up/move
 				// Converts xWidth to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
+				strcat( legacyPacket, "," ); // Spacer
 				sprintf(floatChar,"%f", evt.getExtraDataFloat(0) );
-				strcat( eventPacket, floatChar );
+				strcat( legacyPacket, floatChar );
 				
 				// Converts yWidth to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
+				strcat( legacyPacket, "," ); // Spacer
 				sprintf(floatChar,"%f", evt.getExtraDataFloat(1) );
-				strcat( eventPacket, floatChar );
+				strcat( legacyPacket, floatChar );
 			} else { // Touch Gestures
 				// Converts value to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
+				strcat( legacyPacket, "," ); // Spacer
 				sprintf(floatChar,"%f", evt.getExtraDataFloat(0) );
-				strcat( eventPacket, floatChar );
+				strcat( legacyPacket, floatChar );
 				
 				// Converts value to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
+				strcat( legacyPacket, "," ); // Spacer
 				sprintf(floatChar,"%f", evt.getExtraDataFloat(1) );
-				strcat( eventPacket, floatChar );
+				strcat( legacyPacket, floatChar );
 
 				// Converts value to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
+				strcat( legacyPacket, "," ); // Spacer
 				sprintf(floatChar,"%f", evt.getExtraDataFloat(2) );
-				strcat( eventPacket, floatChar );
+				strcat( legacyPacket, floatChar );
 
 				// Converts value to char, appends to eventPacket
-				strcat( eventPacket, "," ); // Spacer
+				strcat( legacyPacket, "," ); // Spacer
 				sprintf(floatChar,"%f", evt.getExtraDataFloat(3) );
-				strcat( eventPacket, floatChar );
+				strcat( legacyPacket, floatChar );
 
 				if( evt.getType() == Event::Rotate ){
 					// Converts rotation to char, appends to eventPacket
-					strcat( eventPacket, "," ); // Spacer
+					strcat( legacyPacket, "," ); // Spacer
 					sprintf(floatChar,"%f", evt.getExtraDataFloat(4) );
-					strcat( eventPacket, floatChar );
+					strcat( legacyPacket, floatChar );
 				} else if( evt.getType() == Event::Split ){
 					// Converts values to char, appends to eventPacket
-					strcat( eventPacket, "," ); // Spacer
+					strcat( legacyPacket, "," ); // Spacer
 					sprintf(floatChar,"%f", evt.getExtraDataFloat(4) ); // Delta distance
-					strcat( eventPacket, floatChar );
+					strcat( legacyPacket, floatChar );
 
-					strcat( eventPacket, "," ); // Spacer
+					strcat( legacyPacket, "," ); // Spacer
 					sprintf(floatChar,"%f", evt.getExtraDataFloat(5) ); // Delta ratio
-					strcat( eventPacket, floatChar );
+					strcat( legacyPacket, floatChar );
 				}
 			}
 
-			strcat( eventPacket, " " ); // Spacer
+			strcat( legacyPacket, " " ); // Spacer
 
 			return true;
 			break;
@@ -300,43 +306,43 @@ public:
 		{
 			// Converts id to char, appends to eventPacket
 			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// Converts xPos to char, appends to eventPacket
 			sprintf(floatChar,"%f",evt.getPosition()[0]);
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// Converts yPos to char, appends to eventPacket
 			sprintf(floatChar,"%f",evt.getPosition()[1]);
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// Converts zPos to char, appends to eventPacket
 			sprintf(floatChar,"%f",evt.getPosition()[2]);
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// Converts xRot to char, appends to eventPacket
 			sprintf(floatChar,"%f",evt.getOrientation().x());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// Converts yRot to char, appends to eventPacket
 			sprintf(floatChar,"%f",evt.getOrientation().y());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// Converts zRot to char, appends to eventPacket
 			sprintf(floatChar,"%f",evt.getOrientation().z());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
-			// Converts zRot to char, appends to eventPacket
+			// Converts wRot to char, appends to eventPacket
 			sprintf(floatChar,"%f",evt.getOrientation().w());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, " " ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, " " ); // Spacer
 			return true;
 			break;
 		}
@@ -344,42 +350,73 @@ public:
 		case Service::Controller:
 			// Converts id to char, appends to eventPacket
 			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
-			strcat( eventPacket, "," ); // Spacer
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
 
 			// See DirectXInputService.cpp for parameter details
 			
 			for( int i = 0; i < evt.getExtraDataItems(); i++ ){
 				sprintf(floatChar,"%d", (int)evt.getExtraDataFloat(i));
-				strcat( eventPacket, floatChar );
+				strcat( legacyPacket, floatChar );
 				if( i < evt.getExtraDataItems() - 1 )
-					strcat( eventPacket, "," ); // Spacer
+					strcat( legacyPacket, "," ); // Spacer
 				else
-					strcat( eventPacket, " " ); // Spacer
+					strcat( legacyPacket, " " ); // Spacer
+			}
+			return true;
+			break;
+		case Service::Wand:
+			// Converts event type to char, appends to eventPacket
+			sprintf(floatChar,"%d",evt.getType());
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
+
+			// Converts id to char, appends to eventPacket
+			sprintf(floatChar,"%d",evt.getSourceId());
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
+
+			// Converts flags to char, appends to eventPacket
+			sprintf(floatChar,"%d",evt.getFlags());
+			strcat( legacyPacket, floatChar );
+			strcat( legacyPacket, "," ); // Spacer
+
+			// Due to packet size constraints, wand events will
+			// be treated as controller events (wand mocap data can
+			// be grabbed as mocap events)
+
+			// See DirectXInputService.cpp for parameter details
+			
+			for( int i = 0; i < evt.getExtraDataItems(); i++ ){
+				sprintf(floatChar,"%f", evt.getExtraDataFloat(i));
+				strcat( legacyPacket, floatChar );
+				if( i < evt.getExtraDataItems() - 1 )
+					strcat( legacyPacket, "," ); // Spacer
+				else
+					strcat( legacyPacket, " " ); // Spacer
 			}
 			return true;
 			break;
 		case Service::Brain:
 			// Converts id to char, appends to eventPacket
 			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
+			strcat( legacyPacket, floatChar );
 			for( int i = 0; i < 12; i++ ){
-				strcat( eventPacket, "," ); // Spacer
+				strcat( legacyPacket, "," ); // Spacer
 				sprintf(floatChar,"%d", (int)evt.getExtraDataFloat(i));
-				strcat( eventPacket, floatChar );
+				strcat( legacyPacket, floatChar );
 			}
 			return true;
 			break;
 		case Service::Generic:
 			// Converts id to char, appends to eventPacket
 			sprintf(floatChar,"%d",evt.getSourceId());
-			strcat( eventPacket, floatChar );
+			strcat( legacyPacket, floatChar );
 			return true;
 			break;
 		default: break;
 		}
-		
-		delete[] eventPacket;
+
 		return false;
 	}
 
@@ -397,7 +434,8 @@ private:
 	
 	#define DEFAULT_BUFLEN 512
 	char eventPacket[DEFAULT_BUFLEN];
-
+	char legacyPacket[DEFAULT_BUFLEN];
+	
 	char recvbuf[DEFAULT_BUFLEN];
 	int iResult, iSendResult;
 	int recvbuflen;
