@@ -172,44 +172,46 @@ public:
 #ifdef OMICRON_USE_VRPN
 		vrpnDevice->update(evt);
 #endif
+			
+		int offset = 0;
+			
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 
+		OI_WRITEBUF(int, eventPacket, offset, evt.getServiceId()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getServiceType()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getType()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getFlags()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().x()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().y()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().z()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().w()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().x()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().y()); 
+		OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().z()); 
+		
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataType()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataItems()); 
+		OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataMask());
+		
+		if(evt.getExtraDataType() != Event::ExtraDataNull)
+		{
+			memcpy(&eventPacket[offset], evt.getExtraDataBuffer(), evt.getExtraDataSize());
+		}
+		offset += evt.getExtraDataSize();
+		
+		handleLegacyEvent(evt);
+		
 		std::map<char*,NetClient*>::iterator itr = netClients.begin();
 		while( itr != netClients.end() )
 		{
 			NetClient* client = itr->second;
 			
-			int offset = 0;
-			
 			if( client->isLegacy() )
 			{
-				handleLegacyEvent(evt);
-				offset = 512;
-				client->sendEvent(legacyPacket, offset);
+				//client->sendEvent(legacyPacket, 512);
 			}
 			else
 			{
-				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getTimestamp()); 
-				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getSourceId()); 
-				OI_WRITEBUF(int, eventPacket, offset, evt.getServiceId()); 
-				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getServiceType()); 
-				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getType()); 
-				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getFlags()); 
-				OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().x()); 
-				OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().y()); 
-				OI_WRITEBUF(float, eventPacket, offset, evt.getPosition().z()); 
-				OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().w()); 
-				OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().x()); 
-				OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().y()); 
-				OI_WRITEBUF(float, eventPacket, offset, evt.getOrientation().z()); 
-				
-				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataType()); 
-				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataItems()); 
-				OI_WRITEBUF(unsigned int, eventPacket, offset, evt.getExtraDataMask());
-				
-				if(evt.getExtraDataType() != Event::ExtraDataNull)
-				{
-					memcpy(&eventPacket[offset], evt.getExtraDataBuffer(), evt.getExtraDataSize());
-				}
-				offset += evt.getExtraDataSize();
 				client->sendEvent(eventPacket, offset);
 			}
 			itr++;
@@ -629,21 +631,21 @@ SOCKET OInputServer::startListening()
 			{
 				// Get data port number
 				dataPort = atoi(portCStr);
-				printf("OInputServer: '%s' requests legacy data to be sent on port '%d'\n", clientAddress, dataPort);
+				printf("OInputServer: '%s' requests omicron legacy data to be sent on port '%d'\n", clientAddress, dataPort);
 				createClient( clientAddress, dataPort, true );
 			}
 			else if( strcmp(inMessage, omicronHandshake) == 1 )
 			{
 				// Get data port number
 				dataPort = atoi(portCStr);
-				printf("OInputServer: '%s' requests data to be sent on port '%d'\n", clientAddress, dataPort);
+				printf("OInputServer: '%s' requests omicron data to be sent on port '%d'\n", clientAddress, dataPort);
 				createClient( clientAddress, dataPort, false );
 			}
 			else if( strcmp(inMessage, handshake) == 1 )
 			{
 				// Get data port number
 				dataPort = atoi(portCStr);
-				printf("OInputServer: '%s' requests data to be sent on port '%d'\n", clientAddress, dataPort);
+				printf("OInputServer: '%s' requests data (old handshake) to be sent on port '%d'\n", clientAddress, dataPort);
 				createClient( clientAddress, dataPort, false );
 			}
 			else
