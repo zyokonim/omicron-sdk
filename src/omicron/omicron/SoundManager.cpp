@@ -120,7 +120,13 @@ bool SoundManager::sendOSCMessage(Message msg)
 SoundEnvironment::SoundEnvironment(SoundManager* soundManager)
 {
 	this->soundManager = soundManager;
-	listenerPosition = Vector3f(0,0,0);
+
+	listenerPosition = Vector3f::Zero();
+	listenerOrientation = Quaternion::Identity();
+
+	userPosition = Vector3f::Zero();
+	userOrientation = Quaternion::Identity();
+
 	assetDirectory = "";
 	assetDirectorySet = false;
 }
@@ -203,7 +209,6 @@ SoundInstance* SoundEnvironment::createInstance(Sound* sound)
 	return newInstance;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Vector3f SoundEnvironment::getListenerPosition()
 {
@@ -211,17 +216,52 @@ Vector3f SoundEnvironment::getListenerPosition()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Quaternion SoundEnvironment::getListenerOrientation()
+{
+	return listenerOrientation;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SoundEnvironment::setListenerPosition(Vector3f newPos)
 {
 	listenerPosition = newPos;
+}
 
-	Message msg("/setListLoc");
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::setListenerOrientation(Quaternion newOrientation)
+{
+	listenerOrientation = newOrientation;
+}
 
-	msg.pushFloat( listenerPosition[0] );
-	msg.pushFloat( listenerPosition[1] );
-	msg.pushFloat( listenerPosition[2] );
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::setListener(Vector3f newPos, Quaternion newOrientation)
+{
+	listenerPosition = newPos;
+	listenerOrientation = newOrientation;
+}
 
-	soundManager->sendOSCMessage(msg);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Vector3f SoundEnvironment::getUserPosition()
+{
+	return userPosition;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Quaternion SoundEnvironment::getUserOrientation()
+{
+	return userOrientation;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::setUserPosition(Vector3f newPos)
+{
+	userPosition = newPos;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SoundEnvironment::setUserOrientation(Quaternion newOrientation)
+{
+	userOrientation = newOrientation;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -248,3 +288,10 @@ void SoundEnvironment::addBufferID(int newID)
 {
 	bufferIDList.push_back(newID);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Vector3f SoundEnvironment::worldToLocal( Vector3f& position )
+{
+	Vector3f res = listenerOrientation.inverse() * (position - listenerPosition);
+	return res;
+};
