@@ -58,19 +58,42 @@ public:
 	SoundInstance* createInstance(Sound*);
 	SoundInstance* getSoundInstance(int);
 
+	// Listener in the world/virtual space
 	Vector3f getListenerPosition();
+	Quaternion getListenerOrientation();
+
 	void setListenerPosition(Vector3f);
+	void setListenerOrientation(Quaternion);
+	void setListener(Vector3f, Quaternion);
+
+	// 'User' listener position relative to the
+	// sound system in user tracked applications
+	Vector3f getUserPosition();
+	Quaternion getUserOrientation();
+
+	void setUserPosition(Vector3f);
+	void setUserOrientation(Quaternion);
 
 	void setAssetDirectory(const String&);
 	String& getAssetDirectory();
 
 	void addInstanceID(int);
 	void addBufferID(int);
+
+	Vector3f worldToLocal(Vector3f& position);
 private:
 	SoundManager* soundManager;
 	float globalVolume;
 
+	// This is assumed to be the navigative position
+	// of the listener in world coordinates
 	Vector3f listenerPosition;
+	Quaternion listenerOrientation;
+
+	// This is the user/listener position reletive to the speakers
+	// Used for user tracked applications
+	Vector3f userPosition;
+	Quaternion userOrientation;
 
 	String assetDirectory;
 	bool assetDirectorySet;

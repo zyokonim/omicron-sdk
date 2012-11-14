@@ -224,11 +224,15 @@ void SoundInstance::play()
 	else
 		msg.pushFloat( volume * sound->getVolumeScale() );
 
-	msg.pushFloat( position[0] );
-	msg.pushFloat( position[1] );
-	msg.pushFloat( position[2] );
+	// Position in Audio System (local) coordinates
+	Vector3f soundLocalPosition = environment->worldToLocal( position );
+
+	msg.pushFloat( soundLocalPosition[0] );
+	msg.pushFloat( soundLocalPosition[1] );
+	msg.pushFloat( soundLocalPosition[2] );
 	
-	Vector3f audioListener = environment->getListenerPosition();
+	// User's position relative to the audio system
+	Vector3f audioListener = environment->getUserPosition();
 	msg.pushFloat( audioListener[0] );
 	msg.pushFloat( audioListener[1] );
 	msg.pushFloat( audioListener[2] );
@@ -298,12 +302,15 @@ void SoundInstance::play( Vector3f position, float volume, float width, float mi
 		msg.pushFloat( 1.0 );
 	else
 		msg.pushFloat( volume * sound->getVolumeScale() );
-
-	msg.pushFloat( position[0] );
-	msg.pushFloat( position[1] );
-	msg.pushFloat( position[2] );
 	
-	Vector3f audioListener = environment->getListenerPosition();
+	// Position in Audio System (local) coordinates
+	Vector3f soundLocalPosition = environment->worldToLocal( position );
+
+	msg.pushFloat( soundLocalPosition[0] );
+	msg.pushFloat( soundLocalPosition[1] );
+	msg.pushFloat( soundLocalPosition[2] );
+	
+	Vector3f audioListener = environment->getUserPosition();
 	msg.pushFloat( audioListener[0] );
 	msg.pushFloat( audioListener[1] );
 	msg.pushFloat( audioListener[2] );
