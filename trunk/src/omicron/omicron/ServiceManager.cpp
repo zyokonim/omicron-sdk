@@ -188,7 +188,9 @@ void ServiceManager::setup(Setting& settings)
 	for(int i = 0; i < settings.getLength(); i++)
 	{
 		Setting& stSvc = settings[i];
-		Service* svc = addService(stSvc.getName());
+		String classname = stSvc.getName();
+		stSvc.lookupValue("class", classname);
+		Service* svc = addService(classname);
 		if(svc != NULL)
 		{
 			svc->doSetup(this, stSvc);
