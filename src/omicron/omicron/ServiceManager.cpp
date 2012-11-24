@@ -29,7 +29,6 @@
 
 // Input services
 #include "omicron/HeartbeatService.h"
-#include "omicron/BasicPortholeService.h"
 #include "omicron/WandService.h"
 #include "omicron/SagePointerService.h"
 #include "omicron/GestureService.h"
@@ -106,7 +105,6 @@ void ServiceManager::registerDefaultServices()
 {
 	// register standard input services.
 	registerService("HeartbeatService", (ServiceAllocator)HeartbeatService::New);
-	registerService("BasicPortholeService", (ServiceAllocator)BasicPortholeService::New);
 	registerService("WandService", (ServiceAllocator)WandService::New);
 	registerService("SagePointerService", (ServiceAllocator)SagePointerService::New);
 	registerService("GestureService", (ServiceAllocator)GestureService::New);

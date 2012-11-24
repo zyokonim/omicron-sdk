@@ -25,7 +25,7 @@
 #ifndef __OMICRON__
 #define __OMICRON__
 
-#define OMICRON_VERSION "1.2"
+#define OMICRON_VERSION "2.0"
 
 #include "omicronConfig.h"
 #include "omicron/libconfig/ArgumentHelper.h"
