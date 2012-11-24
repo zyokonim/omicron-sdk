@@ -1,0 +1,8 @@
+<map id="vrpn_Analog_Output" name="vrpn_Analog_Output">
+<area shape="rect" id="node7" href="$classomicron_1_1vrpn___x_input_gamepad.html" title="omicron::vrpn_XInputGamepad" alt="" coords="5,228,176,252"/>
+<area shape="rect" id="node9" href="$classvrpn___analog___output___remote.html" title="vrpn_Analog_Output\l_Remote" alt="" coords="201,222,324,258"/>
+<area shape="rect" id="node11" href="$classvrpn___analog___output___server.html" title="vrpn_Analog_Output\l_Server" alt="" coords="348,222,471,258"/>
+<area shape="rect" id="node2" href="$classvrpn___base_class.html" title="Class from which all user&#45;level (and other) classes that communicate with vrpn_Connections should der..." alt="" coords="213,77,312,101"/>
+<area shape="rect" id="node4" href="$classvrpn___base_class_unique.html" title="INTERNAL class to hold members that there should only be one copy of even when a class inherits from ..." alt="" coords="197,5,328,29"/>
+<area shape="rect" id="node13" href="$classvrpn___analog___output___callback___server.html" title="vrpn_Analog_Output\l_Callback_Server" alt="" coords="348,307,471,343"/>
+</map>

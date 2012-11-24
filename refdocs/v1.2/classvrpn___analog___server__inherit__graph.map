@@ -1,0 +1,5 @@
+<map id="vrpn_Analog_Server" name="vrpn_Analog_Server">
+<area shape="rect" id="node7" href="$classvrpn___clipping___analog___server.html" title="Analog server that can scale and clip its range to &#45;1..1." alt="" coords="5,222,131,258"/>
+<area shape="rect" id="node2" href="$classvrpn___analog.html" title="vrpn_Analog" alt="" coords="27,77,109,101"/>
+<area shape="rect" id="node4" href="$classvrpn___base_class.html" title="Class from which all user&#45;level (and other) classes that communicate with vrpn_Connections should der..." alt="" coords="19,5,117,29"/>
+</map>

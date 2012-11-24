@@ -1,0 +1,11 @@
+<map id="vrpn_Button" name="vrpn_Button">
+<area shape="rect" id="node7" href="$classomicron_1_1vrpn___x_input_gamepad.html" title="omicron::vrpn_XInputGamepad" alt="" coords="462,41,634,65"/>
+<area shape="rect" id="node9" href="$classvrpn___button___filter.html" title="All button servers should derive from this class, which provides the ability to turn any of the butto..." alt="" coords="492,89,604,113"/>
+<area shape="rect" id="node19" href="$classvrpn___button___remote.html" title="vrpn_Button_Remote" alt="" coords="485,137,611,161"/>
+<area shape="rect" id="node2" href="$classvrpn___base_class.html" title="Class from which all user&#45;level (and other) classes that communicate with vrpn_Connections should der..." alt="" coords="184,89,283,113"/>
+<area shape="rect" id="node4" href="$classvrpn___base_class_unique.html" title="INTERNAL class to hold members that there should only be one copy of even when a class inherits from ..." alt="" coords="5,89,136,113"/>
+<area shape="rect" id="node11" href="$classvrpn___button___example___server.html" title="vrpn_Button_Example\l_Server" alt="" coords="683,5,811,41"/>
+<area shape="rect" id="node13" href="$classvrpn___button___parallel.html" title="vrpn_Button_Parallel" alt="" coords="685,65,808,89"/>
+<area shape="rect" id="node15" href="$classvrpn___button___serial.html" title="vrpn_Button_Serial" alt="" coords="689,113,804,137"/>
+<area shape="rect" id="node17" href="$classvrpn___button___server.html" title="vrpn_Button_Server" alt="" coords="687,161,807,185"/>
+</map>

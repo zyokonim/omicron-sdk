@@ -1,0 +1,7 @@
+<map id="vrpn_BaseClassUnique" name="vrpn_BaseClassUnique">
+<area shape="rect" id="node3" href="$classvrpn___base_class.html" title="Class from which all user&#45;level (and other) classes that communicate with vrpn_Connections should der..." alt="" coords="187,77,285,101"/>
+<area shape="rect" id="node5" href="$classvrpn___analog.html" title="vrpn_Analog" alt="" coords="5,149,88,173"/>
+<area shape="rect" id="node7" href="$classvrpn___analog___output.html" title="vrpn_Analog_Output" alt="" coords="112,149,235,173"/>
+<area shape="rect" id="node9" href="$classvrpn___button.html" title="This is the base class for both the client and server for a button device (a device with one or more ..." alt="" coords="259,149,341,173"/>
+<area shape="rect" id="node11" href="$classvrpn___tracker.html" title="vrpn_Tracker" alt="" coords="366,149,452,173"/>
+</map>

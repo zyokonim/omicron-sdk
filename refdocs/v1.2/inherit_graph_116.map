@@ -1,0 +1,28 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classvrpn___base_class_unique.html" title="INTERNAL class to hold members that there should only be one copy of even when a class inherits from ..." alt="" coords="5,233,136,257"/>
+<area shape="rect" id="node3" href="$classvrpn___base_class.html" title="Class from which all user&#45;level (and other) classes that communicate with vrpn_Connections should der..." alt="" coords="184,233,283,257"/>
+<area shape="rect" id="node5" href="$classvrpn___analog.html" title="vrpn_Analog" alt="" coords="351,269,433,293"/>
+<area shape="rect" id="node17" href="$classvrpn___analog___output.html" title="vrpn_Analog_Output" alt="" coords="331,99,453,123"/>
+<area shape="rect" id="node26" href="$classvrpn___button.html" title="This is the base class for both the client and server for a button device (a device with one or more ..." alt="" coords="351,197,433,221"/>
+<area shape="rect" id="node45" href="$classvrpn___tracker.html" title="vrpn_Tracker" alt="" coords="349,461,435,485"/>
+<area shape="rect" id="node7" href="$classomicron_1_1vrpn___x_input_gamepad.html" title="omicron::vrpn_XInputGamepad" alt="" coords="502,125,674,149"/>
+<area shape="rect" id="node9" href="$classvrpn___analog___remote.html" title="vrpn_Analog_Remote" alt="" coords="525,269,651,293"/>
+<area shape="rect" id="node11" href="$classvrpn___analog___server.html" title="vrpn_Analog_Server" alt="" coords="527,317,649,341"/>
+<area shape="rect" id="node15" href="$classvrpn___serial___analog.html" title="vrpn_Serial_Analog" alt="" coords="531,365,645,389"/>
+<area shape="rect" id="node13" href="$classvrpn___clipping___analog___server.html" title="Analog server that can scale and clip its range to &#45;1..1." alt="" coords="723,321,850,357"/>
+<area shape="rect" id="node20" href="$classvrpn___analog___output___remote.html" title="vrpn_Analog_Output\l_Remote" alt="" coords="527,5,649,41"/>
+<area shape="rect" id="node22" href="$classvrpn___analog___output___server.html" title="vrpn_Analog_Output\l_Server" alt="" coords="527,65,649,101"/>
+<area shape="rect" id="node24" href="$classvrpn___analog___output___callback___server.html" title="vrpn_Analog_Output\l_Callback_Server" alt="" coords="725,54,848,90"/>
+<area shape="rect" id="node29" href="$classvrpn___button___filter.html" title="All button servers should derive from this class, which provides the ability to turn any of the butto..." alt="" coords="532,173,644,197"/>
+<area shape="rect" id="node43" href="$classvrpn___button___remote.html" title="vrpn_Button_Remote" alt="" coords="525,221,651,245"/>
+<area shape="rect" id="node31" href="$classvrpn___button___example___server.html" title="vrpn_Button_Example\l_Server" alt="" coords="723,211,851,247"/>
+<area shape="rect" id="node33" href="$classvrpn___button___parallel.html" title="vrpn_Button_Parallel" alt="" coords="725,272,848,296"/>
+<area shape="rect" id="node37" href="$classvrpn___button___serial.html" title="vrpn_Button_Serial" alt="" coords="729,115,844,139"/>
+<area shape="rect" id="node41" href="$classvrpn___button___server.html" title="vrpn_Button_Server" alt="" coords="727,163,847,187"/>
+<area shape="rect" id="node35" href="$classvrpn___button___python.html" title="vrpn_Button_Python" alt="" coords="908,272,1031,296"/>
+<area shape="rect" id="node39" href="$classvrpn___button___pinch_glove.html" title="vrpn_Button_PinchGlove" alt="" coords="899,115,1039,139"/>
+<area shape="rect" id="node47" href="$classvrpn___tracker___n_u_l_l.html" title="vrpn_Tracker_NULL" alt="" coords="530,413,646,437"/>
+<area shape="rect" id="node49" href="$classvrpn___tracker___remote.html" title="vrpn_Tracker_Remote" alt="" coords="523,461,653,485"/>
+<area shape="rect" id="node51" href="$classvrpn___tracker___serial.html" title="vrpn_Tracker_Serial" alt="" coords="529,509,647,533"/>
+<area shape="rect" id="node53" href="$classvrpn___tracker___server.html" title="vrpn_Tracker_Server" alt="" coords="526,557,650,581"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="vrpn_Analog_Remote" name="vrpn_Analog_Remote">
+<area shape="rect" id="node2" href="$classvrpn___analog.html" title="vrpn_Analog" alt="" coords="27,77,109,101"/>
+<area shape="rect" id="node4" href="$classvrpn___base_class.html" title="Class from which all user&#45;level (and other) classes that communicate with vrpn_Connections should der..." alt="" coords="19,5,117,29"/>
+</map>

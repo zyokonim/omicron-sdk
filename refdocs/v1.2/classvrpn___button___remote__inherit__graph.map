@@ -1,0 +1,4 @@
+<map id="vrpn_Button_Remote" name="vrpn_Button_Remote">
+<area shape="rect" id="node2" href="$classvrpn___button.html" title="This is the base class for both the client and server for a button device (a device with one or more ..." alt="" coords="27,77,109,101"/>
+<area shape="rect" id="node4" href="$classvrpn___base_class.html" title="Class from which all user&#45;level (and other) classes that communicate with vrpn_Connections should der..." alt="" coords="19,5,117,29"/>
+</map>

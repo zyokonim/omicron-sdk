@@ -1,0 +1,9 @@
+<map id="vrpn_Analog" name="vrpn_Analog">
+<area shape="rect" id="node7" href="$classomicron_1_1vrpn___x_input_gamepad.html" title="omicron::vrpn_XInputGamepad" alt="" coords="462,5,634,29"/>
+<area shape="rect" id="node9" href="$classvrpn___analog___remote.html" title="vrpn_Analog_Remote" alt="" coords="485,53,611,77"/>
+<area shape="rect" id="node11" href="$classvrpn___analog___server.html" title="vrpn_Analog_Server" alt="" coords="487,101,609,125"/>
+<area shape="rect" id="node15" href="$classvrpn___serial___analog.html" title="vrpn_Serial_Analog" alt="" coords="491,149,605,173"/>
+<area shape="rect" id="node2" href="$classvrpn___base_class.html" title="Class from which all user&#45;level (and other) classes that communicate with vrpn_Connections should der..." alt="" coords="184,77,283,101"/>
+<area shape="rect" id="node4" href="$classvrpn___base_class_unique.html" title="INTERNAL class to hold members that there should only be one copy of even when a class inherits from ..." alt="" coords="5,77,136,101"/>
+<area shape="rect" id="node13" href="$classvrpn___clipping___analog___server.html" title="Analog server that can scale and clip its range to &#45;1..1." alt="" coords="683,95,810,131"/>
+</map>

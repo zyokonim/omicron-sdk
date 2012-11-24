@@ -1,0 +1,5 @@
+<map id="vrpn_Button_Serial" name="vrpn_Button_Serial">
+<area shape="rect" id="node7" href="$classvrpn___button___pinch_glove.html" title="vrpn_Button_PinchGlove" alt="" coords="5,221,144,245"/>
+<area shape="rect" id="node2" href="$classvrpn___button___filter.html" title="All button servers should derive from this class, which provides the ability to turn any of the butto..." alt="" coords="19,77,131,101"/>
+<area shape="rect" id="node4" href="$classvrpn___button.html" title="This is the base class for both the client and server for a button device (a device with one or more ..." alt="" coords="33,5,116,29"/>
+</map>
