@@ -45,7 +45,6 @@ SET( srcs
 		omicron/DataManager.cpp
 		omicron/FileDataStream.cpp
 		omicron/FilesystemDataSource.cpp
-		omicron/BasicPortholeService.cpp
 		omicron/Tcp.cpp
 		omicron/WandService.cpp
 		omicron/SagePointerService.cpp
@@ -96,7 +95,6 @@ SET( headers
         ${CMAKE_SOURCE_DIR}/include/omicron/DataManager.h
         ${CMAKE_SOURCE_DIR}/include/omicron/FilesystemDataSource.h
         ${CMAKE_SOURCE_DIR}/include/omicron/FileDataStream.h
-        ${CMAKE_SOURCE_DIR}/include/omicron/BasicPortholeService.h
 		${CMAKE_SOURCE_DIR}/include/omicron/Tcp.h
         ${CMAKE_SOURCE_DIR}/include/omicron/WandService.h
         ${CMAKE_SOURCE_DIR}/include/omicron/SagePointerService.h
