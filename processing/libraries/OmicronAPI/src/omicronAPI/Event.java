@@ -32,79 +32,115 @@ package omicronAPI;
  * POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************************************/
 
-public class Event {
-	public int sourceID; // Device IDs (touch ids, mocap joints, etc.)
-	public int eventID; // Event type i.e. click, move, etc.
-	public int serviceID; // Used for pointer to denote types (Mouse, touch)
-	public OmicronAPI.ServiceType serviceType; // Pointer, mocap, voice, etc.
+import processing.core.PVector;
 
-	public float[] dataArray;
+public class Event
+{
+	public int sourceID; // Device IDs (touch ids, mocap joints, etc.)
+	public int serviceID; // Used for pointer to denote types (Mouse, touch)
+	public int flags; // Used mostly for Wand/Controller to denote button ID
+						// during down/up events
+	public OmicronAPI.ServiceType serviceType; // Pointer, mocap, voice, etc.
+	public OmicronAPI.Type eventType; // Event type i.e. click, move, etc.
+	
+	public int extraDataSize = 1024;
+	
+	public OmicronAPI.ExtraDataType extraDataType;
+	public int extraDataItems;
+	public int extraDataMask;
+	public byte[] extraData = new byte[extraDataSize];
+	
 	int dataArraySize = 0;
-	public String dataString;
+	
+	// Data array types
+	public float[] dataArray;
+	public PVector[] vectorArray;
+	public String[] stringArray;
+
 	public float[] position;
-	public float[] rotation;
+	public float[] orientation;
 	public float timestamp;
 
-	Event() {
-		dataString = "";
+	Event()
+	{
+
 	}
 
-	public float getXPos() {
+	public float getXPos()
+	{
 		if (position != null)
 			return position[0];
 		else
 			return -1;
 	}
 
-	public float getYPos() {
+	public float getYPos()
+	{
 		if (position != null)
 			return position[1];
 		else
 			return -1;
 	}
 
-	public float getZPos() {
+	public float getZPos()
+	{
 		if (position != null)
 			return position[2];
 		else
 			return -1;
 	}
 
-	public OmicronAPI.ServiceType getServiceType() {
+	public OmicronAPI.ServiceType getServiceType()
+	{
 		return serviceType;
 	}
 
-	public int getSourceID() {
+	public int getSourceID()
+	{
 		return sourceID;
 	}
 
-	public int getEventID() {
-		return eventID;
+	public OmicronAPI.Type getEventType()
+	{
+		return eventType;
 	}
 
-	public void setTimeStamp(float ts) {
+	public void setTimeStamp(float ts)
+	{
 		timestamp = ts;
 	}
 
-	public long getTimeStamp() {
+	public long getTimeStamp()
+	{
 		return (long) timestamp;
 	}
 
-	public float getFloatData(int index) {
+	public float getFloatData(int index)
+	{
 		if (dataArraySize > index)
 			return (float) dataArray[index];
 		else
 			return -1;
 	}
 
-	public int getIntData(int index) {
+	public int getIntData(int index)
+	{
 		if (dataArraySize > index)
 			return (int) dataArray[index];
 		else
 			return -1;
 	}
-	
-	public String getDataString(){
-		return dataString;
+
+	public String getStringData(int index)
+	{
+		if (dataArraySize > index)
+			return stringArray[index];
+		else
+			return "";
+	}
+
+	public int getFlags()
+	{
+		return flags;
 	}
 }
