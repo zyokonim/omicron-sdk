@@ -47,7 +47,7 @@ void setup() {
   size( 8160, 2304, P3D ); // Cyber-Commons wall
 
   // Make the connection to the tracker machine
-  omicronManager.ConnectToTracker(7000, 7340, "131.193.77.104");
+  omicronManager.connectToTracker(7000, 7340, "localhost");
   
   // Create a listener to get events
   eventListener = new EventListener();

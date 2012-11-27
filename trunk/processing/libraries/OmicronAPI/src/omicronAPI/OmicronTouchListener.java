@@ -35,30 +35,30 @@ public interface OmicronTouchListener {
 	/**
 	 * Called on a touch down event.
 	 * @param ID touch id
-	 * @param xPos normalized x position
-	 * @param yPos normalized y position
-	 * @param xWidth normalized touch width
-	 * @param yWidth normalized touch height
+	 * @param xPos screen x position
+	 * @param yPos screen y position
+	 * @param xWidth screen touch width
+	 * @param yWidth screen touch height
 	 */
 	public void touchDown(int ID, float xPos, float yPos, float xWidth, float yWidth);
 
 	/**
 	 * Called on a touch move event.
 	 * @param ID touch id
-	 * @param xPos normalized x position
-	 * @param yPos normalized y position
-	 * @param xWidth normalized touch width
-	 * @param yWidth normalized touch height
+	 * @param xPos screen x position
+	 * @param yPos screen y position
+	 * @param xWidth screen touch width
+	 * @param yWidth screen touch height
 	 */
 	public void touchMove(int ID, float xPos, float yPos, float xWidth, float yWidth);
 
 	/**
 	 * Called on a touch up event.
 	 * @param ID touch id
-	 * @param xPos normalized x position
-	 * @param yPos normalized y position
-	 * @param xWidth normalized touch width
-	 * @param yWidth normalized touch height
+	 * @param xPos screen x position
+	 * @param yPos screen y position
+	 * @param xWidth screen touch width
+	 * @param yWidth screen touch height
 	 */
 	public void touchUp(int ID, float xPos, float yPos, float xWidth, float yWidth);
 }// interface

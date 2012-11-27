@@ -49,7 +49,7 @@ void setup() {
     size( displayWidth, displayHeight, P3D );
   
   // Make the connection to the tracker machine (Comment this out if testing with only mouse)
-  //omicronManager.ConnectToTracker(7001, 7340, "131.193.77.159");
+  //omicronManager.connectToTracker(7001, 7340, "localhost");
   
   // Create a listener to get events
   touchListener = new TouchListener();
