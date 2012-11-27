@@ -191,8 +191,6 @@ namespace omicron
 			//! Click: generated on a down followed by an immediate up event.
 			//! parameters: position
 			Click,
-			//! Alternate name for Click events
-			Confirm,
 			//! Zoom: zoom event.
 			Zoom,
 			//! Split: generated during a split/zoom gesture. 
