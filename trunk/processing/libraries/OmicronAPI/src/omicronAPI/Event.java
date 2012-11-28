@@ -40,12 +40,12 @@ public class Event
 	public int serviceID; // Used for pointer to denote types (Mouse, touch)
 	public int flags; // Used mostly for Wand/Controller to denote button ID
 						// during down/up events
-	public OmicronAPI.ServiceType serviceType; // Pointer, mocap, voice, etc.
-	public OmicronAPI.Type eventType; // Event type i.e. click, move, etc.
+	public OmicronAPI.ServiceType serviceType = OmicronAPI.ServiceType.Generic; // Pointer, mocap, voice, etc.
+	public OmicronAPI.Type eventType = OmicronAPI.Type.Null; // Event type i.e. click, move, etc.
 	
 	public int extraDataSize = 1024;
 	
-	public OmicronAPI.ExtraDataType extraDataType;
+	public OmicronAPI.ExtraDataType extraDataType = OmicronAPI.ExtraDataType.ExtraDataNull;
 	public int extraDataItems;
 	public int extraDataMask;
 	public byte[] extraData = new byte[extraDataSize];
@@ -63,7 +63,6 @@ public class Event
 
 	Event()
 	{
-
 	}
 
 	public float getXPos()
@@ -117,7 +116,7 @@ public class Event
 
 	public float getFloatData(int index)
 	{
-		if (dataArraySize > index)
+		if (dataArraySize > index && dataArray != null )
 			return (float) dataArray[index];
 		else
 			return -1;
@@ -125,7 +124,7 @@ public class Event
 
 	public int getIntData(int index)
 	{
-		if (dataArraySize > index)
+		if (dataArraySize > index && dataArray != null )
 			return (int) dataArray[index];
 		else
 			return -1;
@@ -133,7 +132,7 @@ public class Event
 
 	public String getStringData(int index)
 	{
-		if (dataArraySize > index)
+		if (dataArraySize > index && stringArray != null )
 			return stringArray[index];
 		else
 			return "";

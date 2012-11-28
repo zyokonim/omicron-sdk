@@ -164,7 +164,7 @@ public class OmicronAPI
 	 */
 	public OmicronAPI(PApplet parent, int dataPort, int msgPort, String trackerIP)
 	{
-		ConnectToTracker(dataPort, msgPort, trackerIP);
+		connectToTracker(dataPort, msgPort, trackerIP);
 		eventList = new ArrayList<Event>();
 		this.applet = parent; // This needs to match sketch name i.e.
 								// '(SketchName)parent'
@@ -328,7 +328,8 @@ public class OmicronAPI
 	private boolean secondMouseDown = false;
 	private float secondMouseX, secondMouseY;
 	private int mouseTouchHoldKeycode = 17;
-	
+	private int mouseID = -1;
+	private int secondMouseID = -100;
 	PVector lastMovePosition;
 	
 	private void processMouseEvent()
@@ -349,10 +350,7 @@ public class OmicronAPI
 		{
 			if (!mouseDown)
 			{
-				
-				
-					
-				touchListener.touchDown(-1, (applet.mouseX - mouseOffsetX) / mouseScale, (applet.mouseY - mouseOffsetY) / mouseScale, 10, 10);
+				touchListener.touchDown(mouseID, (applet.mouseX - mouseOffsetX) / mouseScale, (applet.mouseY - mouseOffsetY) / mouseScale, 10, 10);
 				mouseDown = true;
 				
 				if(scaledViewMode)
@@ -360,7 +358,7 @@ public class OmicronAPI
 			}
 			else
 			{
-				touchListener.touchMove(-1, (applet.mouseX - mouseOffsetX) / mouseScale, (applet.mouseY - mouseOffsetY) / mouseScale, 10, 10);
+				touchListener.touchMove(mouseID, (applet.mouseX - mouseOffsetX) / mouseScale, (applet.mouseY - mouseOffsetY) / mouseScale, 10, 10);
 				
 				if(scaledViewMode){
 					if (lastMovePosition != null)
@@ -379,34 +377,41 @@ public class OmicronAPI
 		{
 			if (mouseDown)
 			{
-				touchListener.touchUp(-1, (applet.mouseX - mouseOffsetX) / mouseScale, (applet.mouseY - mouseOffsetY) / mouseScale, 10, 10);
+				touchListener.touchUp(mouseID, (applet.mouseX - mouseOffsetX) / mouseScale, (applet.mouseY - mouseOffsetY) / mouseScale, 10, 10);
 				mouseDown = false;
+				mouseID--;
 			}
 		}
-
+		
+		if( mouseID < -90 )
+			mouseID = -1;
+		
 		if (applet.keyPressed && applet.keyCode == applet.CONTROL)
 		{
 			if (!secondMouseDown)
 			{
-				touchListener.touchDown(-2, (applet.mouseX - mouseOffsetX) / mouseScale, (applet.mouseY - mouseOffsetY) / mouseScale, 10, 10);
+				touchListener.touchDown(secondMouseID, (applet.mouseX - mouseOffsetX) / mouseScale, (applet.mouseY - mouseOffsetY) / mouseScale, 10, 10);
 				secondMouseDown = true;
 				secondMouseX = (applet.mouseX - mouseOffsetX) / mouseScale;
 				secondMouseY = (applet.mouseY - mouseOffsetY) / mouseScale;
 			}
 			else
 			{
-				touchListener.touchMove(-2, (secondMouseX - mouseOffsetX) / mouseScale, (secondMouseY - mouseOffsetY) / mouseScale, 10, 10);
+				touchListener.touchMove(secondMouseID, secondMouseX, secondMouseY, 10, 10);
 			}
 		}
 		else if (!applet.keyPressed)
 		{
 			if (secondMouseDown)
 			{
-				touchListener.touchUp(-2, (secondMouseX - mouseOffsetX) / mouseScale, (secondMouseY - mouseOffsetY) / mouseScale, 10, 10);
+				touchListener.touchUp(secondMouseID, secondMouseX, secondMouseY, 10, 10);
 				secondMouseDown = false;
+				secondMouseID--;
 			}
 		}
-		
+
+		if( secondMouseID < -200 )
+			secondMouseID = -100;
 	}// processMouseEvent
 
 	public void setTouchHoldKey(int keyCode)
@@ -781,10 +786,21 @@ public class OmicronAPI
 	{
 		String dGram = new String(data);
 		
-		Event newEvent;
+		Event newEvent = new Event();
 		
 		if( legacyMode )
-			newEvent = parseDGram(dGram);
+		{
+			try
+			{
+				newEvent = parseDGram(dGram);
+			}
+			catch( Exception e)
+			{
+				System.err.println("Exception on dgram '" + dGram + "':");
+				e.printStackTrace();
+			}
+			
+		}
 		else
 			newEvent = parseBinaryPacket(data);
 		
@@ -840,8 +856,12 @@ public class OmicronAPI
 			yPos = Float.valueOf(params[4]);
 			xWidth = Float.valueOf(params[5]);
 			yWidth = Float.valueOf(params[6]);
-
-			event.eventType = OmicronAPI.Type.values()[Integer.valueOf(params[1])];
+			
+			if( Integer.valueOf(params[1]) != -1 )
+				event.eventType = OmicronAPI.Type.values()[Integer.valueOf(params[1])];
+			else // If -1, then likely this is a TouchAPI/TacTile dgram
+				event.eventType = OmicronAPI.Type.Null;
+			
 			event.sourceID = sourceID;
 			event.position = new float[]
 			{ xPos, yPos, 0 };
@@ -1007,8 +1027,17 @@ public class OmicronAPI
 		evt.serviceID = Integer.reverseBytes(byteBuffer.getInt());
 		
 		byteBuffer.position(12); // Fix offset due to C++/Java conflict
-		evt.serviceType = OmicronAPI.ServiceType.values()[Integer.valueOf( Integer.reverseBytes(byteBuffer.getInt()) ) ];
-		
+		try
+		{
+			evt.serviceType = OmicronAPI.ServiceType.values()[Integer.valueOf( Integer.reverseBytes(byteBuffer.getInt()) ) ];
+		}
+		catch(ArrayIndexOutOfBoundsException e)
+		{
+			System.err.println("Exception: " + e.toString());
+			System.err.println(" If this index is really large, the tracker you are connecting to may only support legacy Omicron connections.");
+			System.err.println(" You may have to use connectToLegacyTracker() instead of connectToTracker()");
+			return evt;
+		}
 		byteBuffer.position(16); // Fix offset due to C++/Java conflict
 		evt.eventType = OmicronAPI.Type.values()[Integer.valueOf( Integer.reverseBytes(byteBuffer.getInt()) ) ];
 		evt.flags = Integer.reverseBytes(byteBuffer.getInt());
