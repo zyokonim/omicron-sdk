@@ -157,50 +157,50 @@ namespace omicron
 		{ 
 			//! Select: generated when the source of the event gets selected or activated.
 			//! Used primarily for use iterface controls.
-			Select,
+			Select = 0,
 			//! Toggle: generated when some boolean state in the event source changes. Can represent
 			//! state changes in physical switches and buttons, or in user interface controls like
 			//! check boxes and radio buttons.
-			Toggle,
+			Toggle = 1,
 			//!ChangeValue: generated when the source of an event changes it's internal value or state.
 			//! Different from Update because ChangeValue is not usually fired at regular intervals,
 			//! while Update events are normally sent at a constant rate.
-			ChangeValue,
+			ChangeValue = 2,
 			//! Update: Generated when the soruce of an event gets updated (what 'update') means depends
 			//! on the event source.
-			Update,
+			Update = 3,
 			//! Move: Generated whenever the source of an event moves.
-			Move, 
+			Move = 4, 
 			//! Down: generated when the source of an event goes to a logical 'down' state (i.e. touch on a surface or 
 			//! a mouse button press count as Down events)
-			Down, 
+			Down = 5, 
 			//! Up: generated when the source of an event goes to a logical 'up' state (i.e. remove touch from a surface or 
 			//! a mouse button release count as Up events)
-			Up, 
+			Up = 6, 
 			//! Trace: generated when a new object is identified by the device managed by the input service 
 			//! (i.e head tracking, or a mocap system rigid body).
-			Trace,
+			Trace = 7,
 			//! Alternate name for Trace events
 			Connect = Trace,
 			//! Trace: generated when a traced object is lost by the device managed by the input service 
 			//! (i.e head tracking, or a mocap system rigid body).
-			Untrace,
+			Untrace = 8,
 			//! Alternate name for Untrace events
 			Disconnect = Untrace,
 
 			//! Click: generated on a down followed by an immediate up event.
 			//! parameters: position
-			Click,
+			Click = 9,
 			//! Zoom: zoom event.
-			Zoom,
+			Zoom = 15,
 			//! Split: generated during a split/zoom gesture. 
 			//! parameters: position (center of gesture) pointSet[0, 1] (individual finger positions), value[0] (delta distance) value[1] (delta ratio) .
-			Split,
+			Split = 18,
 			//! Rotate: generated when an event source is stationary while a second source is rotating around the first.
 			//! parameters: position (center of gesture) pointSet[0, 1] (individual finger positions), rotation[0] (degrees).
-			Rotate,
+			Rotate = 21,
 			//! Null: generic null value for event type.
-			Null
+			Null = 666
 		};
 		//! #PYAPI Defines some generic input event flags
 		enum Flags
