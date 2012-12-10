@@ -46,7 +46,7 @@ public class Event
 	public int extraDataSize = 1024;
 	
 	public OmicronAPI.ExtraDataType extraDataType = OmicronAPI.ExtraDataType.ExtraDataNull;
-	public int extraDataItems;
+	public int extraDataItems = 0;
 	public int extraDataMask;
 	public byte[] extraData = new byte[extraDataSize];
 	
