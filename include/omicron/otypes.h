@@ -189,6 +189,12 @@ namespace omicron
 				//oassert(s != 0);
 				if (--myRefCount == 0) delete this;
 			}
+
+		long refCount() 
+		{  
+			return myRefCount;
+		}
+
 	private:
 		mutable boost::detail::atomic_count myRefCount;
 	protected:
