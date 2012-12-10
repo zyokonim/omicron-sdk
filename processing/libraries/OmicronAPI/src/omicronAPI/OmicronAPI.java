@@ -265,12 +265,19 @@ public class OmicronAPI
 
 	private void processEvent(Event e)
 	{
-		processSpeechEvent(e);
-		processMocapEvent(e);
-		processPointerEvent(e);
+		try
+		{
+			processSpeechEvent(e);
+			processMocapEvent(e);
+			 processPointerEvent(e);
 
-		if (eventListener != null)
-			eventListener.onEvent(e);
+			if (eventListener != null)
+				eventListener.onEvent(e);
+		}
+		catch( NullPointerException exc )
+		{
+			System.err.println("Exception: " + exc.toString());
+		}
 	}
 
 	private void processSpeechEvent(Event e)
