@@ -88,6 +88,18 @@ String DataManager::getCurrentPath()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+String DataManager::getDataSourceNames()
+{
+	String res = "";
+	typedef std::pair<String, DataSource*> DataSourceItem;
+	foreach(DataSourceItem src, mySources)
+	{
+		res = res + src.second->getName() + "\n";
+	}
+	return res;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void DataManager::addSource(DataSource* source)
 {
 	mySources[source->getName()] = source;
@@ -97,6 +109,12 @@ void DataManager::addSource(DataSource* source)
 void DataManager::removeSource(DataSource* source)
 {
 	mySources.erase(source->getName());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void DataManager::removeAllSources()
+{
+	mySources.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -126,6 +126,9 @@ namespace omicron
 		void addSource(DataSource* source);
 		void removeSource(DataSource* source);
 		DataSource* getSource(const String& name);
+		//! Removes all currently registered data sources.
+		void removeAllSources();
+		String getDataSourceNames();
 		//@}
 
 		//! Data streams
