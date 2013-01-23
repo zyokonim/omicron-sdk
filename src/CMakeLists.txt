@@ -1,11 +1,11 @@
 ###################################################################################################
 # THE OMICRON PROJECT
 #-------------------------------------------------------------------------------------------------
-# Copyright 2010-2012		Electronic Visualization Laboratory, University of Illinois at Chicago
+# Copyright 2010-2013		Electronic Visualization Laboratory, University of Illinois at Chicago
 # Authors:										
 #  Alessandro Febretti		febret@gmail.com
 #-------------------------------------------------------------------------------------------------
-# Copyright (c) 2010-2011, Electronic Visualization Laboratory, University of Illinois at Chicago
+# Copyright (c) 2010-2013, Electronic Visualization Laboratory, University of Illinois at Chicago
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without modification, are permitted 
 # provided that the following conditions are met:
@@ -26,7 +26,7 @@
 ###################################################################################################
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 include(ExternalProject)
-include(OmicronAddTutorial)
+include(OmicronAddExample)
 
 
 # make sure the inlcude directory exists before extracting Boost, Asio and Eigen.
@@ -38,7 +38,7 @@ include(${CMAKE_SOURCE_DIR}/external/UseEigen.cmake)
 
 ###################################################################################################
 # Options
-set(OMICRON_BUILD_TUTORIALS false CACHE BOOL "Enable building of omegalib tutorials.")
+set(OMICRON_BUILD_EXAMPLES true CACHE BOOL "Enable building of omicron examples.")
 
 ###################################################################################################
 # Set include paths
@@ -73,10 +73,10 @@ add_subdirectory(apps/oinputserver)
 add_subdirectory(apps/soundtest)
 add_subdirectory(apps/eventlogger)
 
-if(OMICRON_BUILD_TUTORIALS)
-	omega_add_tutorial(localService)
-	omega_add_tutorial(remoteService)
-endif(OMICRON_BUILD_TUTORIALS)
+if(OMICRON_BUILD_EXAMPLES)
+	omicron_add_example(localService)
+	omicron_add_example(remoteService)
+endif(OMICRON_BUILD_EXAMPLES)
 
 configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/UseOmicron.cmake.in ${CMAKE_BINARY_DIR}/UseOmicron.cmake)
 
