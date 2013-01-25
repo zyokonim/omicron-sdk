@@ -11,4 +11,5 @@ function(omicron_add_example NAME)
 		INSTALL_COMMAND ""
 		)
 	set_target_properties(${NAME} PROPERTIES FOLDER "examples")
+	add_dependencies(${NAME} omicron)
 endfunction(omicron_add_example NAME)
