@@ -125,7 +125,6 @@ namespace omicron
 		//@{
 		void addSource(DataSource* source);
 		void removeSource(DataSource* source);
-		DataSource* getSource(const String& name);
 		//! Removes all currently registered data sources.
 		void removeAllSources();
 		String getDataSourceNames();
@@ -147,7 +146,7 @@ namespace omicron
 		static DataManager* mysInstance;
 
 		FilesystemDataSource* myCurrentPath;
-		SourceDictionary mySources;
+		List<DataSource*> mySources;
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////

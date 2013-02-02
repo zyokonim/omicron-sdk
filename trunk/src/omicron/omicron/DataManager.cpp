@@ -92,9 +92,9 @@ String DataManager::getDataSourceNames()
 {
 	String res = "";
 	typedef std::pair<String, DataSource*> DataSourceItem;
-	foreach(DataSourceItem src, mySources)
+	foreach(DataSource* src, mySources)
 	{
-		res = res + src.second->getName() + "\n";
+		res = res + src->getName() + "\n";
 	}
 	return res;
 }
@@ -102,13 +102,13 @@ String DataManager::getDataSourceNames()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void DataManager::addSource(DataSource* source)
 {
-	mySources[source->getName()] = source;
+	mySources.push_back(source);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void DataManager::removeSource(DataSource* source)
 {
-	mySources.erase(source->getName());
+	mySources.remove(source);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,15 +118,15 @@ void DataManager::removeAllSources()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-DataSource* DataManager::getSource(const String& name)
-{
-	return mySources[name].get();
-}
+//DataSource* DataManager::getSource(const String& name)
+//{
+//	return mySources[name].get();
+//}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 DataInfo DataManager::getInfo(const String& path)
 {
-	foreach(SourceDictionary::Item ds, mySources)
+	foreach(DataSource* ds, mySources)
 	{
 		if(ds->exists(path))
 		{
@@ -137,11 +137,11 @@ DataInfo DataManager::getInfo(const String& path)
 	return DataInfo();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 DataStream* DataManager::createStream(const String& path)
 {
 	DataStream* stream = NULL;
-	foreach(SourceDictionary::Item ds, mySources)
+	foreach(DataSource* ds, mySources)
 	{
 		stream = ds->newStream(path);
 		if(stream != NULL) break;
