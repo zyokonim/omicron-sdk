@@ -48,6 +48,6 @@ namespace omicron {
 		byte* myData;
 		size_t mySize;
 	};
-}; // namespace oengine
+};
 
 #endif
