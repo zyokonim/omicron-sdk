@@ -1,7 +1,7 @@
 #summary omicron Event Services reference
 #sidebar Sidebar
 
-<p>*Last revision:* ver. 1.2 - 28 June 2012</p>
+<p>*Last revision:* ver. 1.3 - 8 February 2013</p>
 
 = omicron Event Services reference =
 This place lists all the event services shipped with omicron, together with their supported configuration options.
@@ -22,10 +22,56 @@ The service returns pointer events like a mouse (with flags for left/right click
 
 -------------------------------------------------------------------------------
 == DirectXInputService ==
-=== Generated events ===
-==== Description =====
-=== Configuration parameters ===
+Uses the Microsoft DirectInput component of the DirectX API to access game controllers. Supports Xbox 360 controllers using the USB Xbox360 Wireless Receiver for Windows and PlayStation 3 Sixaxis, Move, and Navigation Controllers via bluetooth and MotioninJoy.
 
+=== Generated events ===
+ * *Service type:* Controller
+ * *Event types:* `Update`, `Down`, `Up`
+ * *Event data fields:* flags for digital buttons and extra data (float array) for analog inputs
+ 
+==== Common Analog Fields =====
+These fields are the same for Xbox 360 and PS3 controllers. These floats are normalized (0.0 to 1.0) or (-1.0 to 0.0) depending which axis the data corresponds to.
+The PS3 Navigation controller uses the left analog stick and left analog trigger.
+
+ * ExtraDataFloat 0: Left Analog Stick (-left, +right)
+ * ExtraDataFloat 1: Left Analog Stick (-up, +down)
+ * ExtraDataFloat 2: Right Analog Stick (-left, +right)
+ * ExtraDataFloat 3: Right Analog Stick (-up, +down)
+ * ExtraDataFloat 4: Analog Trigger (+left, -right)
+
+==== PS3 Controller Specific Fields =====
+The following button flags correspond to PS3 controller buttons. Some controllers such as the Move or Navigation may not have all buttons available.
+ * Button 1: Triangle
+ * Button 2: Circle
+ * Button 3: Cross
+ * Button 4: Square
+ * Button 5: Left Shoulder Button (L1)
+ * Button 6: Left Analog Stick Button (L3)
+ * Special Button 1: Select
+ * Special Button 2: Start
+ * Special Button 3: PS Button
+
+ * ExtraDataFloat 4: Analog Trigger (L2) (+left, -right)
+
+==== Xbox360 Controller Specific Fields =====
+The following button flags correspond to Xbox360 controller buttons.
+ * Button 1: A
+ * Button 2: B
+ * Button 3: X
+ * Button 4: Y
+ * Button 5: Left Shoulder Button (LB)
+ * Button 6: Right Shoulder Button (RB)
+ * Special Button 1: Back
+ * Special Button 2: Start
+ * Special Button 3: Not Currently Assigned
+
+ * ExtraDataFloat 4: Analog Trigger (LT) (0.0 to 1.0)
+ * ExtraDataFloat 4: Analog Trigger (RT) (-1.0 to 0.0)
+ 
+=== Configuration parameters ===
+ * `updateInterval (float)`: the delay time in seconds between polling for new data (default: 0.01)
+ * `checkControllerInterval (float)`: the delay time in seconds between checking for new controllers (default: 2.0)
+ 
 -------------------------------------------------------------------------------
 == HeartbeatService ==
 A simple service that generates periodic events. Used to test connections and as a skeleton for implementation of new event services.
@@ -93,10 +139,22 @@ This is done because in the local context, remote service ids have no meaning, s
 
 -------------------------------------------------------------------------------
 == PQService ==
-=== Generated events ===
-==== Description =====
-=== Configuration parameters ===
+Uses the PQLabs API to connect and receive touch data from a PQLabs server (MultiTouchPlatform). Can be combined with the GestureManager to generate more accurate touch point events as well as basic multi-touch gestures like pan and zoom.
 
+=== Generated events ===
+ * *Service type:* Pointer
+ * *Event types:* `Down`, `Move`, `Up`
+ * *Event data fields:* position, extra data (float array) for touch width and height.
+
+=== Configuration parameters ===
+ * `serverIP (string)`: the name or ip address of the PQLabs server (default: localhost)
+ * `maxBlobSize (int)`: the largest pixel diameter of touches to be reported (default: 1000)
+ * `screenX (int)`: the x resolution to expand normalized touch data. If 0, the resolution of the PQLabs server will be used. If 1, the data will be normalized (0.0 to 1.0). (default: 0)
+ * `screenY (int)`: the y resolution to expand normalized touch data. If 0, the resolution of the PQLabs server will be used. If 1, the data will be normalized (0.0 to 1.0). (default: 0)
+ * `screenOffsetX (int)`: the offset in pixels in the x direction. (default: 0)
+ * `screenOffsetY (int)`: the offset in pixels in the y direction. (default: 0)
+ * `useGestureManager (bool)`: toggle the Gesture Manager. (default: false)
+ 
 -------------------------------------------------------------------------------
 == SagePointerService ==
 === Generated events ===
@@ -109,10 +167,34 @@ Implements a tcp server that listens for incoming tcp connections. This is just 
 
 -------------------------------------------------------------------------------
 == ThinkGearService ==
-=== Generated events ===
-==== Description =====
-=== Configuration parameters ===
+Uses the ThinkGear NeuroSky API to access MindWave EEG data.
 
+=== Generated events ===
+ * *Service type:* Brain
+ * *Event types:* `Update`
+ * *Event data fields:* extra data (float array) for EEG values described below.
+ 
+==== Extra Data Fields =====
+Signal strength ranges from 0-200 while attention/meditation from 0-100. All other values can vary from 0 to over 100,000,000 depending on the wave.
+
+ * ExtraDataFloat 0: Signal strength (200 - no signal, 0 - full signal)
+ * ExtraDataFloat 1: Attention (0-20 'strongly lowered', 20-40 'reduced', 40-60 'neutral', 60-80 'slightly elevated', 80 - 100 'elevated')
+ * ExtraDataFloat 2: Meditation (0-20 'strongly lowered', 20-40 'reduced', 40-60 'neutral', 60-80 'slightly elevated', 80 - 100 'elevated')
+ * ExtraDataFloat 3: Delta waves (Deep, dreamless sleep, non-REM sleep, unconscious) 
+ * ExtraDataFloat 4: Theta waves (Intuitive, creative, recall, fantasy, imaginary, dream)
+ * ExtraDataFloat 5: Low alpha waves (Relaxed, but not drowsy, tranquil, conscious)
+ * ExtraDataFloat 6: High alpha waves (Relaxed, but not drowsy, tranquil, conscious)
+ * ExtraDataFloat 7: Low beta waves (Formerly SMR, relaxed yet focused, integrated)
+ * ExtraDataFloat 8: High beta waves (Thinking, aware of self & surroundings, Alertness, agitation)
+ * ExtraDataFloat 9: Low gamma waves 
+ * ExtraDataFloat 10: High gamma waves
+ * ExtraDataFloat 11: Blink strength (Blinks typically register around values of 100 or greater)
+ 
+=== Configuration parameters ===
+ * `comPortName (string)`: com port the MindWave Wireless USB Adapter is connected to (default: "\\\\.\\COM10")
+ * `enableStreamLog (bool)`: enable stream logging to streamLog.txt (default: false)
+ * `enableDataLog (bool)`: enable data logging to dataLog.txt (default: false)
+ 
 -------------------------------------------------------------------------------
 == VRPNService ==
 === Generated events ===
