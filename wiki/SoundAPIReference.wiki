@@ -1,11 +1,11 @@
-#summary omicron SoundAPI reference
+#summary SoundAPI reference
 #sidebar Sidebar
 
 <p>*Last revision:* ver. 1.0 - 11 February 2013</p>
 
 <wiki:toc max_depth="2" />
 
-= omicron SoundAPI reference =
+= SoundAPI reference =
 The Omicron Sound API allows CAVE2 developers a simple way to trigger, place, and update sounds in virtual space. The API sends simple Open Sound Control (OSC) messages to a Supercollider server developed by JD Pirtle.
 
 
