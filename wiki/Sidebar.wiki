@@ -3,7 +3,7 @@
  * [ReleaseNotes Release Notes]
  * [ServiceReference Input services reference]
  * [EventReference omicron Event structure]
- * [SoundAPIReference omicron SoundAPI reference]
+ * [SoundAPIReference SoundAPI reference]
  * [Unity using omicron in Unity]
  * [http://omegalib.googlecode.com/svn/refdocs/trunk/html/namespaceomicron.html API Reference: omicron (trunk)]
  * [http://omegalib.googlecode.com/svn/refdocs/trunk/html/namespaceomicron_connector.html API Reference: omicronConnector (trunk)]
