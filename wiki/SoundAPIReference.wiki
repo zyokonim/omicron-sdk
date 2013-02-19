@@ -8,11 +8,16 @@
 = SoundAPI reference =
 The Omicron Sound API allows CAVE2 developers a simple way to trigger, place, and update sounds in virtual space. The API sends simple Open Sound Control (OSC) messages to a Supercollider server developed by JD Pirtle.
 
+The coordinate system used by the sound api is the same as the tracker: origin on the floor at the center of CAVE2, Y-up. Positions are stored as vector3 floats in meters. Orientations in quaternions.
+
+<p align="middle"><img src="http://omicron-sdk.googlecode.com/svn/wiki/Sound/CAVE2CoordinateSystem.png" width="500"/></p><p align="middle">
+_^The CAVE2 Tracking/Speaker Coordinate System.^_
+</p>
 
 -------------------------------------------------------------------------------
 ==  `class SoundManager` ==
 Provides basic management of the sound server and sound objects. Uses the Ultra minimalistic OSC library (http://gruntthepeon.free.fr/oscpkt/).
-
+ 
 === Methods ===
 || Method(s) || Description || Associated OSC Messages ||
 || `connectToServer(IP, port)` || Connects to a sound server at the specified IP address and port. || ||
@@ -24,6 +29,8 @@ Provides basic management of the sound server and sound objects. Uses the Ultra 
 -------------------------------------------------------------------------------
 ==  `class SoundEnvironment` ==
 
+The sound environment class provides a set of default sound parameters used for all sound objects it creates.
+
 === Methods ===
 || Method(s) || Description || Associated OSC Messages ||
 || *Environment Management* || || ||
@@ -34,10 +41,10 @@ Provides basic management of the sound server and sound objects. Uses the Ultra 
 || *Sound Management* || || ||
 || `loadSoundFromFile(name, fileName)` || Creates an new sound object with the given name and path to the sound file. || /loadBuffer (See Sound::loadFromFile) ||
 || `createInstance(sound)` || Creates an new sound instance from the given sound object. || ||
-|| `getListenerPosition()`, `setListenerPosition(pos)` || Gets and sets the listener position. This corresponds to CAVE2's navigated position in the virtual space. || ||
-|| `getListenerOrientation()`, `setListenerOrientation(orientation)` || Gets and sets the listener orientation. This corresponds to CAVE2's navigated position in the virtual space. || ||
-|| `getUserPosition()`, `setuserPosition(pos)` || Gets and sets the user position. This corresponds to tracked user's head position in tracker space. || ||
-|| `getListenerOrientation()`, `setListenerOrientation(orientation)` || Gets and sets the user orientation. This corresponds to tracked user's head orientation in tracker space. || ||
+|| `getListenerPosition()`, `setListenerPosition(pos)` || Gets and sets the listener position. This corresponds to CAVE2's navigated position in the virtual space (meters, Y up). || ||
+|| `getListenerOrientation()`, `setListenerOrientation(orientation)` || Gets and sets the listener orientation. This corresponds to CAVE2's navigated position in the virtual space (Quaternion). || ||
+|| `getUserPosition()`, `setUserPosition(pos)` || Gets and sets the user position. This corresponds to tracked user's head position in tracker space (meters, Y up). || ||
+|| `getUserOrientation()`, `setUserOrientation(orientation)` || Gets and sets the user orientation. This corresponds to tracked user's head orientation in tracker space (Quaternion). || ||
 || `worldToLocal(position)` || Convert a position from virtual space to local tracker/speaker space based on the listener's current orientation and position. || ||
 
 -------------------------------------------------------------------------------
@@ -48,6 +55,74 @@ A sound object storing the bufferID, filepath to the sound, and the default soun
 || Method(s) || Description || Associated OSC Messages ||
 || `loadFromFile(path)` || Loads a sound file withe the given path. || /loadBuffer (bufferID,path) ||
 || `getVolumeScale()`, `setVolumeScale(vol)` || Gets and sets the default volume scale as a normalized float (0.0-1.0) || ||
+
+The following is a snippet of the soundtest.cpp application which is included within Omicron.
+In you use the Omicron SoundAPI in conjunction with OmegaLib's rendering framework, you only need to get the sound environment and load sounds from it. All SoundManager initializations and setting the listener and user positions it provided by the OmegaLib engine class. For using the Omicron SoundAPI functions using Omegalib's python interface, see [http://code.google.com/p/omegalib/wiki/OmegaPythonReference#Sound_Management OmegaPythonReference].
+
+Sound setup outside of Omegalib:
+{{{
+	SoundManager* soundManager;
+	SoundEnvironment* env;
+	Sound* sound;
+	Sound* music;
+	
+	SoundTest()
+	{
+		soundManager = new SoundManager("supercolliderIP",57120);
+		soundManager->startSoundServer();
+		env = soundManager->getSoundEnvironment();
+		
+		// If this is not set, you will have to set an absolute path below
+		env->setAssetDirectory("/Users/demo/sounds/");
+		
+		// This effectivly looks for '/Users/demo/sounds/menu_select.wav'
+		sound = env->loadSoundFromFile("beep", "menu_select.wav");
+		
+		// This effectivly looks for '/Users/demo/sounds/music/filmic.wav'
+		music = env->loadSoundFromFile("music", "/music/filmic.wav");
+	}
+	
+	virtual bool handleEvent(const Event& evt)
+	{
+		switch(evt.getServiceType())
+		{
+			case Service::Mocap:
+				// Here we assume the mocap ID of the head tracked user is 0.
+				if( evt.getSourceId() == 0 )
+				{
+					// evt.getPosition() returns a Vector3f
+					soundManager->setListenerPosition( evt.getPosition() );
+					
+					// evt.getOrientation() returns a Quaternion
+					soundManager->setListenerOrientation( evt.getOrientation() );
+				}
+		}
+	}
+	
+}}}
+
+Sound setup using Omegalib in C++:
+{{{
+	SoundEnvironment* env;
+	Sound* sound;
+	Sound* music;
+	
+	virtual void initialize()
+	{
+		// SoundManager initializations handled by engine.
+		// Sound server IP and ports set by OmegaLib configuration file.
+		
+		env = getEngine()->getSoundEnvironment();
+		env->setAssetDirectory("/Users/demo/sounds/");
+		
+		// All sound files should be in .wav format
+		// For positional sounds, file should be mono.
+		// Rest of important sound code is in handleEvent()
+		sound = env->loadSoundFromFile("beep", "/menu_sounds/menu_select.wav");
+		music = env->loadSoundFromFile("music", "/music/filmic.wav");
+	}
+}}}
+
 
 -------------------------------------------------------------------------------
 ==  `class SoundInstance` ==
@@ -60,12 +135,43 @@ A sound instance object storing the associated sound object, instanceID, and sou
 || `playStereo()` || Plays a stereo sound with the default sound parameters. || /playStereo (instanceID, bufferID, volume, loop) ||
 || `play(pos,volume,width,mix,reverb,loop)` || Plays a sound with the specified sound parameters. || /play (instanceID, bufferID, volume, xPos, yPos, zPos, listenerX, listenerY, listenerZ, width, mix, reverb, loop) ||
 || `playStereo(volume,loop)` || Plays a stereo sound with the specified sound parameters. || /play (instanceID, bufferID, volume, loop) ||
-|| `stop()` || Stops the sound from playing. || /freeNode ||
+|| `stop()` || Stops the sound from playing. || /freeNode (instanceID) ||
 || `fade(targetVolume, duration)` || Fades the sound instance from it's current volume to the target volume over the specified duration in seconds || /setVolEnv (instanceID, targetVolume, envelopeDuration) ||
 || *Settings* || || ||
 || `getLoop()` `setLoop(loop)` || Gets and sets the looping flag. ||
-|| `getPosition()`, `setPosition(pos)` || Gets and sets the position of the sound in local tracker/speaker space. || /setObjectLoc (instanceID, xPos, yPos, zPos) ||
+|| `getPosition()`, `setPosition(pos)` || Gets and sets the position of the sound in local tracker/speaker space (meters, Y up). || /setObjectLoc (instanceID, xPos, yPos, zPos) ||
 || `getVolume()`, `setVolume(volume)` || Gets and sets the normalized (0.0-1.0) sound instance volume. || /setVol (instanceID, volume) ||
-|| `getMix()`, `setMix(mix)` || Gets and sets the normalized (0.0-1.0) sound instance mix. || ||
-|| `getWidth()`, `setMix(width)` || Gets and sets the number of speakers (1-20) to pan the sound. || ||
-|| `getReverb()`, `setReverb(reverb)` || Gets and sets the normalized (0.0-1.0) sound instance reverb. || ||
+|| `getReverbMix()`, `setReverbMix(mix)` || Gets and sets the wetness/dryness (0.0-1.0) of the sound instance. || ||
+|| `getWidth()`, `setWidth(width)` || Gets and sets the number of speakers (1-20) to pan the sound. || ||
+|| `getReverb()`, `setReverb(reverb)` || Gets and sets the room size (0.0-1.0) of the sound instance. || ||
+
+Example:
+{{{
+	virtual void initialize()
+	{
+		// Previous SoundManager/SoundEnvironment/Sound setup
+		// ....
+		
+		// Play some background music at startup
+		// playStereo() is for ambient music and plays in a fixed left/right channel configuration
+		SoundInstance* musicInst = new SoundInstance(music);
+		musicInst->setVolume(0.2);
+		musicInst->setLoop(true);
+		musicInst->playStereo();
+	}
+	
+	virtual bool handleEvent(const Event& evt)
+	{
+		if( evt.getFlags() == Event::ButtonLeft )
+		{
+			SoundInstance* soundInst = new SoundInstance(sound);
+			soundInst->setPosition( evt.getPosition() );
+			
+			// We could also set other sound parameters
+			soundInst->setVolume(0.7);
+			soundInst->setReverb(0.5);
+			
+			soundInst->play();
+		}
+	}
+}}}
