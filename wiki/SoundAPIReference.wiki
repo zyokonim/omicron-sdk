@@ -1,7 +1,7 @@
 #summary SoundAPI reference
 #sidebar Sidebar
 
-<p>*Last revision:* ver. 1.0 - 11 February 2013</p>
+<p>*Last revision:* ver. 1.1 - 19 February 2013</p>
 
 <wiki:toc max_depth="2" />
 
