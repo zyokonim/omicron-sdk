@@ -1,7 +1,7 @@
 #summary SoundAPI reference
 #sidebar Sidebar
 
-<p>*Last revision:* ver. 1.1 - 19 February 2013</p>
+<p>*Last revision:* ver. 1.2 - 2 April 2013</p>
 
 <wiki:toc max_depth="2" />
 
@@ -38,6 +38,8 @@ The sound environment class provides a set of default sound parameters used for 
 || `cleanupAllSounds()` || Unloads all sounds in the current sound environment. || /freeBuf (bufferID) ||
 || `getSoundManager()` || || ||
 || `getAssetDirectory()`, `setAssetDirectory(path)` || Gets and sets the default directory path for all created sounds. || ||
+|| `getRoomSize()`, `setRoomSize(value)` || Gets and sets the default reverb room size for all created sounds as a normalized float (0.0-1.0) || /setReverb (nodeID, wetness, roomSize) ||
+|| `getWetness()`, `setWetness(value)` || Gets and sets the default reverb wetness/dryness for all created sounds as a normalized float (0.0-1.0) || /setReverb (nodeID, wetness, roomSize) ||
 || *Sound Management* || || ||
 || `loadSoundFromFile(name, fileName)` || Creates an new sound object with the given name and path to the sound file. || /loadBuffer (See Sound::loadFromFile) ||
 || `createInstance(sound)` || Creates an new sound instance from the given sound object. || ||
@@ -49,12 +51,15 @@ The sound environment class provides a set of default sound parameters used for 
 
 -------------------------------------------------------------------------------
 ==  `class Sound` ==
-A sound object storing the bufferID, filepath to the sound, and the default sound properties. These correspond to Supercollider buffers.
+A sound object storing the bufferID, filepath to the sound, and the default sound properties. These correspond to Supercollider buffers. Sound objects will use the same room size and wetness values as the current environment by default. If these parameters are manually changed (i.e. setRoomSize() is used) the sound will use those values instead until resetToEnvironmentParameters() is called.
 
 === Methods ===
 || Method(s) || Description || Associated OSC Messages ||
 || `loadFromFile(path)` || Loads a sound file withe the given path. || /loadBuffer (bufferID,path) ||
-|| `getVolumeScale()`, `setVolumeScale(vol)` || Gets and sets the default volume scale as a normalized float (0.0-1.0) || ||
+|| `getRoomSize()`, `setRoomSize(value)` || Gets and sets the default reverb room size for this sound as a normalized float (0.0-1.0) || ||
+|| `getWetness()`, `setWetness(value)` || Gets and sets the default reverb wetness/dryness for this sound as a normalized float (0.0-1.0) || ||
+|| `resetToEnvironmentParameters()` || Resets this sound objects environment parameters (room size and reverb) to the environment settings || ||
+|| `isUsingEnvironmentParameters()` || Returns false if the environment paremeters for this sound was manually changed using setRoomSize() or setWetness() || ||
 
 The following is a snippet of the soundtest.cpp application which is included within Omicron.
 In you use the Omicron SoundAPI in conjunction with OmegaLib's rendering framework, you only need to get the sound environment and load sounds from it. All SoundManager initializations and setting the listener and user positions it provided by the OmegaLib engine class. For using the Omicron SoundAPI functions using Omegalib's python interface, see [http://code.google.com/p/omegalib/wiki/OmegaPythonReference#Sound_Management OmegaPythonReference].
@@ -137,13 +142,13 @@ A sound instance object storing the associated sound object, instanceID, and sou
 || `playStereo(volume,loop)` || Plays a stereo sound with the specified sound parameters. || /play (instanceID, bufferID, volume, loop) ||
 || `stop()` || Stops the sound from playing. || /freeNode (instanceID) ||
 || `fade(targetVolume, duration)` || Fades the sound instance from it's current volume to the target volume over the specified duration in seconds || /setVolEnv (instanceID, targetVolume, envelopeDuration) ||
-|| *Settings* || || ||
+|| *Parameters* || || ||
 || `getLoop()` `setLoop(loop)` || Gets and sets the looping flag. ||
 || `getPosition()`, `setPosition(pos)` || Gets and sets the position of the sound in local tracker/speaker space (meters, Y up). || /setObjectLoc (instanceID, xPos, yPos, zPos) ||
 || `getVolume()`, `setVolume(volume)` || Gets and sets the normalized (0.0-1.0) sound instance volume. || /setVol (instanceID, volume) ||
-|| `getReverbMix()`, `setReverbMix(mix)` || Gets and sets the wetness/dryness (0.0-1.0) of the sound instance. || ||
+|| `getWetness()`, `setWetness(wetness)` || Gets and sets the wetness/dryness (0.0-1.0) of the sound instance. || /setReverb (nodeID, wetness, roomSize) ||
 || `getWidth()`, `setWidth(width)` || Gets and sets the number of speakers (1-20) to pan the sound. || ||
-|| `getReverb()`, `setReverb(reverb)` || Gets and sets the room size (0.0-1.0) of the sound instance. || ||
+|| `getRoomSize()`, `setRoomSize(roomSize)` || Gets and sets the reverb/room size (0.0-1.0) of the sound instance. || /setReverb (nodeID, wetness, roomSize) ||
 
 Example:
 {{{
@@ -169,7 +174,7 @@ Example:
 			
 			// We could also set other sound parameters
 			soundInst->setVolume(0.7);
-			soundInst->setReverb(0.5);
+			soundInst->setRoomSize(0.5);
 			
 			soundInst->play();
 		}
