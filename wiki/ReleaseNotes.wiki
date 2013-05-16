@@ -4,7 +4,9 @@
 = omicron v2.0 (*current developer version*) =
 *Initial Revision*: 183
 == Summary ==
-== Change Log ==
+== Major Changes ==
+* Added the *Sound API*, can be used to interface to a Supercollider sound server using the OpenSoundControl protocol.
+* Added the *Asset Cache manager*: the cache manager can synchronize application assets across different machines. The cache manager is used by the sound system to send sound files to the sound server machine, but can be used independently from the sound API. 
 * Old porthole code removed
 * Streamlined Event structure, removed a few unused event types.
 

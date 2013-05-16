@@ -3,6 +3,7 @@
  * [ReleaseNotes Release Notes]
  * [ServiceReference Input services reference]
  * [SoundAPIReference SoundAPI reference]
+ * [AssetCache Using the omicron Asset Cache Manager]
  * [EventReference omicron Event structure]
  * [Unity using omicron in Unity]
  * [http://omegalib.googlecode.com/svn/refdocs/trunk/html/namespaceomicron.html API Reference: omicron (trunk)]

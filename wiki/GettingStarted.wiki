@@ -1,7 +1,7 @@
 #summary Getting started
 #sidebar Sidebar
 
-<p>*Last revision:* ver. 1.2 - 28 June 2012</p>
+<p>*Last revision:* ver. 2.0 - 13 May 2013</p>
 
 = Getting started with omicron =
 This page offers basic information on how to build omicron, and how to start creating applications that use the omicron toolkit.
