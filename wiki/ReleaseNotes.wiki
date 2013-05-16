@@ -9,6 +9,7 @@
 * Added the *Asset Cache manager*: the cache manager can synchronize application assets across different machines. The cache manager is used by the sound system to send sound files to the sound server machine, but can be used independently from the sound API. 
 * Old porthole code removed
 * Streamlined Event structure, removed a few unused event types.
+* Removed `Color` class (moved to omegalib)
 
 ------------------------------------------------------------------------
 = omicron v1.2 (*current developer version*) =
